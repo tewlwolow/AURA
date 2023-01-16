@@ -1,6 +1,5 @@
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
-local tewLib = require("tew.tewLib.tewLib")
 local sounds = require("tew.AURA.sounds")
 local soundData = require("tew.AURA.soundData")
 
@@ -92,7 +91,7 @@ local soundConfig = {
 }
 
 local debugLog = common.debugLog
-local isOpenPlaza = tewLib.isOpenPlaza
+local isOpenPlaza = common.isOpenPlaza
 local moduleName = "interiorWeather"
 
 -- Play thunder sounds on a timer --

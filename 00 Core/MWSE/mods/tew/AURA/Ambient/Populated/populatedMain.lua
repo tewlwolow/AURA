@@ -5,9 +5,8 @@ local data = require("tew.AURA.Ambient.Populated.populatedData")
 local config = require("tew.AURA.config")
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
-local tewLib = require("tew.tewLib.tewLib")
 local popVol = config.popVol / 200
-local isOpenPlaza = tewLib.isOpenPlaza
+local isOpenPlaza = common.isOpenPlaza
 
 local time, timeLast, typeCellLast, weatherNow, weatherLast
 local WtC

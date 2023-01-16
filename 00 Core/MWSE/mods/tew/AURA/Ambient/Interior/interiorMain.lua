@@ -2,8 +2,7 @@ local data = require("tew.AURA.Ambient.Interior.interiorData")
 local config = require("tew.AURA.config")
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
-local tewLib = require("tew.tewLib.tewLib")
-local findWholeWords = tewLib.findWholeWords
+local findWholeWords = common.findWholeWords
 local intVol = config.intVol / 200
 local interiorMusic = config.interiorMusic
 

@@ -1,10 +1,9 @@
 local climates = require("tew.AURA.Ambient.Outdoor.outdoorClimates")
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
-local tewLib = require("tew.tewLib.tewLib")
 local sounds = require("tew.AURA.sounds")
 
-local isOpenPlaza = tewLib.isOpenPlaza
+local isOpenPlaza = common.isOpenPlaza
 
 local moduleAmbientOutdoor = config.moduleAmbientOutdoor
 local moduleInteriorWeather = config.moduleInteriorWeather

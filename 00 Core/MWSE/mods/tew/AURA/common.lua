@@ -242,4 +242,23 @@ function this.isRefSheltered(options)
 	return false
 end
 
+function this.isOpenPlaza(cell)
+    if not cell then return false end
+    if not cell.behavesAsExterior then
+        return false
+    else
+        if (string.find(cell.name:lower(), "plaza") and string.find(cell.name:lower(), "vivec"))
+        or (string.find(cell.name:lower(), "plaza") and string.find(cell.name:lower(), "molag mar"))
+        or (string.find(cell.name:lower(), "arena pit") and string.find(cell.name:lower(), "vivec")) then
+            return true
+        else
+            return false
+        end
+    end
+end
+
+function this.findWholeWords(string, pattern)
+    return string.find(string, "%f[%a]"..pattern.."%f[%A]")
+end
+
 return this

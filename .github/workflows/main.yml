@@ -3,7 +3,6 @@ on:
   push:
     tags:
       - 'v*'
-permissions: read-all|write-all
 
 jobs:
   build:
@@ -23,7 +22,6 @@ jobs:
           rm -f .gitignore
           mv .git ..
           mv .github ..
-
       - name: Build Archive
         uses: edgarrc/action-7z@v1
         with:
@@ -33,7 +31,6 @@ jobs:
         run: |
           mv ../.git .
           mv ../.github .
-
       - name: Create Release
         uses: notlmn/release-with-changelog@v3
         with:

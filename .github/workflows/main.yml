@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'v*'
+permissions: read-all|write-all
 
 jobs:
   build:
@@ -39,7 +40,7 @@ jobs:
           header: '### Changelog'
           include-hash: true
           include-range: true
-          token: ${{secrets.PERSONAL_TOKEN}}
+          token: ${{secrets.GITHUB_TOKEN}}
 
       - name: Upload to Github
         uses: softprops/action-gh-release@v1

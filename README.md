@@ -31,4 +31,4 @@ You can find the previous mod iterations here:
 -  [AURA-old](https://github.com/tewlwolow/AURA-old)
 
 ## :heavy_check_mark: Feature tracker
-- [ ] More longer populated tracks
+- [ ] More long populated tracks

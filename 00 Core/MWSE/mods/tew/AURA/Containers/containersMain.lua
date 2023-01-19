@@ -7,7 +7,7 @@ local containersData = require("tew.AURA.Containers.containersData")
 local debugLog = common.debugLog
 
 local function buildContainerSounds()
-    mwse.log("\n")
+    debugLog("\n")
     debugLog("|---------------------- Creating container sound objects. ----------------------|\n")
 
     for containerName, data in pairs(containersData) do

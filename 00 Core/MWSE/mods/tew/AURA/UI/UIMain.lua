@@ -1,5 +1,5 @@
-local modversion = require("tew\\AURA\\version")
-local config = require("tew\\AURA\\config")
+local modversion = require("tew.AURA.version")
+local config = require("tew.AURA.config")
 local version = modversion.version
 
 local function init()

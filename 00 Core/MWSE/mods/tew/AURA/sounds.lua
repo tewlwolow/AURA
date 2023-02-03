@@ -162,7 +162,7 @@ end
 function this.playImmediate(options)
 	local ref = options.reference or tes3.mobilePlayer.reference
 	local track = options.last and moduleData[options.module].new or getTrack(options)
-	local volume = options.volume or MAX
+	local volume = math.max(options.volume or MAX, 0)
 	local pitch = options.pitch or MAX
 
 	if track then
@@ -175,6 +175,7 @@ function this.playImmediate(options)
 				pitch = pitch,
 				loop = true,
 			}
+			moduleData[options.module].lastVolume = volume
 		end
 		moduleData[options.module].old = moduleData[options.module].new
 		moduleData[options.module].new = track

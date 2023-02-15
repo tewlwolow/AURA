@@ -15,7 +15,7 @@ local function parse(options)
     local fadeType = options.fadeType
 	local oppositeType = (fadeType == "out") and "in" or "out"
 	local lastVolume = moduleData[options.module].lastVolume
-    local volume = math.floor((options.volume or MAX) * 1000) / 1000 -- Round down to max 3 decimal places
+    local volume = math.max(math.floor((options.volume or MAX) * 1000) / 1000, 0) -- Round down to max 3 decimal places, set to 0 if options.volume is negative
     local pitch = options.pitch or MAX
     local targetDuration = options.duration or moduleData[moduleName].faderData[fadeType].duration
     local currentVolume
@@ -57,7 +57,8 @@ local function parse(options)
 	end
 
     local fadeStep = TICK * volume / targetDuration
-	local ITERS = math.ceil(volume / fadeStep)
+	local ITERS = math.ceil(volume / fadeStep) -- corner case: (0 / 0) = NaN
+	ITERS = ITERS ~= ITERS and 1 or ITERS -- if NaN, set ITERS to 1 in order to avoid infinite iterations on iterTimer
     local fadeDuration = TICK * ITERS
 
     if fadeType == "in" then
@@ -69,13 +70,7 @@ local function parse(options)
 		debugLog(string.format("[%s] Playing with volume %s: %s -> %s", moduleName, currentVolume, track.id, tostring(ref)))
 		tes3.playSound{sound = track, volume = currentVolume, pitch = pitch, reference = ref, loop = true}
     else
-		if options.volume then
-			currentVolume = options.volume
-		elseif lastVolume and lastVolume > 0 then
-			currentVolume = lastVolume
-		else
-			currentVolume = volume
-		end
+		currentVolume = options.volume and volume or lastVolume or volume
     end
 
     if (not tes3.getSoundPlaying{sound = track, reference = ref}) then

@@ -4,6 +4,7 @@ local messages = require(config.language).messages
 
 event.register("keyDown", function(e)
     if e.isShiftDown then
+		local output = ""
 		for module, data in pairs(moduleData) do
 			local old, new = messages.none, messages.none
 			if data.old then
@@ -13,10 +14,11 @@ event.register("keyDown", function(e)
 				new = data.new.id or new
 			end
 
-			tes3.messageBox{
-				message = string.format("AURA %s module\n%s: %s\n%s: %s", module, messages.oldTrack, old, messages.newTrack, new)
-			}
+			output = output .. string.format("AURA %s module\n%s: %s\n%s: %s\n\n", module, messages.oldTrack, old, messages.newTrack, new)
 
 		end
+		tes3.messageBox{
+			message = string.sub(output, 1, -3)
+		}
 	end
 end, {filter = config.outputKey.keyCode})

@@ -211,7 +211,7 @@ local function cellCheck(e)
 		return
 	end
 
-	local regionObject = tes3.getRegion({ useDoors = true })
+	local regionObject = tes3.getRegion(true)
 	local transitionScalarNow = regionObject.weather.controller.transitionScalar
 
 	weather = regionObject.weather.index

@@ -97,7 +97,7 @@ local function windCheck(e)
 	debugLog("Cell: " .. cell.editorName)
 
     -- Weather resolution --
-    local regionObject = tes3.getRegion({ useDoors = true })
+    local regionObject = tes3.getRegion(true)
     local weather
     if e and e.to then
         debugLog("Weather transitioning.")

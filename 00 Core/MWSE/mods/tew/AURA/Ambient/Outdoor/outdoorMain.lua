@@ -23,11 +23,9 @@ local WtC
 local debugLog = common.debugLog
 
 local blockedWeathers = {
-    [4] = true,
     [5] = true,
     [6] = true,
     [7] = true,
-    [8] = true,
     [9] = true,
 }
 
@@ -105,7 +103,7 @@ local function cellCheck(e)
 		sounds.removeImmediate { module = moduleName }
 	end
 
-	local regionObject = tes3.getRegion({ useDoors = true })
+	local regionObject = tes3.getRegion(true)
 	local region = regionObject.id
 
     if e and e.to then

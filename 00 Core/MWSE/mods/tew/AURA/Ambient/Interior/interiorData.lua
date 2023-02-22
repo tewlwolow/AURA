@@ -17,6 +17,7 @@ this.statics = {
         "dngdirenni",
     },
     ["cav"] = {
+        "in_bm_cave",
         "in_moldcave",
         "in_mudcave",
         "in_lavacave",

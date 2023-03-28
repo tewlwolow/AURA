@@ -60,19 +60,20 @@ local function cellCheck()
         return
     end
 
+    popVol = config.popVol / 200
     local cell = tes3.getPlayerCell()
 
     -- Wilderness shouldn't be considered populated --
     -- If cell name is nil (different from editorName!) then it's wilderness --
     if (not cell) or (not cell.name) then
         debugLog("Player in the wilderness. Returning.")
-        sounds.remove { module = moduleName, volume = popVol }
+        sounds.remove { module = moduleName }
         timeLast = nil
         typeCellLast = nil
         return
     elseif not (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then -- Bugger off if we're inside --
         debugLog("Player in interior cell. Removing sounds immediately.")
-        sounds.removeImmediate { module = moduleName, volume = popVol }
+        sounds.removeImmediate { module = moduleName }
         timeLast = nil
         typeCellLast = nil
         return
@@ -89,7 +90,7 @@ local function cellCheck()
     -- No outside activity in ashstorms and that --
     if (weatherNow >= 4 and weatherNow <= 7) or (weatherNow == 8) and weatherNow ~= weatherLast then
         debugLog("Bad weather detected. Removing sounds.")
-        sounds.remove { module = moduleName, volume = popVol }
+        sounds.remove { module = moduleName }
         timeLast = nil
         typeCellLast = nil
         return
@@ -110,7 +111,7 @@ local function cellCheck()
 
     -- Otherwise reset and resolve --
     debugLog("Different conditions. Removing sounds.")
-    sounds.remove { module = moduleName, volume = popVol }
+    sounds.remove { module = moduleName }
     timeLast = nil
 
     -- Check if the cell is populated and whether it's night or day --

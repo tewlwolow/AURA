@@ -118,7 +118,7 @@ local function cellCheck(e)
 	if blockedWeathers[weatherNow] then
 		debugLog("Uneligible weather detected. Removing sounds.")
 		stopWindoors()
-		sounds.remove { module = moduleName, volume = OAvol }
+		sounds.remove { module = moduleName }
 		updateConditions()
 		return
 	end
@@ -180,7 +180,7 @@ local function cellCheck(e)
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then
 		debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-		if not useLast then sounds.remove { module = moduleName, volume = OAvol } end
+		if not useLast then sounds.remove { module = moduleName } end
 		sounds.play{
 			module = moduleName,
 			climate = climateNow,

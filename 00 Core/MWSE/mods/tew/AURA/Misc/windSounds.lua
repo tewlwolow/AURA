@@ -86,12 +86,13 @@ local function windCheck(e)
     end
 
     debugLog("Cell changed or time check triggered. Running cell check.")
+    windVol = config.windVol / 200
 
     -- Cell resolution --
     cell = tes3.getPlayerCell()
     if (not cell) then
 		debugLog("No cell detected. Returning.")
-        sounds.remove { module = moduleName, volume = windVol }
+        sounds.remove { module = moduleName }
 		return
 	end
 	debugLog("Cell: " .. cell.editorName)
@@ -112,7 +113,7 @@ local function windCheck(e)
     if blockedWeathers[weather.index] then
         debugLog("Uneligible weather detected. Removing sounds.")
         stopWindoors()
-        sounds.remove { module = moduleName, volume = windVol }
+        sounds.remove { module = moduleName }
         updateContitions()
         return
     end
@@ -125,7 +126,7 @@ local function windCheck(e)
     -- If it's super slow then bugger off, no sound for ya --
     if not windType then
         debugLog("Wind type is nil. Returning.")
-        sounds.remove { module = moduleName, volume = windVol }
+        sounds.remove { module = moduleName }
         updateContitions()
         return
     end
@@ -151,7 +152,7 @@ local function windCheck(e)
         if (cell.isOrBehavesAsExterior) then
             -- Using the same track when entering int/ext in same area; time/weather change will randomise it again --
             debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-            if not useLast then sounds.remove { module = moduleName, volume = windVol } end
+            if not useLast then sounds.remove { module = moduleName } end
             sounds.play { module = moduleName, type = windType, volume = windVol, last = useLast }
         else
             debugLog("Found interior cell.")

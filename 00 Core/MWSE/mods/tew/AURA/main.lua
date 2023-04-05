@@ -1,9 +1,6 @@
 -- Make sure we have all i18n data beforehand
 dofile("tew.AURA.i18n.init")
 
-local modversion = require("tew.AURA.version")
-local version = modversion.version
-local soundBuilder = require("tew\\AURA\\soundBuilder")
 local config = require("tew.AURA.config")
 local messages = require(config.language).messages
 
@@ -16,6 +13,15 @@ local function warning(e)
 end
 
 local function init()
+
+    local util = require("tew.AURA.util")
+    local metadata = toml.loadMetadata("AURA")
+    if not (metadata) then
+		util.metadataMissing()
+	end
+    local version = metadata.package.version
+
+    local soundBuilder = require("tew\\AURA\\soundBuilder")
 
     mwse.log(string.format("[AURA] %s %s %s", messages.version, version, messages.initialised))
 

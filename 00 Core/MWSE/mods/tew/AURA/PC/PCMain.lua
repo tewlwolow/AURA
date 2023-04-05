@@ -1,5 +1,5 @@
-local modversion = require("tew.AURA.version")
-local version = modversion.version
+local metadata = toml.loadMetadata("AURA")
+local version = metadata.package.version
 local config = require("tew.AURA.config")
 local messages = require(config.language).messages
 

@@ -1,6 +1,6 @@
-local modversion = require("tew.AURA.version")
+local metadata = toml.loadMetadata("AURA")
 local config = require("tew.AURA.config")
-local version = modversion.version
+local version = metadata.package.version
 
 local function init()
     local UITravel = config.UITravel

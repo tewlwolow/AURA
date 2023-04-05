@@ -2,8 +2,8 @@ local this = {}
 
 local config = require("tew.AURA.config")
 local debugLogOn = config.debugLogOn
-local modversion = require("tew.AURA.version")
-local version = modversion.version
+local metadata = toml.loadMetadata("AURA")
+local version = metadata.package.version
 
 -- Centralised debug message printer --
 function this.debugLog(message)

@@ -1,8 +1,8 @@
 local configPath = "AURA"
 local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
-local modversion = require("tew.AURA.version")
-local version = modversion.version
+local metadata = toml.loadMetadata("AURA")
+local version = metadata.package.version
 local soundBuilder = require("tew\\AURA\\soundBuilder")
 local messages = require(config.language).messages
 

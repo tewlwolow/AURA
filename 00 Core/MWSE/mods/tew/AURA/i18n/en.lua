@@ -15,10 +15,11 @@ this.messages = {
 
 	initialised = "initialised.",
 	mainSettings = "Main Settings",
-	mainLabel = "by tewlwolow.\nLua-based sound overhaul.",
+	mainLabel = "Lua-based sound overhaul.",
 
 	WtS = "Requires Watch the Skies.",
 
+	by = "by",
 	settings = "Settings",
 	default = "Default",
 	volume = "Volume",

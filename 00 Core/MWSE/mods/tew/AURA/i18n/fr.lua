@@ -28,10 +28,11 @@ this.messages = {
 
 	initialised = "initialisé.",
 	mainSettings = "Paramètres généraux",
-	mainLabel = "par tewlwolow.\nAmélioration audio utilisant MWSE-Lua.",
+	mainLabel = "Amélioration audio utilisant MWSE-Lua.",
 
 	WtS = "Nécessite Watch the Skies.",
 
+	by = "par",
 	settings = "Paramètres",
 	default = "Par défaut",
 	volume = "Volume",

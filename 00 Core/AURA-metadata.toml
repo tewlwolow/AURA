@@ -3,7 +3,7 @@ name = "AURA"
 description = "Lua-based sound overhaul mod for Morrowind."
 homepage = "https://www.nexusmods.com/morrowind/mods/48255"
 repository = "https://github.com/tewlwolow/AURA"
-authors = ["tewlwolow, stanliqubit"]
+authors = ["tewlwolow", "stanliqubit"]
 version = "5.3.1"
 
 [tools.mwse]

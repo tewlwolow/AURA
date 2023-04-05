@@ -1,6 +1,7 @@
 local configPath = "AURA"
 local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
+local util = require("tew.AURA.util")
 local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local soundBuilder = require("tew\\AURA\\soundBuilder")
@@ -19,7 +20,7 @@ local template = mwse.mcm.createTemplate {
 
 local page = template:createPage { label = messages.mainSettings, noScroll = true }
 page:createCategory {
-	label = string.format("AURA %s %s \n\n%s:", version, messages.mainLabel, messages.settings)
+	label = string.format("AURA %s %s %s. %s \n\n%s:", version, messages.by, util.getAuthors(metadata.package.authors), messages.mainLabel, messages.settings)
 }
 page:createDropdown {
 	label = messages.modLanguage,

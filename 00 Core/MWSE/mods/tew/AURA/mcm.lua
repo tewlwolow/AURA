@@ -1,10 +1,10 @@
-local configPath = "AURA"
+local metadata = toml.loadMetadata("AURA")
+local configPath = metadata.package.name
 local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
 local util = require("tew.AURA.util")
-local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
-local soundBuilder = require("tew\\AURA\\soundBuilder")
+local soundBuilder = require("tew.AURA.soundBuilder")
 local messages = require(config.language).messages
 
 local function registerVariable(id)
@@ -15,12 +15,12 @@ local function registerVariable(id)
 end
 
 local template = mwse.mcm.createTemplate {
-	name = "AURA",
+	name = metadata.package.name,
 	headerImagePath = "\\Textures\\tew\\AURA\\AURA_logo.tga" }
 
 local page = template:createPage { label = messages.mainSettings, noScroll = true }
 page:createCategory {
-	label = string.format("AURA %s %s %s.\n%s \n\n%s:", version, messages.by, util.getAuthors(metadata.package.authors), messages.mainLabel, messages.settings)
+	label = string.format("%s %s %s %s.\n%s \n\n%s:", metadata.package.name, version, messages.by, util.getAuthors(metadata.package.authors), messages.mainLabel, messages.settings)
 }
 page:createDropdown {
 	label = messages.modLanguage,

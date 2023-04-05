@@ -10,7 +10,7 @@ function this.debugLog(message)
 	if debugLogOn then
 		local info = debug.getinfo(2, "Sl")
 		local module = info.short_src:match("^.+\\(.+).lua$")
-		local prepend = ("[AURA.%s.%s:%s]:"):format(version, module, info.currentline)
+		local prepend = ("[%s.%s.%s:%s]:"):format(metadata.package.name, version, module, info.currentline)
 		local aligned = ("%-36s"):format(prepend)
 		mwse.log(aligned .. " -- " .. string.format("%s", message))
 	end

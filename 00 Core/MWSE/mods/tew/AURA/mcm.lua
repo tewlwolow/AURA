@@ -20,7 +20,7 @@ local template = mwse.mcm.createTemplate {
 
 local page = template:createPage { label = messages.mainSettings, noScroll = true }
 page:createCategory {
-	label = string.format("AURA %s %s %s. %s \n\n%s:", version, messages.by, util.getAuthors(metadata.package.authors), messages.mainLabel, messages.settings)
+	label = string.format("AURA %s %s %s.\n%s \n\n%s:", version, messages.by, util.getAuthors(metadata.package.authors), messages.mainLabel, messages.settings)
 }
 page:createDropdown {
 	label = messages.modLanguage,

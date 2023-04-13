@@ -1,40 +1,11 @@
+local cellData = require("tew.AURA.cellData")
 local common = require("tew.AURA.common")
+local config = require("tew.AURA.config")
+local moduleData = require("tew.AURA.moduleData")
+local sounds = require("tew.AURA.sounds")
 local soundData = require("tew.AURA.soundData")
 local debugLog = common.debugLog
 local fader = require("tew.AURA.fader")
-
-local soundConfig = {
-	["tew_t_rainlight"] = {
-		[4] = {
-			volume = 1.0,
-			pitch = 1.0
-		},
-		[5] = {
-			volume = 1.0,
-			pitch = 1.0
-		},
-	},
-	["tew_t_rainmedium"] = {
-		[4] = {
-			volume = 0.7,
-			pitch = 1.0
-		},
-		[5] = {
-			volume = 0.8,
-			pitch = 1.0
-		},
-	},
-	["tew_t_rainheavy"] = {
-		[4] = {
-			volume = 0.7,
-			pitch = 1.0
-		},
-		[5] = {
-			volume = 0.8,
-			pitch = 1.0
-		},
-	},
-}
 
 local WtC
 local mainTimer
@@ -147,16 +118,10 @@ local function isRelevantRef(ref)
 end
 
 local function removeSound(ref)
-	for trackName in pairs(soundConfig) do
-		if tes3.getSoundPlaying{
-			sound = trackName,
-			reference = ref
-		} then
-			debugLog("Track " .. trackName .. " playing on ref " .. tostring(ref) .. ", now removing it.")
-			tes3.removeSound{
-				sound = trackName,
-				reference = ref
-			}
+	for _, track in pairs(soundData.interiorRainLoops["ten"]) do
+		if tes3.getSoundPlaying{ sound = track, reference = ref } then
+			debugLog("Track " .. track.id .. " playing on ref " .. tostring(ref) .. ", now removing it.")
+			tes3.removeSound{ sound = track, reference = ref }
 		end
 	end
 end
@@ -174,17 +139,12 @@ end
 local function clearCurrentShelter()
 	if currentShelter.sound then
 		debugLog(currentShelter.sound.id .. " playing on playerRef. Running fadeOut.")
-		fader.fadeOut({
+		sounds.remove{
 			module = moduleName,
 			volume = currentShelter.volume,
 			reference = playerRef,
-			track = currentShelter.sound,
-			-- Here the duration can be higher than usual because this function
-			-- gets called on rare occasions. e.g. when you're chillaxing in a
-			-- tent waiting for the rain to stop, you want the fade out to be as
-			-- long as possible for extra immersion.
 			duration = 2,
-		})
+		}
 		currentShelter.ref = nil
 		currentShelter.sound = nil
 		currentShelter.volume = nil
@@ -243,7 +203,8 @@ end
 -- whilst also checking if the player (or the ref itself) is sheltered.
 local function processRef(ref)
 	local sound = soundData.interiorWeather["ten"][WtC.currentWeather.index]
-	if not sound then return end
+    local rainType = cellData.rainType[WtC.currentWeather.index]
+	if not (sound and rainType) then return end
 
 	if ref.tempData.tew then
 		if ref.tempData.tew.sheltered then
@@ -257,8 +218,7 @@ local function processRef(ref)
 	local playerPos = tes3.player.position:copy()
 	local refPos = ref.position:copy()
 	local objId = ref.object.id:lower()
-	local volume = soundConfig[sound.id][WtC.currentWeather.index].volume
-	local pitch = soundConfig[sound.id][WtC.currentWeather.index].pitch
+    local pitch = moduleData[moduleName].soundConfig[rainType][WtC.currentWeather.index].pitch
 
 	-- Check if sheltered by current ref.
 	-- If we are, then either fadeIn or crossFade.
@@ -270,32 +230,24 @@ local function processRef(ref)
 		debugLog("Player sheltered.")
 		if not tes3.getSoundPlaying{sound = sound, reference = ref} then
 			debugLog("[sheltered] Sound not playing on shelter ref. Running fadeIn.")
-			fader.fadeIn({
+			sounds.play{
 				module = moduleName,
-				volume = volume,
 				pitch = pitch,
-				reference = playerRef,
-				track = sound,
+				newRef = playerRef,
+				newTrack = sound,
 				duration = 0.7,
-			})
+			}
 		else
 			debugLog("[sheltered] Sound playing on shelter ref. Running crossfade.")
-			fader.fadeOut({
+			sounds.play{
 				module = moduleName,
-				volume = volume,
 				pitch = pitch,
-				reference = ref,
-				track = sound,
+				oldRef = ref,
+				newRef = playerRef,
+				oldTrack = sound,
+				newTrack = sound,
 				duration = 0.7,
-			})
-			fader.fadeIn({
-				module = moduleName,
-				volume = volume,
-				pitch = pitch,
-				reference = playerRef,
-				track = sound,
-				duration = 0.7,
-			})
+			}
 		end
 		-- Also add data to our new shelter so that we remove playerRef
 		-- sound correctly when player is no longer sheltered by this ref.
@@ -314,13 +266,12 @@ local function processRef(ref)
 	if (currentShelter.ref == ref)
 	and (not common.isRefSheltered{originRef = playerRef, targetRef = ref}) then
 		debugLog("[not sheltered] Running fadeOut.")
-		fader.fadeOut({
+		sounds.remove{
 			module = moduleName,
-			volume = currentShelter.volume,
+			volume = volume,
 			reference = playerRef,
-			track = currentShelter.sound,
-			duration = 0.8,
-		})
+			duration = 0.7,
+		}
 		-- Since we're no longer sheltered, let's clear shelter data.
 		currentShelter.ref = nil
 		currentShelter.sound = nil
@@ -334,13 +285,12 @@ local function processRef(ref)
 		and (not tes3.getSoundPlaying{sound = sound, reference = ref})
 		and (playerPos:distance(refPos) < 800) then
 		debugLog("Adding sound " .. sound.id .. " for -> " .. objId)
-		tes3.playSound{
-			sound = sound,
+        sounds.playImmediate{
+            module = moduleName,
+            track = sound,
 			reference = ref,
-			loop = true,
-			volume = volume,
-			pitch = pitch,
-		}
+			pitch = pitch, 
+        }
 	end
 end
 
@@ -397,26 +347,6 @@ local function onLoaded()
 	end
 end
 
-local function onCOC(e)
-	-- Since "referenceActivated" and "referenceDeactivated" events
-	-- occur before "cellChanged", at this point all statics should be
-	-- already resolved. Just making sure no rainy static has been left
-	-- behind when stepping into a new cell. Probably unnecessary, but
-	-- should cover some exotic edge cases.
-	debugLog("Cell changed.")
-	if e.previousCell then
-		debugLog("Got previousCell.")
-		if (not common.cellIsInterior(e.cell)) and (e.cell ~= e.previousCell) then
-			debugLog("New exterior cell. Refreshing cache.")
-			refreshCache()
-		end
-	else
-		-- previousCell should be nil when loading a game, no need to do
-		-- anything if that's the case.
-		debugLog("No previousCell.")
-	end
-end
-
 local function onWeatherTransitionFinished()
 	debugLog("[weatherTransitionFinished] Resetting all sounds.")
 	-- Remove all sounds and refresh the cache. If the weather has
@@ -444,7 +374,6 @@ end
 WtC = tes3.worldController.weatherController
 
 event.register("loaded", onLoaded, { priority = -300 })
---event.register("cellChanged", onCOC, { priority = -170 }) -- Seems like not needed after all. Let's minimize CPU workload.
 event.register("weatherTransitionFinished", onWeatherTransitionFinished, { priority = -270 })
 event.register("referenceActivated", onReferenceActivated, { priority = -250 })
 event.register("referenceDeactivated", onReferenceDeactivated, { priority = -250 })

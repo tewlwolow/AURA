@@ -3,7 +3,7 @@ local playerRace, playerSex
 local serviceVoicesData = require("tew.AURA.Service Voices.serviceVoicesData")
 local raceNames = serviceVoicesData.raceNames
 local tauntsData = require("tew.AURA.PC.tauntsData")
-local tVol = config.tVol
+local tVol = config.volumes.misc.tVol / 100
 local tauntChance = config.tauntChance
 local common = require("tew.AURA.common")
 local playedTaunt = 0

@@ -1,15 +1,18 @@
-local config = require("tew.AURA.config")
+local cellData = require("tew.AURA.cellData")
 local common = require("tew.AURA.common")
+local defaults = require("tew.AURA.defaults")
+local moduleData = require("tew.AURA.moduleData")
 local sounds = require("tew.AURA.sounds")
 local soundData = require("tew.AURA.soundData")
 
-local IWvol = config.IWvol / 200
-local openPlazaVolBoost = 0.2
+local moduleName = "interiorWeather"
+local soundConfig = moduleData[moduleName].soundConfig
+
+local IWvol
 local transitionScalarThreshold = 0.65
 local volume, pitch, sound
 
-local scalarTimer, transitionScalarLast
-local windoors, interiorTimer
+local interiorTimer, scalarTimer, transitionScalarLast
 local cell, cellLast, interiorType, weather, weatherLast
 local thunRef, thunder, thunderTimer, thunderTime
 local thunArray = common.thunArray
@@ -21,78 +24,8 @@ local blockedWeathers = {
 	[8] = true,
 }
 
-local soundConfig = {
-	["sma"] = {
-		[4] = {
-			volume = 0.7,
-			pitch = 1.0
-		},
-		[5] = {
-			volume = 0.65,
-			pitch = 1.0
-		},
-		[6] = {
-			volume = 0.35,
-			pitch = 0.6
-		},
-		[7] = {
-			volume = 0.35,
-			pitch = 0.6
-		},
-		[9] = {
-			volume = 0.35,
-			pitch = 0.6
-		}
-	},
-	["big"] = {
-		[4] = {
-			volume = 0.8,
-			pitch = 1.0
-		},
-		[5] = {
-			volume = 0.8,
-			pitch = 1.0
-		},
-		[6] = {
-			volume = 0.4,
-			pitch = 0.75
-		},
-		[7] = {
-			volume = 0.4,
-			pitch = 0.75
-		},
-		[9] = {
-			volume = 0.4,
-			pitch = 0.75
-		}
-	},
-    ["ten"] = {
-        [4] = {
-            volume = 1.0,
-            pitch = 1.0
-        },
-        [5] = {
-            volume = 0.9,
-            pitch = 1.0
-        },
-        [6] = {
-            volume = 0.4,
-            pitch = 0.8
-        },
-        [7] = {
-            volume = 0.4,
-            pitch = 0.8
-        },
-        [9] = {
-            volume = 0.4,
-            pitch = 0.8
-        }
-    }
-}
-
 local debugLog = common.debugLog
 local isOpenPlaza = common.isOpenPlaza
-local moduleName = "interiorWeather"
 
 -- Play thunder sounds on a timer --
 local function playThunder()
@@ -105,7 +38,7 @@ local function playThunder()
 	debugLog("Playing thunder: " .. thunder)
 
 	-- Exposing thunderPlayed event for GitD --
-	local result = event.trigger("AURA:thunderPlayed", { sound = thunder, reference = thunRef, windoors = windoors, delay = 1.0 })
+	local result = event.trigger("AURA:thunderPlayed", { sound = thunder, reference = thunRef, windoors = cellData.windoors, delay = 1.0 })
 	local delay = table.get(result, "delay", 1.0)
 
 	timer.start {
@@ -121,8 +54,8 @@ local function playThunder()
 	thunderTimer:pause()
 	thunderTimer:cancel()
 	thunderTimer = nil
-	if windoors and not table.empty(windoors) then
-		thunRef = windoors[math.random(1, #windoors)]
+	if not table.empty(cellData.windoors) then
+		thunRef = cellData.windoors[math.random(1, #cellData.windoors)]
 	end
 	thunderTimer = timer.start({ duration = thunderTime, iterations = 1, callback = playThunder, type = timer.real })
 end
@@ -132,18 +65,26 @@ local function updateContitions(resetTimerFlag)
 	if resetTimerFlag
 	and interiorTimer
 	and cell.isInterior
-	and windoors
-	and not table.empty(windoors) then
+	and not table.empty(cellData.windoors) then
 		interiorTimer:reset()
 	end
 	weatherLast = weather
 	cellLast = cell
 end
 
--- Remove windoor sounds with fade out, interiorWeather exclusive! --
+-- No need to pass volume. volumeController.getVolume() will take care of the details --
+local function playSmall()
+    sounds.play{
+        module = moduleName,
+        weather = weather,
+        type = interiorType,
+        pitch = pitch,
+    }
+end
+
 local function stopWindoors()
-	if windoors and not table.empty(windoors) then
-		for _, windoor in ipairs(windoors) do
+	if not table.empty(cellData.windoors) then
+		for _, windoor in ipairs(cellData.windoors) do
 			if windoor ~= nil then
 				sounds.remove { module = moduleName, reference = windoor }
 			end
@@ -151,23 +92,20 @@ local function stopWindoors()
 	end
 end
 
--- Using sounds.fadeIn shortcut to avoid having to pass through getTrack() on every windoor update --
 local function playWindoors()
-	if not windoors or table.empty(windoors) then return end
+	if table.empty(cellData.windoors) then return end
 	debugLog("Updating interior doors and windows.")
-	local windoorVol = volume - (0.005 * #windoors)
+	local windoorVol = volume - (0.005 * #cellData.windoors)
 	local playerPos = tes3.player.position:copy()
-	for i, windoor in ipairs(windoors) do
+	for i, windoor in ipairs(cellData.windoors) do
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
-			if not tes3.getSoundPlaying{sound = sound, reference = windoor} then
-				sounds.fadeIn{
-					module = moduleName,
-					track = sound,
-					volume = windoorVol,
-					pitch = pitch,
-					reference = windoor,
-				}
-			end
+            sounds.play{
+                module = moduleName,
+                newTrack = sound,
+                newRef = windoor,
+                volume = windoorVol,
+                pitch = pitch,
+            }
 		end
 	end
 end
@@ -221,7 +159,6 @@ local function cellCheck(e)
 		debugLog("Uneligible weather detected. Returning.")
 		sounds.remove { module = moduleName }
 		stopWindoors()
-		windoors = nil
 		clearTimers()
 		updateContitions()
 		return
@@ -265,19 +202,13 @@ local function cellCheck(e)
 	debugLog("Weather: " .. weather)
 
 	-- Determine cell type --
-	if common.getCellType(cell, common.cellTypesSmall) == true then
-		interiorType = "sma"
-	elseif common.getCellType(cell, common.cellTypesTent) == true then
-		interiorType = "ten"
-	else
-		interiorType = "big"
-	end
-
+	interiorType = common.getInteriorType(cell)
 	debugLog("Interior type: " .. interiorType)
 
 	-- Resolve track early since we're going to reuse it when updating windoors --
-	IWvol = config.IWvol / 200
-	volume = soundConfig[interiorType][weather].volume * IWvol
+    local config = mwse.loadConfig("AURA", defaults)
+	IWvol = config.volumes.modules[moduleName].volume / 100
+	volume = soundConfig[interiorType][weather].mult * IWvol
 	pitch = soundConfig[interiorType][weather].pitch
 	sound = soundData.interiorWeather[interiorType][weather]
 
@@ -291,46 +222,29 @@ local function cellCheck(e)
 	end
 
 	-- Conditions should be different at this point. We're free to reset stuff --
-	windoors = nil
 	thunRef = nil
 
 	-- Play according to cell type --
 	if interiorType == "sma" then
 		debugLog("Playing small interior sounds.")
 		if isOpenPlaza(cell) == true then
-			debugLog("Found open plaza. Applying volume boost and removing thunder timer.")
-			tes3.getSound("Rain").volume = 0
-			tes3.getSound("rain heavy").volume = 0
+			debugLog("Found open plaza. Removing thunder timer.")
 			clearTimers()
-			volume = volume + openPlazaVolBoost
 			thunRef = nil
 		else
 			thunRef = cell
 		end
-		sounds.play{
-			module = moduleName,
-			weather = weather,
-			volume = volume,
-			type = interiorType,
-			pitch = pitch,
-		}
+        playSmall()
 	elseif interiorType == "ten" then
 		debugLog("Playing tent interior sounds.")
 		thunRef = cell
-		sounds.play{
-			module = moduleName,
-			weather = weather,
-			volume = volume,
-			type = interiorType,
-			pitch = pitch,
-		}
+        playSmall()
 	else
-		windoors = common.getWindoors(cell)
-		if windoors and not table.empty(windoors) then
-			debugLog("Found " .. #windoors .. " windoor(s). Playing interior loops.")
+		if not table.empty(cellData.windoors) then
+			debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
 			playWindoors()
 			interiorTimer:reset()
-			thunRef = windoors[math.random(1, #windoors)]
+			thunRef = cellData.windoors[math.random(1, #cellData.windoors)]
 		end
 	end
 
@@ -383,9 +297,8 @@ local function onCellChanged(e)
 	onConditionChanged(e)
 end
 
--- Init windoors, start and pause interiorTimer on loaded --
+-- Start and pause interiorTimer on loaded --
 local function onLoaded()
-	windoors = {}
 	if not interiorTimer then
 		interiorTimer = timer.start{
 			duration = 1,
@@ -411,7 +324,7 @@ end
 
 -- Suck it Java --
 local function runResetter()
-	cell, cellLast, thunRef, windoors, thunder, interiorTimer, scalarTimer, thunderTimer, thunderTime, interiorType, weather, weatherLast, volume, pitch, sound = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+	cell, cellLast, thunRef, thunder, interiorTimer, scalarTimer, thunderTimer, thunderTime, interiorType, weather, weatherLast, volume, pitch, sound = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 	transitionScalarLast = nil
 end
 

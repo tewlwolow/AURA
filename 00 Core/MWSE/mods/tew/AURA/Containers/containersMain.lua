@@ -51,7 +51,7 @@ local function playOpenSound(e)
     if not (e.target.object.objectType == tes3.objectType.container) or (e.target.object.objectType == tes3.objectType.npc) then return end
 
     if not tes3.getLocked({ reference = e.target }) then
-        local Cvol = config.Cvol / 200
+        local Cvol = config.volumes.misc.Cvol / 100
         local data = getContainerData(e.target.object.id:lower(), "open")
         local sound = data.sound
         local volume = (data.volume or 0.8) * Cvol
@@ -68,7 +68,7 @@ local function playCloseSound(e)
     if not (e.reference.object.objectType == tes3.objectType.container) or (e.reference.object.objectType == tes3.objectType.npc) then return end
     if flag == 1 then return end
 
-    local Cvol = config.Cvol / 200
+    local Cvol = config.volumes.misc.Cvol / 100
     local data = getContainerData(e.reference.object.id:lower(), "close")
     local sound = data.sound
     local volume = (data.volume or 0.8) * Cvol

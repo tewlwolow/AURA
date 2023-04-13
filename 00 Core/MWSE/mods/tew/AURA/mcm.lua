@@ -7,10 +7,10 @@ local version = metadata.package.version
 local soundBuilder = require("tew.AURA.soundBuilder")
 local messages = require(config.language).messages
 
-local function registerVariable(id)
+local function registerVariable(id, tab)
 	return mwse.mcm.createTableVariable {
 		id = id,
-		table = config
+		table = tab or config
 	}
 end
 
@@ -37,9 +37,9 @@ page:createYesNoButton {
 	restartRequired = true
 }
 page:createKeyBinder{
-	label = string.format("%s\n%s = %s", messages.outputKey, messages.default, "V"),
+	label = string.format("%s\n%s = %s", messages.volumeSave, messages.default, "V"),
 	allowCombinations = false,
-	variable = registerVariable("outputKey"),
+	variable = registerVariable("volumeSave"),
 	restartRequired = true
 }
 page:createYesNoButton {
@@ -99,6 +99,7 @@ local pageOA = template:createPage { label = messages.OA }
 pageOA:createCategory {
 	label = string.format("%s\n\n%s:", messages.OADesc, messages.settings)
 }
+--[[
 pageOA:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.OAVol, messages.default, defaults.OAvol, messages.volume),
 	min = 0,
@@ -107,6 +108,7 @@ pageOA:createSlider {
 	jump = 10,
 	variable = registerVariable("OAvol")
 }
+--]]
 pageOA:createYesNoButton {
 	label = messages.playInteriorAmbient,
 	variable = registerVariable("playInteriorAmbient"),
@@ -117,6 +119,7 @@ local pageIA = template:createPage { label = messages.IA }
 pageIA:createCategory {
 	label = string.format("%s\n\n%s:", messages.IADesc, messages.settings)
 }
+--[[
 pageIA:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.IAVol, messages.default, defaults.intVol, messages.volume),
 	min = 0,
@@ -125,6 +128,7 @@ pageIA:createSlider {
 	jump = 10,
 	variable = registerVariable("intVol")
 }
+--]]
 pageIA:createYesNoButton {
 	label = messages.enableTaverns,
 	variable = registerVariable("interiorMusic"),
@@ -184,6 +188,7 @@ template:createExclusionsPage {
 	}
 }
 
+--[[
 local pagePA = template:createPage { label = messages.PA }
 pagePA:createCategory {
 	label = string.format("%s\n\n%s:", messages.PADesc, messages.settings)
@@ -209,6 +214,7 @@ pageIW:createSlider {
 	jump = 10,
 	variable = registerVariable("IWvol")
 }
+--]]
 
 local pageSV = template:createPage { label = messages.SV }
 pageSV:createCategory {
@@ -243,12 +249,12 @@ pageSV:createYesNoButton {
 	variable = registerVariable("serviceBarter"),
 }
 pageSV:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.SVVol, messages.default, defaults.SVvol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.SVVol, messages.default, defaults.volumes.misc.SVvol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("SVvol")
+	variable = registerVariable("SVvol", config.volumes.misc)
 }
 
 local pagePC = template:createPage { label = messages.PC }
@@ -280,12 +286,12 @@ pagePC:createYesNoButton {
 	variable = registerVariable("PCtaunts"),
 }
 pagePC:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.vsVol, messages.default, defaults.vsVol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.vsVol, messages.default, defaults.volumes.misc.vsVol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("vsVol")
+	variable = registerVariable("vsVol", config.volumes.misc)
 }
 pagePC:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.tauntChance, messages.default, defaults.tauntChance, messages.chance),
@@ -296,12 +302,12 @@ pagePC:createSlider {
 	variable = registerVariable("tauntChance")
 }
 pagePC:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.tVol, messages.default, defaults.tVol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.tVol, messages.default, defaults.volumes.misc.tVol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("tVol")
+	variable = registerVariable("tVol", config.volumes.misc)
 }
 
 local pageC = template:createPage { label = messages.containers }
@@ -309,12 +315,12 @@ pageC:createCategory {
 	label = string.format("%s\n\n%s:", messages.containersDesc, messages.settings)
 }
 pageC:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.CVol, messages.default, defaults.Cvol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.CVol, messages.default, defaults.volumes.misc.Cvol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("Cvol")
+	variable = registerVariable("Cvol", config.volumes.misc)
 }
 
 local pageUI = template:createPage { label = messages.UI }
@@ -342,12 +348,12 @@ pageUI:createYesNoButton {
 	variable = registerVariable("UIEating"),
 }
 pageUI:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.UIVol, messages.default, defaults.UIvol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.UIVol, messages.default, defaults.volumes.misc.UIvol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("UIvol")
+	variable = registerVariable("UIvol", config.volumes.misc)
 }
 
 local pageMisc = template:createPage { label = messages.misc }
@@ -371,6 +377,7 @@ pageOA:createYesNoButton {
 	variable = registerVariable("playInteriorWind"),
 	restartRequired = true
 }
+--[[
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.windVol, messages.default, defaults.windVol, messages.volume),
 	min = 0,
@@ -379,29 +386,30 @@ pageMisc:createSlider {
 	jump = 10,
 	variable = registerVariable("windVol")
 }
+--]]
 pageMisc:createYesNoButton {
 	label = messages.playSplash,
 	variable = registerVariable("playSplash"),
 }
 pageMisc:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.splashVol, messages.default, defaults.splashVol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.splashVol, messages.default, defaults.volumes.misc.splashVol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("splashVol")
+	variable = registerVariable("splashVol", config.volumes.misc)
 }
 pageMisc:createYesNoButton {
 	label = messages.playYurtFlap,
 	variable = registerVariable("playYurtFlap"),
 }
 pageMisc:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.yurtVol, messages.default, defaults.yurtVol, messages.volume),
+	label = string.format("%s %s = %s%%. %s %%", messages.yurtVol, messages.default, defaults.volumes.misc.yurtVol, messages.volume),
 	min = 0,
 	max = 200,
 	step = 1,
 	jump = 10,
-	variable = registerVariable("yurtVol")
+	variable = registerVariable("yurtVol", config.volumes.misc)
 }
 
 template:saveOnClose(configPath, config)

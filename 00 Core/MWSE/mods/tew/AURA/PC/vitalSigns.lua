@@ -10,7 +10,7 @@ local PCfatigue = config.PCfatigue
 local PCmagicka = config.PCmagicka
 local PCDisease = config.PCDisease
 local PCBlight = config.PCBlight
-local vsVol = config.vsVol / 200
+local vsVol = config.volumes.misc.vsVol / 100
 
 -- People don't cough underwater I guess --
 local function isPlayerUnderWater()

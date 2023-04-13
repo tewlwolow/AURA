@@ -5,7 +5,6 @@ local data = require("tew.AURA.Ambient.Populated.populatedData")
 local config = require("tew.AURA.config")
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
-local popVol = config.popVol / 200
 local isOpenPlaza = common.isOpenPlaza
 
 local time, timeLast, typeCellLast, weatherNow, weatherLast
@@ -66,13 +65,13 @@ local function cellCheck()
     -- If cell name is nil (different from editorName!) then it's wilderness --
     if (not cell) or (not cell.name) then
         debugLog("Player in the wilderness. Returning.")
-        sounds.remove { module = moduleName, volume = popVol }
+        sounds.remove { module = moduleName }
         timeLast = nil
         typeCellLast = nil
         return
     elseif not (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then -- Bugger off if we're inside --
         debugLog("Player in interior cell. Removing sounds immediately.")
-        sounds.removeImmediate { module = moduleName, volume = popVol }
+        sounds.removeImmediate { module = moduleName }
         timeLast = nil
         typeCellLast = nil
         return
@@ -89,7 +88,7 @@ local function cellCheck()
     -- No outside activity in ashstorms and that --
     if (weatherNow >= 4 and weatherNow <= 7) or (weatherNow == 8) and weatherNow ~= weatherLast then
         debugLog("Bad weather detected. Removing sounds.")
-        sounds.remove { module = moduleName, volume = popVol }
+        sounds.remove { module = moduleName }
         timeLast = nil
         typeCellLast = nil
         return
@@ -110,7 +109,7 @@ local function cellCheck()
 
     -- Otherwise reset and resolve --
     debugLog("Different conditions. Removing sounds.")
-    sounds.remove { module = moduleName, volume = popVol }
+    sounds.remove { module = moduleName }
     timeLast = nil
 
     -- Check if the cell is populated and whether it's night or day --
@@ -119,14 +118,14 @@ local function cellCheck()
             typeCell ~= "dwe" and
             time == "night" then
             debugLog("Found appropriate cell at night. Playing populated ambient night sound.")
-            sounds.play { module = moduleName, volume = popVol, type = "night" }
+            sounds.play { module = moduleName, type = "night" }
             timeLast = time
             typeCellLast = typeCell
             weatherLast = weatherNow
             return
         elseif time == "day" then
             debugLog("Found appropriate cell at day. Playing populated ambient day sound.")
-            sounds.play { module = moduleName, volume = popVol, type = "day", typeCell = typeCell }
+            sounds.play { module = moduleName, type = "day", typeCell = typeCell }
             timeLast = time
             typeCellLast = typeCell
             weatherLast = weatherNow
@@ -145,10 +144,6 @@ local function populatedTimer()
     timeLast = nil
     typeCellLast = nil
     timer.start({ duration = 0.5, callback = cellCheck, iterations = -1, type = timer.game })
-end
-
-local function onCOC()
-    cellCheck()
 end
 
 local function runResetter()
@@ -171,10 +166,22 @@ local function waitCheck(e)
     end)
 end
 
+-- Timer here so that sky textures can work ok --
+local function transitionStartedWrapper(e)
+    timer.start {
+        duration = 1.5,
+        type = timer.simulate,
+        iterations = 1,
+        callback = cellCheck,
+    }
+end
+
 WtC = tes3.worldController.weatherController
 event.register("cellChanged", cellCheck, { priority = -190 })
-event.register("weatherTransitionImmediate", onCOC, { priority = -190 })
-event.register("weatherChangedImmediate", onCOC, { priority = -190 })
+event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -190 })
+event.register("weatherTransitionFinished", cellCheck, { priority = -190 })
+event.register("weatherChangedImmediate", cellCheck, { priority = -190 })
+event.register("AURA:aboveOrUnderwater", cellCheck, { priority = -190 })
 event.register("loaded", populatedTimer)
 event.register("load", runResetter)
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -5 })

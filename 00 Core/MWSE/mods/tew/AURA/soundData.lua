@@ -62,4 +62,35 @@ this.interiorWeather = {
 	}
 }
 
+this.rainLoops = {
+    ["Rain"] = {
+        ["light"] = nil,
+        ["medium"] = nil,
+        ["heavy"] = nil
+    },
+    ["Thunderstorm"] = {
+        ["light"] = nil,
+        ["medium"] = nil,
+        ["heavy"] = nil
+    }
+}
+
+this.interiorRainLoops = {
+    ["big"] = {
+        ["light"] = nil,
+        ["medium"] = nil,
+        ["heavy"] = nil
+    },
+    ["sma"] = {
+        ["light"] = nil,
+        ["medium"] = nil,
+        ["heavy"] = nil
+    },
+    ["ten"] = {
+        ["light"] = nil,
+        ["medium"] = nil,
+        ["heavy"] = nil
+    }
+}
+
 return this

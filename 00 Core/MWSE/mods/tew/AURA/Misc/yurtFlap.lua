@@ -3,7 +3,7 @@ local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local common = require("tew.AURA.common")
 
-local vol = config.yurtVol / 200
+local vol = config.volumes.misc.yurtVol / 100
 
 local yurtDoors = {
     "in_ashl_door_01",

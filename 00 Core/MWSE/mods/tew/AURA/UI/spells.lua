@@ -1,7 +1,7 @@
 local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local config = require("tew.AURA.config")
-local UIvol=config.UIvol/200
+local UIvol = config.volumes.misc.UIvol / 100
 local common = require("tew.AURA.common")
 
 local debugLog = common.debugLog

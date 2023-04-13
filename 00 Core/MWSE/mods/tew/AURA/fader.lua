@@ -3,6 +3,8 @@ local this = {}
 local common = require("tew.AURA.common")
 local debugLog = common.debugLog
 local moduleData = require("tew.AURA.moduleData")
+local volumeController = require("tew.AURA.volumeController")
+local adjustVolume = volumeController.adjustVolume
 
 local TICK = 0.1
 local MAX = 1
@@ -10,12 +12,12 @@ local MIN = 0
 
 local function parse(options)
     local moduleName = options.module
-    local ref = options.reference or tes3.mobilePlayer.reference
+    local ref = options.reference
     local track = options.track
     local fadeType = options.fadeType
 	local oppositeType = (fadeType == "out") and "in" or "out"
 	local lastVolume = moduleData[options.module].lastVolume
-    local volume = math.max(math.floor((options.volume or MAX) * 1000) / 1000, 0) -- Round down to max 3 decimal places, set to 0 if options.volume is negative
+    local volume = options.volume or lastVolume or track.volume
     local pitch = options.pitch or MAX
     local targetDuration = options.duration or moduleData[moduleName].faderData[fadeType].duration
     local currentVolume
@@ -23,8 +25,9 @@ local function parse(options)
 	local iterTimer
 	local fadeTimer
 
-    if (not moduleData[moduleName]) or (not track) then
-        debugLog("No module/track given. Returning.")
+
+    if not (track and ref) then
+        debugLog(string.format("[!][%s] Track: %s, ref: %s. Returning.", moduleName, tostring(track), tostring(ref)))
         return
     end
 
@@ -63,12 +66,6 @@ local function parse(options)
 
     if fadeType == "in" then
         currentVolume = MIN
-		if tes3.getSoundPlaying{sound = track, reference = ref} then
-			debugLog(string.format("[%s] Track %s already playing on ref %s. Returning.", moduleName, track.id, tostring(ref)))
-			return
-		end
-		debugLog(string.format("[%s] Playing with volume %s: %s -> %s", moduleName, currentVolume, track.id, tostring(ref)))
-		tes3.playSound{sound = track, volume = currentVolume, pitch = pitch, reference = ref, loop = true}
     else
 		currentVolume = options.volume and volume or lastVolume or volume
     end
@@ -99,10 +96,14 @@ local function parse(options)
 			common.setRemove(moduleData[moduleName].faderData[fadeType].inProgress, fadeInProgress)
 			return
 		end
-    
-        debugLog(string.format("Adjusting volume %s for module %s: %s -> %s | %.3f", fadeType, moduleName, track.id, tostring(ref), currentVolume))
 
-        tes3.adjustSoundVolume{sound = track, volume = currentVolume, reference = ref}
+        adjustVolume{
+            module = moduleName,
+            track = track,
+            reference = ref,
+            volume = currentVolume,
+            inOrOut = fadeType,
+        }
     end
 
 	fadeInProgress.iterTimer = timer.start{

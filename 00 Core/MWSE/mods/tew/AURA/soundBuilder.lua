@@ -55,6 +55,8 @@ local function createSound(objectId, filename, soundTable, i)
 		if (not fileAddedToManifest) then fileAddedToManifest = true end
 		debugLog(filename .. " modified. Refreshing object.\n---------------")
 	end
+
+    return sound
 end
 
 ----- Building tables -----
@@ -143,42 +145,45 @@ local function buildWeatherSounds()
 
 	filename = soundDir .. wDir .. "\\big\\rl.wav"
 	objectId = "tew_b_rainlight"
-	createSound(objectId, filename)
+	soundData.interiorRainLoops["big"]["light"] = createSound(objectId, filename)
 
 	filename = soundDir .. wDir .. "\\big\\rm.wav"
 	objectId = "tew_b_rainmedium"
+    soundData.interiorRainLoops["big"]["medium"] = createSound(objectId, filename)
 	createSound(objectId, filename, soundData.interiorWeather["big"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["big"], 5)
 
 	filename = soundDir .. wDir .. "\\big\\rh.wav"
 	objectId = "tew_b_rainheavy"
-	createSound(objectId, filename)
+	soundData.interiorRainLoops["big"]["heavy"] = createSound(objectId, filename)
 
 	filename = soundDir .. wDir .. "\\sma\\rl.wav"
 	objectId = "tew_s_rainlight"
-	createSound(objectId, filename)
+	soundData.interiorRainLoops["sma"]["light"] = createSound(objectId, filename)
 
 	filename = soundDir .. wDir .. "\\sma\\rm.wav"
 	objectId = "tew_s_rainmedium"
+    soundData.interiorRainLoops["sma"]["medium"] = createSound(objectId, filename)
 	createSound(objectId, filename, soundData.interiorWeather["sma"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["sma"], 5)
 
 	filename = soundDir .. wDir .. "\\sma\\rh.wav"
 	objectId = "tew_s_rainheavy"
-	createSound(objectId, filename)
+	soundData.interiorRainLoops["sma"]["heavy"] = createSound(objectId, filename)
 
 	filename = soundDir .. wDir .. "\\ten\\rl.wav"
 	objectId = "tew_t_rainlight"
-	createSound(objectId, filename)
+	soundData.interiorRainLoops["ten"]["light"] = createSound(objectId, filename)
 
 	filename = soundDir .. wDir .. "\\ten\\rm.wav"
 	objectId = "tew_t_rainmedium"
+    soundData.interiorRainLoops["ten"]["medium"] = createSound(objectId, filename)
 	createSound(objectId, filename, soundData.interiorWeather["ten"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["ten"], 5)
 
 	filename = soundDir .. wDir .. "\\ten\\rh.wav"
 	objectId = "tew_t_rainheavy"
-	createSound(objectId, filename)
+	soundData.interiorRainLoops["ten"]["heavy"] = createSound(objectId, filename)
 
 	filename, objectId = nil, nil
 end
@@ -269,27 +274,27 @@ local function buildRain()
 
 	filename = "tew\\A\\R\\tew_rain_light.wav"
 	objectId = "tew_rain_light"
-	createSound(objectId, filename)
+    soundData.rainLoops["Rain"]["light"] = createSound(objectId, filename)
 
 	filename = "tew\\A\\R\\tew_rain_medium.wav"
 	objectId = "tew_rain_medium"
-	createSound(objectId, filename)
+	soundData.rainLoops["Rain"]["medium"] = createSound(objectId, filename)
 
 	filename = "tew\\A\\R\\tew_rain_heavy.wav"
 	objectId = "tew_rain_heavy"
-	createSound(objectId, filename)
+	soundData.rainLoops["Rain"]["heavy"] = createSound(objectId, filename)
 
 	filename = "tew\\A\\R\\tew_thunder_light.wav"
 	objectId = "tew_thunder_light"
-	createSound(objectId, filename)
+	soundData.rainLoops["Thunderstorm"]["light"] = createSound(objectId, filename)
 
 	filename = "tew\\A\\R\\tew_thunder_medium.wav"
 	objectId = "tew_thunder_medium"
-	createSound(objectId, filename)
+	soundData.rainLoops["Thunderstorm"]["medium"] = createSound(objectId, filename)
 
 	filename = "tew\\A\\R\\tew_thunder_heavy.wav"
 	objectId = "tew_thunder_heavy"
-	createSound(objectId, filename)
+	soundData.rainLoops["Thunderstorm"]["heavy"] = createSound(objectId, filename)
 
 	filename, objectId = nil, nil
 end
@@ -340,7 +345,8 @@ local function checkForRemovedFiles()
 end
 
 function this.build()
-	event.register("loaded", getWeatherSounds) -- Needed to do after initialisation, errors out otherwise
+	--event.register("loaded", getWeatherSounds) -- Needed to do after initialisation, errors out otherwise
+    getWeatherSounds()
 
 	manifest = json.loadfile(manifestPath) or {}
 

@@ -1,22 +1,22 @@
+local cellData = require("tew.AURA.cellData")
 local climates = require("tew.AURA.Ambient.Outdoor.outdoorClimates")
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
+local defaults = require("tew.AURA.defaults")
 local sounds = require("tew.AURA.sounds")
 
 local isOpenPlaza = common.isOpenPlaza
 
 local moduleAmbientOutdoor = config.moduleAmbientOutdoor
 local moduleInteriorWeather = config.moduleInteriorWeather
-local playSplash = config.playSplash
-local OAvol = config.OAvol / 200
-local splashVol = config.splashVol / 200
 local playInteriorAmbient = config.playInteriorAmbient
+local OAvol, bigMult, smaMult
 
 local moduleName = "outdoor"
 
 local climateLast, weatherLast, timeLast
 local climateNow, weatherNow, timeNow
-local windoors, interiorTimer
+local interiorTimer
 local cell, cellLast
 local WtC
 
@@ -33,8 +33,7 @@ local function updateConditions(resetTimerFlag)
 	if resetTimerFlag
 	and interiorTimer
 	and cell.isInterior
-	and windoors
-	and not table.empty(windoors) then
+	and not table.empty(cellData.windoors) then
 		interiorTimer:reset()
 	end
 	timeLast = timeNow
@@ -44,8 +43,8 @@ local function updateConditions(resetTimerFlag)
 end
 
 local function stopWindoors()
-	if windoors and not table.empty(windoors) then
-		for _, windoor in ipairs(windoors) do
+	if not table.empty(cellData.windoors) then
+		for _, windoor in ipairs(cellData.windoors) do
 			sounds.removeImmediate { module = moduleName, reference = windoor }
 		end
 	end
@@ -53,27 +52,27 @@ end
 
 -- Because MW engine will otherwise scrap the sound and not put it up again. Dumb thing --
 local function playWindoors(useLast)
-	if not windoors or table.empty(windoors) then return end
+	if table.empty(cellData.windoors) then return end
 	debugLog("Updating interior doors and windows.")
-	local windoorVol = (0.25 * OAvol) - (0.005 * #windoors)
+	local windoorVol = (bigMult * OAvol) - (0.005 * #cellData.windoors)
 	local playerPos = tes3.player.position:copy()
 	local playLast
-	for i, windoor in ipairs(windoors) do
+	for i, windoor in ipairs(cellData.windoors) do
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
 			if i == 1 then
 				playLast = useLast
 			else
 				playLast = true
 			end
-			sounds.play{
-				module = moduleName,
-				climate = climateNow,
-				time = timeNow,
-				volume = windoorVol,
-				pitch = 0.8,
-				reference = windoor,
-				last = playLast,
-			}
+            sounds.play{
+                module = moduleName,
+                climate = climateNow,
+                time = timeNow,
+                volume = windoorVol,
+                pitch = 0.8,
+                newRef = windoor,
+                last = playLast,
+            }
 		end
 	end
 end
@@ -89,7 +88,6 @@ local function cellCheck(e)
 	end
 
 	debugLog("Cell changed or time check triggered. Running cell check.")
-	OAvol = config.OAvol / 200
 
 	cell = tes3.getPlayerCell()
 	if (not cell) then
@@ -118,7 +116,7 @@ local function cellCheck(e)
 	if blockedWeathers[weatherNow] then
 		debugLog("Uneligible weather detected. Removing sounds.")
 		stopWindoors()
-		sounds.remove { module = moduleName, volume = OAvol }
+		sounds.remove { module = moduleName }
 		updateConditions()
 		return
 	end
@@ -155,37 +153,28 @@ local function cellCheck(e)
 	debugLog("Time: " .. timeNow)
 
 	-- Randomising every time any of these change --
-	-- We could drop weather check if we don't want to randomise when weather changes, even if time and climate are the same --
-	-- Alternatively, we could add another elseif to the transition filter chunk below that suits our preferences.
 	local useLast = (timeNow == timeLast and weatherNow == weatherLast and climateNow == climateLast) or false
 
 	-- Transition filter chunk --
-	if timeNow == timeLast
-		and climateNow == climateLast
-		and weatherNow == weatherLast
-		and cell == cellLast then
+	if useLast and (cell == cellLast) then
 		debugLog("Found same cell, same conditions. Returning.")
 		updateConditions(true)
 		return
-	elseif timeNow ~= timeLast
-		and weatherNow == weatherLast
-		and (common.checkCellDiff(cell, cellLast) == false) then
-		debugLog("Time changed but weather didn't. Returning.")
-		updateConditions(true)
-		return
-	end
+    end
 
-	windoors = nil
+    config = mwse.loadConfig("AURA", defaults)
+	OAvol = config.volumes.modules[moduleName].volume / 100
+    bigMult = config.volumes.modules[moduleName].big
+    smaMult = config.volumes.modules[moduleName].sma
 
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then
 		debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-		if not useLast then sounds.remove { module = moduleName, volume = OAvol } end
+		if not useLast then sounds.remove { module = moduleName } end
 		sounds.play{
 			module = moduleName,
 			climate = climateNow,
 			time = timeNow,
-			volume = OAvol,
 			last = useLast,
 		}
 	-- Interior cells --
@@ -209,16 +198,15 @@ local function cellCheck(e)
 				module = moduleName,
 				climate = climateNow,
 				time = timeNow,
-				volume = 0.2 * OAvol,
+				volume = smaMult * OAvol,
 				pitch = 0.85,
 				last = useLast,
 			}
 		else
 			debugLog("Found big interior cell.")
 			if not moduleInteriorWeather then updateConditions() return end
-			windoors = common.getWindoors(cell)
-			if windoors and not table.empty(windoors) then
-				debugLog("Found " .. #windoors .. " windoor(s). Playing interior loops.")
+			if not table.empty(cellData.windoors) then
+				debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
 				playWindoors(useLast)
 				updateConditions(true)
 				return
@@ -234,32 +222,6 @@ end
 local function onConditionChanged(e)
     if interiorTimer then interiorTimer:pause() end
     cellCheck(e)
-end
-
--- To check whether we're underwater --
--- This doesn't work with water breathing (no UI element), so eventually will need to be migrated to a new method --
-local function positionCheck(e)
-	local cell = tes3.getPlayerCell()
-	local element = e.element
-	debugLog("Player underwater. Stopping AURA sounds.")
-	if (not cell.isInterior) or (cell.behavesAsExterior) then
-		sounds.removeImmediate { module = moduleName }
-		sounds.playImmediate { module = moduleName, last = true, volume = 0.4 * OAvol, pitch = 0.5 }
-	end
-	if playSplash and moduleAmbientOutdoor then
-		tes3.playSound { sound = "splash_lrg", volume = 0.5 * splashVol, pitch = 0.6 }
-	end
-	element:registerAfter("destroy", function()
-		debugLog("Player above water level. Resetting AURA sounds.")
-		if (not cell.isInterior) or (cell.behavesAsExterior) then
-			sounds.removeImmediate { module = moduleName }
-			sounds.playImmediate { module = moduleName, last = true, volume = OAvol }
-		end
-		timer.start({ duration = 1, callback = onConditionChanged, type = timer.real })
-		if playSplash and moduleAmbientOutdoor then
-			tes3.playSound { sound = "splash_sml", volume = 0.6 * splashVol, pitch = 0.7 }
-		end
-	end)
 end
 
 -- After waiting/travelling --
@@ -278,7 +240,6 @@ end
 local function runResetter()
 	climateLast, weatherLast, timeLast = nil, nil, nil
 	climateNow, weatherNow, timeNow = nil, nil, nil
-	windoors = {}
 end
 
 -- Check for time changes --
@@ -286,11 +247,10 @@ local function runHourTimer()
 	timer.start({ duration = 0.5, callback = cellCheck, iterations = -1, type = timer.game })
 end
 
--- Run hour timer, init windoors, start and pause interiorTimer on loaded --
+-- Run hour timer, start and pause interiorTimer on loaded --
 local function onLoaded()
 	runHourTimer()
 	if moduleInteriorWeather then
-		windoors = {}
 		if not interiorTimer then
 			interiorTimer = timer.start{
 				duration = 1,
@@ -323,6 +283,6 @@ event.register("weatherTransitionStarted", transitionStartedWrapper, { priority 
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -160 })
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -160 })
-event.register("uiActivated", positionCheck, { filter = "MenuSwimFillBar", priority = -5 })
+event.register("AURA:aboveOrUnderwater", onConditionChanged, { priority = -160 })
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -5 })
 debugLog("Outdoor Ambient Sounds module initialised.")

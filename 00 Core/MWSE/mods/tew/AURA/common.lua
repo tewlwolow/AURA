@@ -105,7 +105,7 @@ function this.getWindoors(cell)
 	end
 
 	if table.empty(windoors) then
-		return nil
+		return windoors
 	else
 		for stat in cell:iterateReferences(tes3.objectType.static) do
 			if (not string.find(cell.name:lower(), "plaza")) then
@@ -156,6 +156,16 @@ function this.cellIsInterior(cell)
     else
         return false
     end
+end
+
+function this.getInteriorType(cell)
+    if this.getCellType(cell, this.cellTypesSmall) == true then
+		return "sma"
+	elseif this.getCellType(cell, this.cellTypesTent) == true then
+		return "ten"
+	else
+		return "big"
+	end
 end
 
 -- If given a target ref, returns true if origin ref is sheltered by

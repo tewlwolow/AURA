@@ -43,10 +43,6 @@ this.messages = {
 	modLanguage = "Langue du mod.",
 
 	enableDebug = "Activer le mode débug ?",
-	outputKey = "Shift + cette touche permet d'afficher les pistes AURA en cours de lecture dans une boîte de messages.",
-	oldTrack = "Piste précédente",
-	newTrack = "Nouvelle piste",
-	none = "Aucun(e)",
 	enableOutdoor = "Activer le module Ambiance Extérieure ?",
 	enableInterior = "Activer le module Ambiance Intérieure ?",
 	enablePopulated = "Activer le module Ambiance Population ?",
@@ -56,6 +52,21 @@ this.messages = {
 	enableContainers = "Activer le module Conteneurs ?",
 	enablePC = "Activer le module PJ ?",
 	enableMisc = "Activer le module Divers ?",
+
+    volumeSave = "Shift + cette touche affichera un menu dans lequel vous pourrez régler le volume des pistes AURA en cours de lecture.",
+    undo = "Annuler",
+    restoreDefaults = "Réinitialiser",
+    defaultsRestored = "Paramètres par défaut restaurés",
+    noTracksPlaying = "Aucune piste en cours de lecture",
+    findOutdoorShelter = "Trouvez un abri extérieur pour régler ce volume. [?]",
+    findOutdoorShelterTooltip = "Les statiques d'abri prises en charge sont: les tentes\nportables (telles que les tentes modulaires Ashfall), les\nsurplombs, les auvents et les remises.",
+    fadeInProgress = "L'effet fondu en cours. Essayer plus tard.",
+    adjustForInterior = "Ajuster pour l'intérieur",
+    adjustForExterior = "Ajuster pour l'extérieur",
+    big = "grand",
+    small = "petit",
+    exteriorVolume = "le volume à l'extérieur",
+    underwater = "sous l'eau",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 

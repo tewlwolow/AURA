@@ -3,7 +3,6 @@ local config = require("tew.AURA.config")
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
 local findWholeWords = common.findWholeWords
-local intVol = config.intVol / 200
 local interiorMusic = config.interiorMusic
 
 local played = false
@@ -162,7 +161,7 @@ local function cellCheck()
     local typeCell = getTypeCell(5, cell)
     if typeCell ~= nil then
         debugLog("Found appropriate cell. Playing interior ambient sound.")
-        sounds.playImmediate { module = moduleName, type = typeCell, volume = intVol }
+        sounds.playImmediate { module = moduleName, type = typeCell }
         return
     end
 
@@ -172,7 +171,7 @@ local function cellCheck()
         for _, pattern in ipairs(taverns) do
             if string.find(cell.name, pattern) then
                 debugLog("Found appropriate tavern. Playing interior ambient sound for race type: " .. race)
-                sounds.playImmediate { module = moduleName, race = race, volume = intVol }
+                sounds.playImmediate { module = moduleName, race = race }
                 return
             end
         end
@@ -186,7 +185,7 @@ local function cellCheck()
         for _, pattern in pairs(nameTable) do
             if findWholeWords(cell.name, pattern) then
                 debugLog("Found appropriate cell. Playing interior ambient sound for interior type: " .. cellType)
-                sounds.playImmediate { module = moduleName, type = cellType, volume = intVol }
+                sounds.playImmediate { module = moduleName, type = cellType }
                 return
             end
         end
@@ -208,7 +207,7 @@ local function cellCheck()
             race = string.sub(race, 1, 3):lower()
             debugLog("Found appropriate tavern. Playing interior ambient sound for race type: " .. race)
 
-            sounds.playImmediate { module = moduleName, race = race, volume = intVol }
+            sounds.playImmediate { module = moduleName, race = race }
             return
         end
     end

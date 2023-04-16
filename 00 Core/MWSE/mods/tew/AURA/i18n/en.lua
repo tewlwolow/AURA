@@ -30,10 +30,6 @@ this.messages = {
 	modLanguage = "Mod language.",
 
 	enableDebug = "Enable debug mode?",
-	outputKey = "Shift + this key will output the currently playing AURA tracks to a messagebox.",
-	oldTrack = "Old track",
-	newTrack = "New track",
-	none = "None",
 	enableOutdoor = "Enable Outdoor Ambient module?",
 	enableInterior = "Enable Interior Ambient module?",
 	enablePopulated = "Enable Populated Ambient module?",
@@ -43,6 +39,21 @@ this.messages = {
 	enableContainers = "Enable Containers module?",
 	enablePC = "Enable PC module?",
 	enableMisc = "Enable Misc module?",
+
+    volumeSave = "Shift + this key will display a menu where you can adjust the volume for the currently playing AURA tracks.",
+    undo = "Undo",
+    restoreDefaults = "Restore defaults",
+    defaultsRestored = "Defaults restored",
+    noTracksPlaying = "No tracks playing",
+    findOutdoorShelter = "Find outdoor shelter to adjust this volume. [?]",
+    findOutdoorShelterTooltip = "Supported shelter statics are: portable\ntents (such as Ashfall modular tents),\noverhangs, awnings and sheds.",
+    fadeInProgress = "Fade in progress. Try later.",
+    adjustForInterior = "Adjust for interior",
+    adjustForExterior = "Adjust for exterior",
+    big = "big",
+    small = "small",
+    exteriorVolume = "exterior volume",
+    underwater = "underwater",
 
 	refreshManifest = "Refresh manifest file",
 

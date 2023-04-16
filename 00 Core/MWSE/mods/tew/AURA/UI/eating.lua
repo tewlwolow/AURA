@@ -1,7 +1,7 @@
 local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local config = require("tew.AURA.config")
-local UIvol=config.UIvol/200
+local UIvol = config.volumes.misc.UIvol / 100
 
 -- Makes use of Bethesda eating sound instead of old weird swallow sound --
 local function eating(e)

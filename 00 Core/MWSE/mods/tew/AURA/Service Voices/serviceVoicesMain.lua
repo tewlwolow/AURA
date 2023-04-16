@@ -1,8 +1,8 @@
 local serviceVoicesData = require("tew.AURA.Service Voices.serviceVoicesData")
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
-local UIvol = config.UIvol / 200
-local SVvol = config.SVvol / 200
+local UIvol = config.volumes.misc.UIvol / 100
+local SVvol = config.volumes.misc.SVvol / 100
 local moduleUI = config.moduleUI
 
 local raceNames = serviceVoicesData.raceNames
@@ -65,7 +65,7 @@ local function serviceGreet(e)
       end
       tes3.removeSound { reference = npcId }
       tes3.say {
-         volume = 0.9 * SVvol * SVvol,
+         volume = 0.9 * SVvol,
          soundPath = "Vo\\" .. raceLet .. "\\" .. sexLet .. "\\" ..
              newVoice .. ".mp3", reference = npcId
       }

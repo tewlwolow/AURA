@@ -42,8 +42,8 @@ local function init()
     soundBuilder.build()
     mwse.log(string.format("[%s %s] %s", modName, version, messages.buildingSoundsFinished))
 
-    mwse.log(string.format("[%s %s] %s outputKey.lua.", modName, version, messages.loadingFile))
-    dofile("Data Files\\MWSE\\mods\\tew\\AURA\\outputKey.lua")
+    mwse.log(string.format("[%s %s] %s volumeSave.lua.", modName, version, messages.loadingFile))
+    dofile("Data Files\\MWSE\\mods\\tew\\AURA\\volumeSave.lua")
 
     if moduleAmbientOutdoor then
         mwse.log(string.format("[%s %s] %s outdoorMain.lua.", modName, version, messages.loadingFile))

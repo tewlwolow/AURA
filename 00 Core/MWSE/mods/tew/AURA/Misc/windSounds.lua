@@ -99,6 +99,7 @@ local function windCheck(e)
 
     -- Weather resolution --
     local regionObject = tes3.getRegion(true)
+    if not regionObject then regionObject = common.getFallbackRegion() end
     local weather
     if e and e.to then
         debugLog("Weather transitioning.")

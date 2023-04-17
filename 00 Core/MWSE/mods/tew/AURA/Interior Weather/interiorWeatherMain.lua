@@ -150,6 +150,7 @@ local function cellCheck(e)
 	end
 
 	local regionObject = tes3.getRegion(true)
+	if not regionObject then regionObject = common.getFallbackRegion() end
 	local transitionScalarNow = regionObject.weather.controller.transitionScalar
 
 	weather = regionObject.weather.index

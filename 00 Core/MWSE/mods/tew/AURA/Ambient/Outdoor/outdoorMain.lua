@@ -102,6 +102,12 @@ local function cellCheck(e)
 	end
 
 	local regionObject = tes3.getRegion(true)
+
+	-- Fallback
+	if not regionObject then
+		regionObject = common.getFallbackRegion()
+	end
+
 	local region = regionObject.id
 
     if e and e.to then

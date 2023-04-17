@@ -271,4 +271,12 @@ function this.findWholeWords(string, pattern)
     return string.find(string, "%f[%a]"..pattern.."%f[%A]")
 end
 
+function this.getFallbackRegion()
+	for region in tes3.iterate(tes3.dataHandler.nonDynamicData.regions) do
+		if region.id == "Sheogorad" then
+			return region
+		end
+	end
+end
+
 return this

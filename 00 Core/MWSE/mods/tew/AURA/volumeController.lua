@@ -24,7 +24,9 @@ function this.getVolume(moduleName, conf)
     local moduleVol = config.volumes.modules[moduleName].volume / 100
     local soundConfig = moduleData[moduleName].soundConfig
     local interiorType = common.getInteriorType(cellData.cell)
-    local weather = tes3.getRegion(true).weather.index
+    local regionObject = tes3.getRegion(true)
+    if not regionObject then regionObject = common.getFallbackRegion() end
+    local weather = regionObject.weather.index
     local rainType = cellData.rainType[weather] or "light"
     local windoorsMult = (moduleData[moduleName].playWindoors == true) and 0.005 or 0
     if cellData.cell.isInterior and (moduleName == "interiorWeather") then

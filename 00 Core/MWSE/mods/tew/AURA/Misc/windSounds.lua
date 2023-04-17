@@ -33,7 +33,7 @@ local function getWindType(cSpeed)
     end
 end
 
-local function updateContitions(resetTimerFlag)
+local function updateConditions(resetTimerFlag)
 	if resetTimerFlag
 	and interiorTimer
 	and cell.isInterior
@@ -114,7 +114,7 @@ local function windCheck(e)
         debugLog("Uneligible weather detected. Removing sounds.")
         stopWindoors()
         sounds.remove { module = moduleName }
-        updateContitions()
+        updateConditions()
         return
     end
 
@@ -127,7 +127,7 @@ local function windCheck(e)
     if not windType then
         debugLog("Wind type is nil. Returning.")
         sounds.remove { module = moduleName }
-        updateContitions()
+        updateConditions()
         return
     end
     debugLog("Wind type: " .. windType)
@@ -139,7 +139,7 @@ local function windCheck(e)
     and (common.checkCellDiff(cell, cellLast) == false)
     and not (cell ~= cellLast) then
         debugLog("Same conditions. Returning.")
-        updateContitions(true)
+        updateConditions(true)
         return
     end
     if common.checkCellDiff(cell, cellLast) then
@@ -168,7 +168,7 @@ local function windCheck(e)
             if not playInteriorWind then
                 debugLog("Found interior cell and playInteriorWind off. Removing sounds.")
                 sounds.removeImmediate { module = moduleName }
-                updateContitions()
+                updateConditions()
                 return
             end
             if common.getCellType(cell, common.cellTypesSmall) == true
@@ -186,13 +186,13 @@ local function windCheck(e)
                 if not table.empty(cellData.windoors) then
                     debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
                     playWindoors(useLast)
-                    updateContitions(true)
+                    updateConditions(true)
                     return
                 end
             end
         end
     end
-    updateContitions()
+    updateConditions()
     debugLog("Cell check complete.")
 end
 

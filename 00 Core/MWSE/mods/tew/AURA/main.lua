@@ -3,6 +3,7 @@ dofile("tew.AURA.i18n.init")
 
 local config = require("tew.AURA.config")
 local messages = require(config.language).messages
+local metadata = toml.loadMetadata("AURA")
 
 -- Because MW sound engine is the worst --
 local function warning(e)
@@ -14,13 +15,15 @@ end
 
 local function init()
 
+    local version, modName
+
     local util = require("tew.AURA.util")
-    local metadata = toml.loadMetadata("AURA")
     if not (metadata) then
 		util.metadataMissing()
-	end
-    local version = metadata.package.version
-    local modName = metadata.package.name
+	else
+        version = metadata.package.version
+        modName = metadata.package.name
+    end
 
     local soundBuilder = require("tew.AURA.soundBuilder")
 

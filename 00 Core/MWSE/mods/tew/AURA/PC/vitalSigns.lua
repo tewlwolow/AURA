@@ -138,10 +138,9 @@ local function playVitals()
 
     if PChealth then
 
-        local maxHealth = player.health.base
-        local currentHealth = player.health.current
+        local health = player.health.normalized
 
-        if currentHealth < maxHealth / 3 then
+        if health < 0.33 then
             playHealth()
         else
             if healthTimer then
@@ -161,10 +160,9 @@ local function playVitals()
             return
         end
 
-        local maxFatigue = player.fatigue.base
-        local currentFatigue = player.fatigue.current
+        local fatigue = player.fatigue.normalized
 
-        if currentFatigue < maxFatigue / 3 then
+        if fatigue < 0.33 then
             playFatigue()
         else
             if fatigueTimer then
@@ -176,10 +174,9 @@ local function playVitals()
 
     if PCmagicka then
 
-        local maxMagicka = player.magicka.base
-        local currentMagicka = player.magicka.current
+        local magicka = player.magicka.normalized
 
-        if currentMagicka < maxMagicka / 3 then
+        if magicka < 0.33 then
             playMagicka()
         else
             if magickaTimer then

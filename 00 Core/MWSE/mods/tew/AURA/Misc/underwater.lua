@@ -21,10 +21,9 @@ local function underwaterReset(pitch)
     end
 end
 
-local underwaterSound = tes3.getSound("Underwater")
 local splashVol = config.volumes.misc.splashVol / 100
 local function underwaterCheck()
-    if tes3.mobilePlayer.underwater or (underwaterSound and underwaterSound:isLooping()) then
+    if tes3.mobilePlayer.underwater then
         if not cellData.playerUnderwater then
             cellData.playerUnderwater = true
             debugLog("Player underwater.")

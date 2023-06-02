@@ -61,7 +61,7 @@ local function playThunder()
 end
 
 -- Not too proud of this --
-local function updateContitions(resetTimerFlag)
+local function updateConditions(resetTimerFlag)
 	if resetTimerFlag
 	and interiorTimer
 	and cell.isInterior
@@ -161,14 +161,14 @@ local function cellCheck(e)
 		sounds.remove { module = moduleName }
 		stopWindoors()
 		clearTimers()
-		updateContitions()
+		updateConditions()
 		return
 	end
 
 	-- Get out if the weather is the same as last time --
 	if weather == weatherLast and cellLast == cell then
 		debugLog("Same weather and cell detected.")
-		updateContitions(true)
+		updateConditions(true)
 		return
 	end
 
@@ -177,7 +177,7 @@ local function cellCheck(e)
 	if (isOpenPlaza(cell) == true)
 		and (weather == 6
 			or weather == 7) then
-		updateContitions()
+        updateConditions()
 		return
 	end
 
@@ -255,7 +255,7 @@ local function cellCheck(e)
 		thunderTimer = timer.start({ duration = thunderTime, iterations = 1, callback = playThunder, type = timer.real })
 	end
 
-	updateContitions()
+	updateConditions()
 	debugLog("Cell check complete.")
 end
 

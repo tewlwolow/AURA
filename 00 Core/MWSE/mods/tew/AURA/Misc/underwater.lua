@@ -23,6 +23,7 @@ end
 
 local splashVol = config.volumes.misc.splashVol / 100
 local function underwaterCheck()
+    if not tes3.mobilePlayer then return end
     if tes3.mobilePlayer.underwater then
         if not cellData.playerUnderwater then
             cellData.playerUnderwater = true

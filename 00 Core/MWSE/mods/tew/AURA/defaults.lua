@@ -70,5 +70,6 @@ return {
     },
     playInteriorWind = true,
     playRainOnStatics = true,
+    underwaterRain = true,
     language = "tew.AURA.i18n.en",
 }

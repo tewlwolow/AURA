@@ -377,6 +377,7 @@ pageOA:createYesNoButton {
 	variable = registerVariable("playInteriorWind"),
 	restartRequired = true
 }
+
 --[[
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.windVol, messages.default, defaults.windVol, messages.volume),
@@ -410,6 +411,12 @@ pageMisc:createSlider {
 	step = 1,
 	jump = 10,
 	variable = registerVariable("yurtVol", config.volumes.misc)
+}
+
+pageMisc:createYesNoButton {
+	label = messages.underwaterRain,
+	variable = registerVariable("underwaterRain"),
+	restartRequired = true
 }
 
 template:saveOnClose(configPath, config)

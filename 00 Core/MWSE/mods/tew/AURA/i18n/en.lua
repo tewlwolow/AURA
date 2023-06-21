@@ -126,7 +126,8 @@ this.messages = {
 	playSplash = "Enable splash sounds when going underwater and back to surface?",
 	splashVol = "Changes % volume for splash sounds.",
 	playYurtFlap = "Enable sounds for yurts and pelt entrances?",
-	yurtVol = "Changes % volume for yurt and pelt entrances sounds."
+	yurtVol = "Changes % volume for yurt and pelt entrances sounds.",
+	underwaterRain = "Enable volume scaling of weather effects when underwater?"
 }
 
 this.interiorNames = {

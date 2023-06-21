@@ -139,7 +139,9 @@ this.messages = {
 	playSplash = "Activer les sons d'éclaboussures en entrant et sortant de l'eau ?",
 	splashVol = "Change le % de volume des sons d'éclaboussures.",
 	playYurtFlap = "Activer les sons des portes de yourte ou en peau d'ours ?",
-	yurtVol = "Change le % de volume des sons des portes de yourte ou en peau d'ours."
+	yurtVol = "Change le % de volume des sons des portes de yourte ou en peau d'ours.",
+	underwaterRain = "Activer la mise à l'échelle du volume des effets de la météo sous l'eau ?"
+
 }
 
 ------------------------------------------------------------------------------------------------

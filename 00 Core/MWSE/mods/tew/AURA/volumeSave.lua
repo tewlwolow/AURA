@@ -32,6 +32,15 @@ function this.init()
     this.setConfigVolumes()
 end
 
+local function textInputIsActive()
+    local menuController = tes3.worldController.menuController
+    local inputFocus = menuController.inputController.textInputFocus
+    if (not inputFocus or not inputFocus.visible) then
+        return false
+    end
+    return true
+end
+
 local sliderPercent = {
     labelFmt = "%d%%  (%s = %d%%)",
     sliderMult = 1,
@@ -307,6 +316,9 @@ local function redraw()
 end
 
 function this.toggle(e)
+
+    if textInputIsActive() then return end
+
     if e.isShiftDown then
 
         local menu = tes3ui.findMenu(this.id_menu)

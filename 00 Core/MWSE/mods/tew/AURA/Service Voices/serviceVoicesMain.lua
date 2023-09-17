@@ -77,7 +77,14 @@ local function handleServiceGreet(e, voiceData, closeButtonName, playMysticGateS
 	end
 end
 
-local function registerGreetEvent(serviceFlag, greetFunction, filter, closeButtonName, playMysticGateSound, playMenuClickSound)
+local function registerGreetEvent(params)
+	local serviceFlag = params.serviceFlag
+	local greetFunction = params.greetFunction
+	local filter = params.filter
+	local closeButtonName = params.closeButtonName
+	local playMysticGateSound = params.playMysticGateSound
+	local playMenuClickSound = params.playMenuClickSound
+
 	if serviceFlags[serviceFlag] then
 		event.register("uiActivated", function(e)
 			handleServiceGreet(e, greetFunction, closeButtonName, playMysticGateSound, playMenuClickSound)
@@ -85,10 +92,65 @@ local function registerGreetEvent(serviceFlag, greetFunction, filter, closeButto
 	end
 end
 
-registerGreetEvent("serviceTravel", travelVoices, "MenuServiceTravel", "", false, true) -- Play Menu Click
-registerGreetEvent("serviceBarter", commonVoices, "MenuBarter", "", false, true) -- Play Menu Click
-registerGreetEvent("serviceTraining", trainingVoices, "MenuServiceTraining", "MenuServiceTraining_Okbutton", false, true) -- Play Menu Click
-registerGreetEvent("serviceEnchantment", commonVoices, "MenuEnchantment", "", false, true) -- Play Menu Click
-registerGreetEvent("serviceSpellmaking", spellVoices, "MenuSpellmaking", "MenuSpellmaking_Cancelbutton", false, true) -- Play Menu Click
-registerGreetEvent("serviceSpells", spellVoices, "MenuServiceSpells", "MenuServiceSpells_Okbutton", true, true) -- Play both Mystic Gate and Menu Click
-registerGreetEvent("serviceRepair", commonVoices, "MenuServiceRepair", "MenuServiceRepair_Okbutton", false, true) -- Play Menu Click
+registerGreetEvent {
+	serviceFlag = "serviceTravel",
+	greetFunction = travelVoices,
+	filter = "MenuServiceTravel",
+	closeButtonName = "",
+	playMysticGateSound = false,
+	playMenuClickSound = true,
+}
+
+registerGreetEvent {
+	serviceFlag = "serviceBarter",
+	greetFunction = commonVoices,
+	filter = "MenuBarter",
+	closeButtonName = "",
+	playMysticGateSound = false,
+	playMenuClickSound = true,
+}
+
+registerGreetEvent {
+	serviceFlag = "serviceTraining",
+	greetFunction = trainingVoices,
+	filter = "MenuServiceTraining",
+	closeButtonName = "MenuServiceTraining_Okbutton",
+	playMysticGateSound = false,
+	playMenuClickSound = true,
+}
+
+registerGreetEvent {
+	serviceFlag = "serviceEnchantment",
+	greetFunction = commonVoices,
+	filter = "MenuEnchantment",
+	closeButtonName = "",
+	playMysticGateSound = false,
+	playMenuClickSound = true,
+}
+
+registerGreetEvent {
+	serviceFlag = "serviceSpellmaking",
+	greetFunction = spellVoices,
+	filter = "MenuSpellmaking",
+	closeButtonName = "MenuSpellmaking_Cancelbutton",
+	playMysticGateSound = false,
+	playMenuClickSound = true,
+}
+
+registerGreetEvent {
+	serviceFlag = "serviceSpells",
+	greetFunction = spellVoices,
+	filter = "MenuServiceSpells",
+	closeButtonName = "MenuServiceSpells_Okbutton",
+	playMysticGateSound = true,
+	playMenuClickSound = true,
+}
+
+registerGreetEvent {
+	serviceFlag = "serviceRepair",
+	greetFunction = commonVoices,
+	filter = "MenuServiceRepair",
+	closeButtonName = "MenuServiceRepair_Okbutton",
+	playMysticGateSound = false,
+	playMenuClickSound = true,
+}

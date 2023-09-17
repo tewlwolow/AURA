@@ -38,7 +38,11 @@ function this.getVolume(moduleName, conf)
             this.setVolume(tes3.getSound("rain heavy"), 0)
         end
     elseif moduleName == "rainOnStatics" then
-        volume = soundConfig[rainType][weather].mult * moduleVol
+        if weather == 4 or weather == 5 then
+         volume = soundConfig[rainType][weather].mult * moduleVol
+        else
+            volume = 0
+        end
     else
         volume = moduleVol
     end

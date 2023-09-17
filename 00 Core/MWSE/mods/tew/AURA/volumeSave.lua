@@ -129,7 +129,7 @@ local function doRain()
     else
         return
     end
-    
+
     local menu = tes3ui.findMenu(this.id_menu)
     local sc = {}
     sc.key = rainType
@@ -263,6 +263,7 @@ end
 local function createWindow()
 
     local menu = tes3ui.createMenu{ id = this.id_menu, dragFrame = true }
+    tes3ui.enterMenuMode(this.id_menu)
 
     menu.text = "AURA"
     menu.width = 430
@@ -283,8 +284,10 @@ local function createWindow()
 
     updateHeader()
 
+    menu.width = 430
+    menu.height = 600
     menu:updateLayout()
-    tes3ui.enterMenuMode(this.id_menu)
+    menu.visible = true
 end
 
 local function redraw()
@@ -305,9 +308,9 @@ end
 
 function this.toggle(e)
     if e.isShiftDown then
-        
+
         local menu = tes3ui.findMenu(this.id_menu)
-        
+
         if (not menu) then
             this.cell = cellData.cell
             this.config = mwse.loadConfig("AURA", defaults)

@@ -5,7 +5,7 @@ local weatherSounds = {
 	["Rain"] = 0,
 	["rain heavy"] = 0,
 	["Blight"] = 0,
-	["Ashstorm" ]= 0,
+	["Ashstorm"] = 0,
 	["BM Blizzard"] = 0,
 	["tew_b_rainlight"] = 0,
 	["tew_b_rainmedium"] = 0,
@@ -26,39 +26,34 @@ local weatherSounds = {
 
 local function setVolume(track, volume)
 	local rounded = math.round(volume, 2)
-    debugLog(string.format("Setting volume for track %s to %s", track.id, rounded))
-    track.volume = rounded
+	debugLog(string.format("Setting volume for track %s to %s", track.id, rounded))
+	track.volume = rounded
 end
 
 local function modifyVolume()
 	if not tes3.player or not tes3.mobilePlayer then return end
 	local waterLevel = tes3.player.cell.waterLevel or 0
 	local playerPosZ = tes3.player.position.z
-	for id, _ in pairs(weatherSounds) do
-		if playerPosZ < waterLevel and tes3.getSound(id):isPlaying() then
-			local sound = tes3.getSound(id)
-			local originalVol = weatherSounds[id]
+	for id, originalVol in pairs(weatherSounds) do
+		local sound = tes3.getSound(id)
+		if playerPosZ < waterLevel and sound:isPlaying() then
 			local volume = math.clamp(1 - math.remap(waterLevel - playerPosZ, 0, 1500, 0, originalVol), 0.0, originalVol)
 			setVolume(sound, volume)
 		else
-			local sound = tes3.getSound(id)
-			setVolume(sound, weatherSounds[id] )
+			setVolume(sound, originalVol)
 		end
 	end
 end
 
 local underwaterPrev
----@param e simulateEventData
+
 local function underWaterCheck(e)
 	local mp = tes3.mobilePlayer
 	if mp then
 		if mp.isSwimming and not underwaterPrev then
 			underwaterPrev = true
 			event.trigger("AURA:enteredUnderwater")
-			return
-		end
-
-		if not mp.isSwimming and underwaterPrev then
+		elseif not mp.isSwimming and underwaterPrev then
 			underwaterPrev = false
 			event.trigger("AURA:exitedUnderwater")
 		end
@@ -68,8 +63,7 @@ end
 local function setOriginalVolume()
 	for id, _ in pairs(weatherSounds) do
 		local sound = tes3.getSound(id)
-		local originalVol = sound.volume
-		weatherSounds[id] = originalVol
+		weatherSounds[id] = sound.volume
 	end
 end
 

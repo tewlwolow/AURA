@@ -2,7 +2,8 @@ local serviceVoicesData = require("tew.AURA.Service Voices.serviceVoicesData")
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
 
-local UIvol, SVvol = config.volumes.misc.UIvol / 100, config.volumes.misc.SVvol / 100
+local UI_VOLUME_MULTIPLIER = 0.2
+
 local moduleUI = config.moduleUI
 
 local raceNames = serviceVoicesData.raceNames
@@ -12,19 +13,10 @@ local spellVoices = serviceVoicesData.spellVoices
 local trainingVoices = serviceVoicesData.trainingVoices
 
 local UISpells = config.UISpells
-local serviceFlags = {
-	serviceRepair = config.serviceRepair,
-	serviceSpells = config.serviceSpells,
-	serviceTraining = config.serviceTraining,
-	serviceSpellmaking = config.serviceSpellmaking,
-	serviceEnchantment = config.serviceEnchantment,
-	serviceTravel = config.serviceTravel,
-	serviceBarter = config.serviceBarter
-}
-
-local newVoice, lastVoice = "init", "init"
 
 local debugLog = common.debugLog
+
+local lastVoice = "init"
 
 local function getServiceVoiceData(e, voiceData)
 	local npcId = tes3ui.getServiceActor(e)
@@ -32,34 +24,32 @@ local function getServiceVoiceData(e, voiceData)
 	local raceLet = raceNames[raceId]
 	local sexLet = npcId.object.female and "f" or "m"
 
-	return voiceData[raceLet] and voiceData[raceLet][sexLet] or commonVoices[raceLet] and commonVoices[raceLet][sexLet]
+	return voiceData[raceLet] and voiceData[raceLet][sexLet]
 end
 
 local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 	if #serviceFeed > 0 then
-		-- Generate a random number between 1 and 100
-		local randomChance = math.random(1, 100)
-
-		-- Check if the random number is less than or equal to the configured chance
-		if randomChance <= config.serviceChance then
-			while newVoice == lastVoice or newVoice == nil do
+		local newVoice
+		if #serviceFeed > 1 then
+			repeat
 				newVoice = serviceFeed[math.random(1, #serviceFeed)]
-			end
-
-			tes3.removeSound { reference = npcId }
-			tes3.say {
-				volume = 0.9 * SVvol,
-				soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
-				reference = npcId
-			}
-			lastVoice = newVoice
-			debugLog("NPC says a comment for the service.")
+			until newVoice ~= lastVoice
+		else
+			newVoice = serviceFeed[1]
 		end
+
+		tes3.removeSound { reference = npcId }
+		tes3.say {
+			volume = config.volumes.misc.SVvol / 100,
+			soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
+			reference = npcId
+		}
+		lastVoice = newVoice
+		debugLog("NPC says a comment for the service.")
 	end
 end
 
-
-local function handleServiceGreet(e, voiceData, closeButtonName, playMysticGateSound, playMenuClickSound)
+local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysticGateSound, playMenuClickSound)
 	local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))
 	if closeButton then
 		closeButton:register("mouseDown", function()
@@ -78,8 +68,10 @@ local function handleServiceGreet(e, voiceData, closeButtonName, playMysticGateS
 
 	playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 
+	debugLog("NPC says a comment for the service.")
+
 	if playMysticGateSound and UISpells and moduleUI then
-		tes3.playSound { soundPath = "FX\\MysticGate.wav", reference = tes3.player, volume = 0.2 * UIvol, pitch = 1.8 }
+		tes3.playSound { soundPath = "FX\\MysticGate.wav", reference = tes3.player, volume = UI_VOLUME_MULTIPLIER * config.volumes.misc.UIvol / 100, pitch = 1.8 }
 		debugLog("Opening spell menu sound played.")
 	end
 end
@@ -92,72 +84,84 @@ local function registerGreetEvent(params)
 	local playMysticGateSound = params.playMysticGateSound
 	local playMenuClickSound = params.playMenuClickSound
 
-	if serviceFlags[serviceFlag] then
+	if config[serviceFlag] then
 		event.register("uiActivated", function(e)
-			handleServiceGreet(e, greetFunction, closeButtonName, playMysticGateSound, playMenuClickSound)
+			handleServiceGreet(e, greetFunction, serviceFlag, closeButtonName, playMysticGateSound, playMenuClickSound)
 		end, { filter = filter, priority = -10 })
 	end
 end
 
-registerGreetEvent {
+local function playCommentForService(params)
+	local serviceFlag = params.serviceFlag
+	local greetFunction = params.greetFunction
+	local filter = params.filter
+	local closeButtonName = params.closeButtonName
+	local playMysticGateSound = params.playMysticGateSound
+	local playMenuClickSound = params.playMenuClickSound
+	local chanceToPlay = params.chanceToPlay or 100
+
+	if math.random(1, 100) <= chanceToPlay then
+		registerGreetEvent({
+			serviceFlag = serviceFlag,
+			greetFunction = greetFunction,
+			filter = filter,
+			closeButtonName = closeButtonName,
+			playMysticGateSound = playMysticGateSound,
+			playMenuClickSound = playMenuClickSound,
+		})
+	end
+end
+
+playCommentForService({
 	serviceFlag = "serviceTravel",
 	greetFunction = travelVoices,
 	filter = "MenuServiceTravel",
-	closeButtonName = "",
-	playMysticGateSound = false,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})
 
-registerGreetEvent {
+playCommentForService({
 	serviceFlag = "serviceBarter",
 	greetFunction = commonVoices,
 	filter = "MenuBarter",
-	closeButtonName = "",
-	playMysticGateSound = false,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})
 
-registerGreetEvent {
+playCommentForService({
 	serviceFlag = "serviceTraining",
 	greetFunction = trainingVoices,
 	filter = "MenuServiceTraining",
 	closeButtonName = "MenuServiceTraining_Okbutton",
-	playMysticGateSound = false,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})
 
-registerGreetEvent {
+playCommentForService({
 	serviceFlag = "serviceEnchantment",
 	greetFunction = commonVoices,
 	filter = "MenuEnchantment",
-	closeButtonName = "",
-	playMysticGateSound = false,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})
 
-registerGreetEvent {
+playCommentForService({
 	serviceFlag = "serviceSpellmaking",
 	greetFunction = spellVoices,
 	filter = "MenuSpellmaking",
 	closeButtonName = "MenuSpellmaking_Cancelbutton",
-	playMysticGateSound = false,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})
 
-registerGreetEvent {
+playCommentForService({
 	serviceFlag = "serviceSpells",
 	greetFunction = spellVoices,
 	filter = "MenuServiceSpells",
 	closeButtonName = "MenuServiceSpells_Okbutton",
 	playMysticGateSound = true,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})
 
-registerGreetEvent {
+playCommentForService({
 	serviceFlag = "serviceRepair",
 	greetFunction = commonVoices,
 	filter = "MenuServiceRepair",
 	closeButtonName = "MenuServiceRepair_Okbutton",
-	playMysticGateSound = false,
-	playMenuClickSound = true,
-}
+	playMenuClickSound = true
+})

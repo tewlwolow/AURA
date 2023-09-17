@@ -65,6 +65,7 @@ local function playOpenSound(e)
 end
 
 local function playCloseSound(e)
+    if not e.reference then return end
     if not (e.reference.object.objectType == tes3.objectType.container) or (e.reference.object.objectType == tes3.objectType.npc) then return end
     if flag == 1 then return end
 

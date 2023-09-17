@@ -13,20 +13,20 @@ local trainingVoices = serviceVoicesData.trainingVoices
 
 local UISpells = config.UISpells
 local serviceFlags = {
-    serviceRepair = config.serviceRepair,
-    serviceSpells = config.serviceSpells,
-    serviceTraining = config.serviceTraining,
-    serviceSpellmaking = config.serviceSpellmaking,
-    serviceEnchantment = config.serviceEnchantment,
-    serviceTravel = config.serviceTravel,
-    serviceBarter = config.serviceBarter
+	serviceRepair = config.serviceRepair,
+	serviceSpells = config.serviceSpells,
+	serviceTraining = config.serviceTraining,
+	serviceSpellmaking = config.serviceSpellmaking,
+	serviceEnchantment = config.serviceEnchantment,
+	serviceTravel = config.serviceTravel,
+	serviceBarter = config.serviceBarter
 }
 
 local flags = {
-    trainingFlag = 0,
-    spellsFlag = 0,
-    spellMakingFlag = 0,
-    repairFlag = 0
+	trainingFlag = 0,
+	spellsFlag = 0,
+	spellMakingFlag = 0,
+	repairFlag = 0
 }
 
 local newVoice, lastVoice = "init", "init"
@@ -34,33 +34,33 @@ local newVoice, lastVoice = "init", "init"
 local debugLog = common.debugLog
 
 local function getServiceVoiceData(e, voiceData)
-    local npcId = tes3ui.getServiceActor(e)
-    local raceId = npcId.object.race.id
-    local raceLet = raceNames[raceId]
-    local sexLet = npcId.object.female and "f" or "m"
+	local npcId = tes3ui.getServiceActor(e)
+	local raceId = npcId.object.race.id
+	local raceLet = raceNames[raceId]
+	local sexLet = npcId.object.female and "f" or "m"
 
-    return voiceData[raceLet] and voiceData[raceLet][sexLet]
+	return voiceData[raceLet] and voiceData[raceLet][sexLet] or commonVoices[raceLet] and commonVoices[raceLet][sexLet]
 end
 
 local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
-    if #serviceFeed > 0 then
-        while newVoice == lastVoice or newVoice == nil do
-            newVoice = serviceFeed[math.random(1, #serviceFeed)]
-        end
+	if #serviceFeed > 0 then
+		while newVoice == lastVoice or newVoice == nil do
+			newVoice = serviceFeed[math.random(1, #serviceFeed)]
+		end
 
-        tes3.removeSound { reference = npcId }
-        tes3.say {
-            volume = 0.9 * SVvol,
-            soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
-            reference = npcId
-        }
-        lastVoice = newVoice
-        debugLog("NPC says a comment for the service.")
-    end
+		tes3.removeSound { reference = npcId }
+		tes3.say {
+			volume = 0.9 * SVvol,
+			soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
+			reference = npcId
+		}
+		lastVoice = newVoice
+		debugLog("NPC says a comment for the service.")
+	end
 end
 
 local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysticGateSound, playMenuClickSound)
-    local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))
+	local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))
 	if closeButton then
 		closeButton:register("mouseDown", function()
 			flags[flag] = 0
@@ -70,34 +70,34 @@ local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysti
 		end)
 	end
 
-    if flags[flag] == 1 then
-        return
-    end
+	if flags[flag] == 1 then
+		return
+	end
 
-    local npcId = tes3ui.getServiceActor(e)
-    local raceId = npcId.object.race.id
-    local raceLet = raceNames[raceId]
-    local sexLet = npcId.object.female and "f" or "m"
+	local npcId = tes3ui.getServiceActor(e)
+	local raceId = npcId.object.race.id
+	local raceLet = raceNames[raceId]
+	local sexLet = npcId.object.female and "f" or "m"
 
-    local serviceFeed = getServiceVoiceData(e, voiceData) or {}
+	local serviceFeed = getServiceVoiceData(e, voiceData) or {}
 
-    playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
+	playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 
-    flags[flag] = 1
-    debugLog("NPC says a comment for the service.")
+	flags[flag] = 1
+	debugLog("NPC says a comment for the service.")
 
-    if playMysticGateSound and UISpells and moduleUI then
-        tes3.playSound { soundPath = "FX\\MysticGate.wav", reference = tes3.player, volume = 0.2 * UIvol, pitch = 1.8 }
-        debugLog("Opening spell menu sound played.")
-    end
+	if playMysticGateSound and UISpells and moduleUI then
+		tes3.playSound { soundPath = "FX\\MysticGate.wav", reference = tes3.player, volume = 0.2 * UIvol, pitch = 1.8 }
+		debugLog("Opening spell menu sound played.")
+	end
 end
 
 local function registerGreetEvent(serviceFlag, greetFunction, filter, closeButtonName, playMysticGateSound, playMenuClickSound)
-    if serviceFlags[serviceFlag] then
-        event.register("uiActivated", function(e)
-            handleServiceGreet(e, greetFunction, serviceFlag, closeButtonName, playMysticGateSound, playMenuClickSound)
-        end, { filter = filter, priority = -10 })
-    end
+	if serviceFlags[serviceFlag] then
+		event.register("uiActivated", function(e)
+			handleServiceGreet(e, greetFunction, serviceFlag, closeButtonName, playMysticGateSound, playMenuClickSound)
+		end, { filter = filter, priority = -10 })
+	end
 end
 
 registerGreetEvent("serviceTravel", travelVoices, "MenuServiceTravel", "", false, true) -- Play Menu Click

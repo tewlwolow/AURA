@@ -22,13 +22,6 @@ local serviceFlags = {
 	serviceBarter = config.serviceBarter
 }
 
-local flags = {
-	trainingFlag = 0,
-	spellsFlag = 0,
-	spellMakingFlag = 0,
-	repairFlag = 0
-}
-
 local newVoice, lastVoice = "init", "init"
 
 local debugLog = common.debugLog
@@ -59,19 +52,14 @@ local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 	end
 end
 
-local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysticGateSound, playMenuClickSound)
+local function handleServiceGreet(e, voiceData, closeButtonName, playMysticGateSound, playMenuClickSound)
 	local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))
 	if closeButton then
 		closeButton:register("mouseDown", function()
-			flags[flag] = 0
 			if playMenuClickSound then
 				tes3.playSound { sound = "Menu Click", reference = tes3.player }
 			end
 		end)
-	end
-
-	if flags[flag] == 1 then
-		return
 	end
 
 	local npcId = tes3ui.getServiceActor(e)
@@ -83,9 +71,6 @@ local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysti
 
 	playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 
-	flags[flag] = 1
-	debugLog("NPC says a comment for the service.")
-
 	if playMysticGateSound and UISpells and moduleUI then
 		tes3.playSound { soundPath = "FX\\MysticGate.wav", reference = tes3.player, volume = 0.2 * UIvol, pitch = 1.8 }
 		debugLog("Opening spell menu sound played.")
@@ -95,7 +80,7 @@ end
 local function registerGreetEvent(serviceFlag, greetFunction, filter, closeButtonName, playMysticGateSound, playMenuClickSound)
 	if serviceFlags[serviceFlag] then
 		event.register("uiActivated", function(e)
-			handleServiceGreet(e, greetFunction, serviceFlag, closeButtonName, playMysticGateSound, playMenuClickSound)
+			handleServiceGreet(e, greetFunction, closeButtonName, playMysticGateSound, playMenuClickSound)
 		end, { filter = filter, priority = -10 })
 	end
 end

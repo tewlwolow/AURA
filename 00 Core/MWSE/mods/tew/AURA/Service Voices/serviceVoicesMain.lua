@@ -60,6 +60,7 @@ local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysti
 	end
 
 	local npcId = tes3ui.getServiceActor(e)
+	if not (npcId) or (npcId and not npcId.race) then return end
 	local raceId = npcId.object.race.id
 	local raceLet = raceNames[raceId]
 	local sexLet = npcId.object.female and "f" or "m"

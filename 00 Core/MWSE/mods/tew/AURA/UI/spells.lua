@@ -9,6 +9,7 @@ local debugLog = common.debugLog
 -- Play gold and magic sound on purchasing spells --
 local function onSpellClick(e)
     local element=e.element:findChild("MenuServiceSpells_Spells")
+    if not element then return end
     for _, spellClick in pairs(element.children) do
         if string.find(spellClick.text, "gp") then
             spellClick:registerAfter("mouseDown", function()

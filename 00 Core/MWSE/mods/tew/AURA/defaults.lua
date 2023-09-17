@@ -15,6 +15,7 @@ return {
     debugLogOn = false,
     volumeSave = {keyCode = tes3.scanCode.v},
     tauntChance = 30,
+    serviceChance = 100,
     serviceTravel = true,
     serviceRepair = true,
     serviceSpells = true,

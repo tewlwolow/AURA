@@ -103,6 +103,7 @@ this.messages = {
 	enableEnchantment = "Activer les commentaires audio sur les services d'enchantement ?",
 	enableTravel = "Activer les commentaires audio sur les services de voyage ?",
 	enableBarter = "Activer les commentaires audio sur les services de marchandage ?",
+	serviceChance = "Change le % de chances qu'une commentaire audio sur les services soit lancée.",
 
 	PC = "PJ",
 	PCDesc = "Joue des sons en fonction du statut du PJ.",

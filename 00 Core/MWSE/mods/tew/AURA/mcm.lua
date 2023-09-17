@@ -249,6 +249,14 @@ pageSV:createYesNoButton {
 	variable = registerVariable("serviceBarter"),
 }
 pageSV:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.serviceChance, messages.default, defaults.serviceChance, messages.chance),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 10,
+	variable = registerVariable("serviceChance")
+}
+pageSV:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.SVVol, messages.default, defaults.volumes.misc.SVvol, messages.volume),
 	min = 0,
 	max = 200,

@@ -37,20 +37,27 @@ end
 
 local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 	if #serviceFeed > 0 then
-		while newVoice == lastVoice or newVoice == nil do
-			newVoice = serviceFeed[math.random(1, #serviceFeed)]
-		end
+		-- Generate a random number between 1 and 100
+		local randomChance = math.random(1, 100)
 
-		tes3.removeSound { reference = npcId }
-		tes3.say {
-			volume = 0.9 * SVvol,
-			soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
-			reference = npcId
-		}
-		lastVoice = newVoice
-		debugLog("NPC says a comment for the service.")
+		-- Check if the random number is less than or equal to the configured chance
+		if randomChance <= config.serviceChance then
+			while newVoice == lastVoice or newVoice == nil do
+				newVoice = serviceFeed[math.random(1, #serviceFeed)]
+			end
+
+			tes3.removeSound { reference = npcId }
+			tes3.say {
+				volume = 0.9 * SVvol,
+				soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
+				reference = npcId
+			}
+			lastVoice = newVoice
+			debugLog("NPC says a comment for the service.")
+		end
 	end
 end
+
 
 local function handleServiceGreet(e, voiceData, closeButtonName, playMysticGateSound, playMenuClickSound)
 	local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))

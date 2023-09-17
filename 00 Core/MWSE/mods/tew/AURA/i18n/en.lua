@@ -90,6 +90,7 @@ this.messages = {
 	enableEnchantment = "Enable voice comments on enchanting service?",
 	enableTravel = "Enable voice comments on travel service?",
 	enableBarter = "Enable voice comments on barter service?",
+	serviceChance = "Changes % chance for a service comment to play.",
 
 	PC = "PC",
 	PCDesc = "Plays sounds related to the player character.",

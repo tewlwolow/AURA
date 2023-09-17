@@ -72,12 +72,12 @@ this.messages = {
 
 	OA = "Ambiance Extérieure",
 	OADesc = "Joue des sons d'ambiance en fonction du climat, de la météo, de la position du joueur et de l'heure de la journée.",
-	OAVol = "Change le % de volume des sons du module Ambiance Extérieure.",
+	OAVol = "Changer le % de volume des sons du module Ambiance Extérieure.",
 	playInteriorAmbient = "Activer les sons ambiants extérieurs dans les intérieurs ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
 
 	IA = "Ambiance Intérieure",
 	IADesc = "Joue des sons d'ambiance en fonction du type d'intérieur. Inclut les tavernes, les guildes, les boutiques, les bibliothèques, les tombeaux, les grottes et les ruines.",
-	IAVol = "Change le % de volume des sons du module Ambiance Intérieure.",
+	IAVol = "Changer le % de volume des sons du module Ambiance Intérieure.",
 
 	enableTaverns = "Activer les musiques de taverne dépendant de la culture ? Notez que vous profiterez davantage de cette option si vous désactivez vos sous-dossiers 'Battle' et 'Explore' dans votre dossier 'Music' et n'utilisez pas de mod de musique.",
 	tavernsBlacklist = "Liste noire des tavernes",
@@ -87,15 +87,15 @@ this.messages = {
 
 	PA = "Ambiance Population",
 	PADesc = "Joue des sons d'ambiance dans les lieux peuplés commes les villes et les villages.",
-	PAVol = "Change le % de volume des sons du module Ambiance Population.",
+	PAVol = "Changer le % de volume des sons du module Ambiance Population.",
 
 	IW = "Météo Intérieure",
 	IWDesc = "Joue des sons liés à la météo dans les cellules intérieures.",
-	IWVol = "Change le % de volume des sons du module Météo Intérieure.",
+	IWVol = "Changer le % de volume des sons du module Météo Intérieure.",
 
 	SV = "Commentaires Services",
 	SVDesc = "Joue des commentaires audio appropriés lorsqu'un PNJ vous rend un service.",
-	SVVol = "Change le % de volume des sons du module Commentaires Services.",
+	SVVol = "Changer le % de volume des sons du module Commentaires Services.",
 	enableRepair = "Activer les commentaires audio sur les services de réparation ?",
 	enableSpells = "Activer les commentaires audio sur les services de vente de sorts ?",
 	enableTraining = "Activer les commentaires audio sur les services d'entraînement ?",
@@ -103,7 +103,7 @@ this.messages = {
 	enableEnchantment = "Activer les commentaires audio sur les services d'enchantement ?",
 	enableTravel = "Activer les commentaires audio sur les services de voyage ?",
 	enableBarter = "Activer les commentaires audio sur les services de marchandage ?",
-	serviceChance = "Change le % de chances qu'une commentaire audio sur les services soit lancée.",
+	serviceChance = "Changer le % de chances qu'une commentaire audio sur les services soit lancée.",
 
 	PC = "PJ",
 	PCDesc = "Joue des sons en fonction du statut du PJ.",
@@ -112,14 +112,14 @@ this.messages = {
 	enableMagicka = "Activer les sons lorsque la magie est basse ?",
 	enableDisease = "Activer les sons lorsque le PJ souffre d'une maladie commune ?",
 	enableBlight = "Activer les sons lorsque le PJ souffre du Fléau ?",
-	vsVol = "Change le % de volume des sons des signes vitaux (santé, fatigue, magie, maladie, Fléau).",
+	vsVol = "Changer le % de volume des sons des signes vitaux (santé, fatigue, magie, maladie, Fléau).",
 	enableTaunts = "Activer les sons de provocation lorsque le PJ est en combat ?",
-	tauntChance = "Change le % de chances qu'une provocation de combat soit lancée.",
-	tVol = "Change le % de volume des provocations du PJ.",
+	tauntChance = "Changer le % de chances qu'une provocation de combat soit lancée.",
+	tVol = "Changer le % de volume des provocations du PJ.",
 
 	containers = "Conteneurs",
 	containersDesc = "Joue des sons à l'ouverture et à la fermeture des conteneurs.",
-	CVol = "Change le % de volume des sons du module Conteneurs.",
+	CVol = "Changer le % de volume des sons du module Conteneurs.",
 
 	UI = "Interface",
 	UIDesc = "Joue des sons immersifs additionnels lors de l'utilisation de l'interface.",
@@ -128,7 +128,7 @@ this.messages = {
 	UISpells = "Activer les sons du menu des sorts ?",
 	UIBarter = "Activer les sons du menu de marchandage ?",
 	UIEating = "Activer les sons de restauration lors de la consommation de nourriture dans l'inventaire ?",
-	UIVol = "Change le % de volume des sons du module Interface.",
+	UIVol = "Changer le % de volume des sons du module Interface.",
 
 	misc = "Divers",
 	miscDesc = "Joue des sons additionnels divers.",
@@ -136,11 +136,11 @@ this.messages = {
 	rainOnStaticsSounds = "Activer le sons de la pluie pour certains objets à l'extérieur ? Nécessite des sons variables de la pluie.",
 	windSounds = "Activer les sons variables du vent en fonction de la vitesse des nuages ?",
 	playInteriorWind = "Activer les sons de vent en intérieur ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
-	windVol = "Change le % volume des sons de vent.",
+	windVol = "Changer le % volume des sons de vent.",
 	playSplash = "Activer les sons d'éclaboussures en entrant et sortant de l'eau ?",
-	splashVol = "Change le % de volume des sons d'éclaboussures.",
+	splashVol = "Changer le % de volume des sons d'éclaboussures.",
 	playYurtFlap = "Activer les sons des portes de yourte ou en peau d'ours ?",
-	yurtVol = "Change le % de volume des sons des portes de yourte ou en peau d'ours.",
+	yurtVol = "Changer le % de volume des sons des portes de yourte ou en peau d'ours.",
 	underwaterRain = "Activer la mise à l'échelle du volume des effets de la météo sous l'eau ?"
 
 }

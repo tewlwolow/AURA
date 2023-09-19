@@ -60,7 +60,7 @@ local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysti
 	end
 
 	local npcId = tes3ui.getServiceActor(e)
-	if not (npcId) or (npcId and not npcId.race) then return end
+	if not (npcId) or (npcId and not npcId.object.race) then return end
 	local raceId = npcId.object.race.id
 	local raceLet = raceNames[raceId]
 	local sexLet = npcId.object.female and "f" or "m"
@@ -92,16 +92,15 @@ local function registerGreetEvent(params)
 	end
 end
 
-local function playCommentForService(params)
+local function parseServiceData(params)
 	local serviceFlag = params.serviceFlag
 	local greetFunction = params.greetFunction
 	local filter = params.filter
 	local closeButtonName = params.closeButtonName
 	local playMysticGateSound = params.playMysticGateSound
 	local playMenuClickSound = params.playMenuClickSound
-	local chanceToPlay = params.chanceToPlay or 100
 
-	if math.random(1, 100) <= chanceToPlay then
+	if math.random(1, 100) <= config.serviceChance then
 		registerGreetEvent({
 			serviceFlag = serviceFlag,
 			greetFunction = greetFunction,
@@ -113,21 +112,21 @@ local function playCommentForService(params)
 	end
 end
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceTravel",
 	greetFunction = travelVoices,
 	filter = "MenuServiceTravel",
 	playMenuClickSound = true
 })
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceBarter",
 	greetFunction = commonVoices,
 	filter = "MenuBarter",
 	playMenuClickSound = true
 })
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceTraining",
 	greetFunction = trainingVoices,
 	filter = "MenuServiceTraining",
@@ -135,14 +134,14 @@ playCommentForService({
 	playMenuClickSound = true
 })
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceEnchantment",
 	greetFunction = commonVoices,
 	filter = "MenuEnchantment",
 	playMenuClickSound = true
 })
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceSpellmaking",
 	greetFunction = spellVoices,
 	filter = "MenuSpellmaking",
@@ -150,7 +149,7 @@ playCommentForService({
 	playMenuClickSound = true
 })
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceSpells",
 	greetFunction = spellVoices,
 	filter = "MenuServiceSpells",
@@ -159,7 +158,7 @@ playCommentForService({
 	playMenuClickSound = true
 })
 
-playCommentForService({
+parseServiceData({
 	serviceFlag = "serviceRepair",
 	greetFunction = commonVoices,
 	filter = "MenuServiceRepair",

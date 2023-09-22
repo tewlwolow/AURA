@@ -71,9 +71,11 @@ for folder in lfs.dir("Data Files\\Music\\tew\\AURA") do
     if folder ~= "Special" then
         for soundfile in lfs.dir("Data Files\\Music\\tew\\AURA\\" .. folder) do
             if soundfile and soundfile ~= ".." and soundfile ~= "." and string.endswith(soundfile, ".mp3") then
-                table.insert(musicArrays[folder], soundfile)
+                local ok = pcall(table.insert, musicArrays[folder], soundfile)
+                if not ok then goto continue end
                 debugLog("Adding music file: " .. soundfile)
             end
+            :: continue ::
         end
     end
 end

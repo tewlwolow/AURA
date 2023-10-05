@@ -35,10 +35,10 @@ end
 local function textInputIsActive()
     local menuController = tes3.worldController.menuController
     local inputFocus = menuController.inputController.textInputFocus
-    if (not inputFocus or not inputFocus.visible) then
-        return false
+    if inputFocus and inputFocus.visible then
+        return true
     end
-    return true
+    return false
 end
 
 local sliderPercent = {
@@ -317,7 +317,10 @@ end
 
 function this.toggle(e)
 
-    if textInputIsActive() then return end
+    if textInputIsActive() then
+        debugLog("Text input active, returning.")
+        return
+    end
 
     if e.isShiftDown then
 

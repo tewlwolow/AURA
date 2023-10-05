@@ -94,11 +94,10 @@ function this.getWindoors(cell)
 	local windoors = {}
 	for door in cell:iterateReferences(tes3.objectType.door) do
 		if door.destination then
-			if (not door.destination.cell.isInterior)
-				or (door.destination.cell.behavesAsExterior and
+			if (door.destination.cell.isOrBehavesAsExterior) and
 					(not string.find(cell.name:lower(), "plaza") and
 						(not string.find(cell.name:lower(), "vivec") and
-							(not string.find(cell.name:lower(), "arena pit"))))) then
+							(not string.find(cell.name:lower(), "arena pit")))) then
 				table.insert(windoors, door)
 			end
 		end
@@ -148,14 +147,8 @@ function this.isTimerAlive(t)
 end
 
 function this.cellIsInterior(cell)
-    local cell = cell or tes3.getPlayerCell()
-    if cell and
-        cell.isInterior and
-        (not cell.behavesAsExterior) then
-        return true
-    else
-        return false
-    end
+    local c = cell or tes3.getPlayerCell()
+	return (c and not c.isOrBehavesAsExterior)
 end
 
 function this.getInteriorType(cell)

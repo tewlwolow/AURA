@@ -67,6 +67,7 @@ this.messages = {
     small = "petit",
     exteriorVolume = "le volume à l'extérieur",
     underwater = "sous l'eau",
+    adjustingAuto = "Ajustement automatique",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 

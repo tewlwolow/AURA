@@ -54,6 +54,7 @@ this.messages = {
     small = "small",
     exteriorVolume = "exterior volume",
     underwater = "underwater",
+    adjustingAuto = "Adjusting automatically",
 
 	refreshManifest = "Refresh manifest file",
 

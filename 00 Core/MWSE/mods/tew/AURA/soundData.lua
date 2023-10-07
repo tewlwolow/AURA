@@ -93,4 +93,6 @@ this.interiorRainLoops = {
     }
 }
 
+this.weatherLoops = {} -- Stores vanilla rain, extreme weather and AURA variable rain sound objects
+
 return this

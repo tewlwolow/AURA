@@ -16,7 +16,15 @@ local function update(e)
         this.windoors = common.getWindoors(this.cell)
     end
 end
-event.register("load", update)
+
+-- Prevent an unwanted splash_sml sound from playing when loading a game
+-- from underwater to a non-underwater location.
+local function resetPlayerUnderwater(e)
+    this.playerUnderwater = false
+    update(e)
+end
+
+event.register("load", resetPlayerUnderwater)
 event.register("loaded", update)
 event.register("cellChanged", update)
 event.register("weatherChangedImmediate", update)

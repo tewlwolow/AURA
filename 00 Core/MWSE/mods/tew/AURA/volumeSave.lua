@@ -28,8 +28,7 @@ function this.init()
     this.id_buttonBlock = tes3ui.registerID("AURA:MenuAdjustVolume_buttonBlock")
     this.id_buttonUndo = tes3ui.registerID("AURA:MenuAdjustVolume_buttonUndo")
     this.id_buttonRestoreDefaults = tes3ui.registerID("AURA:MenuAdjustVolume_buttonRestoreDefaults")
-    this.printConfigVolumes()
-    this.setConfigVolumes()
+    volumeController.printConfigVolumes()
 end
 
 local function textInputIsActive()
@@ -123,7 +122,11 @@ local function doExtremes()
         local entry = createEntry()
         local trackInfo = entry:findChild(this.id_trackInfo)
         trackInfo.text = string.format("%s: %s", cw.name, track.id)
-        createSlider(entry, sc)
+        if tes3.mobilePlayer and tes3.mobilePlayer.isSwimming and this.config.underwaterRain then
+            trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto, math.round(track.volume, 2) * 100)
+        else
+            createSlider(entry, sc)
+        end
         menu:updateLayout()
     end
 end
@@ -150,7 +153,11 @@ local function doRain()
     local entry = createEntry()
     local trackInfo = entry:findChild(this.id_trackInfo)
     trackInfo.text = string.format("%s (%s): %s", cw.name, rainType, track.id)
-    createSlider(entry, sc)
+    if tes3.mobilePlayer and tes3.mobilePlayer.isSwimming and this.config.underwaterRain then
+        trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto, math.round(track.volume, 2) * 100)
+    else
+        createSlider(entry, sc)
+    end
     menu:updateLayout()
 end
 
@@ -311,7 +318,7 @@ local function redraw()
         adjustVolume{module = moduleName, config = this.config}
     end
     table.clear(this.adjustedModules)
-    this.setConfigVolumes(this.config)
+    volumeController.setConfigVolumes()
     menu:updateLayout()
 end
 
@@ -367,48 +374,6 @@ function this.onRestoreDefaults(e)
     this.config.volumes.extremeWeather = defaults.volumes.extremeWeather
     redraw()
     tes3.messageBox{ message = messages.defaultsRestored }
-end
-
-function this.setConfigVolumes(c)
-    local config = c or mwse.loadConfig("AURA", defaults)
-    local vanillaRain = tes3.getSound("Rain")
-    local vanillaStorm = tes3.getSound("rain heavy")
-    local ashstorm = tes3.getSound("ashstorm")
-    local blight = tes3.getSound("Blight")
-    local blizzard = tes3.getSound("BM Blizzard")
-    if config.rainSounds then
-        if vanillaRain then vanillaRain.volume = 0 end
-        if vanillaStorm then vanillaStorm.volume = 0 end
-    end
-    for weatherName, data in pairs(soundData.rainLoops) do
-        for rainType, track in pairs(data) do
-            if track then
-                setVolume(track, config.volumes.rain[weatherName][rainType] / 100)
-            end
-        end
-    end
-    if ashstorm then setVolume(ashstorm, config.volumes.extremeWeather["Ashstorm"] / 100) end
-    if blight then setVolume(blight, config.volumes.extremeWeather["Blight"] / 100) end
-    if blizzard then setVolume(blizzard, config.volumes.extremeWeather["Blizzard"] / 100) end
-end
-
-function this.printConfigVolumes()
-    local config = mwse.loadConfig("AURA", defaults)
-    for configKey, volumeTable in pairs(config.volumes) do
-        if configKey == "modules" then
-            for moduleName, moduleVol in pairs(volumeTable) do
-                debugLog(string.format("[%s] vol: %s, big: %s, sma: %s, und: %s", moduleName, moduleVol.volume, moduleVol.big, moduleVol.sma, moduleVol.und))
-            end
-        elseif configKey == "rain" then
-            for weatherName, weatherData in pairs(volumeTable) do
-                debugLog(string.format("[%s] light: %s, medium: %s, heavy: %s", weatherName, weatherData.light, weatherData.medium, weatherData.heavy))
-            end
-        else
-            for volumeTableKey, volumeTableValue in pairs(volumeTable) do
-                debugLog(string.format("[%s] %s: %s", configKey, volumeTableKey, volumeTableValue))
-            end
-        end
-    end
 end
 
 this.init()

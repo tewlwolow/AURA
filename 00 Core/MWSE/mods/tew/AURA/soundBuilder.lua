@@ -145,45 +145,45 @@ local function buildWeatherSounds()
 
 	filename = soundDir .. wDir .. "\\big\\rl.wav"
 	objectId = "tew_b_rainlight"
-	soundData.interiorRainLoops["big"]["light"] = createSound(objectId, filename)
+	soundData.interiorRainLoops["big"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = soundDir .. wDir .. "\\big\\rm.wav"
 	objectId = "tew_b_rainmedium"
-    soundData.interiorRainLoops["big"]["medium"] = createSound(objectId, filename)
+    soundData.interiorRainLoops["big"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 	createSound(objectId, filename, soundData.interiorWeather["big"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["big"], 5)
 
 	filename = soundDir .. wDir .. "\\big\\rh.wav"
 	objectId = "tew_b_rainheavy"
-	soundData.interiorRainLoops["big"]["heavy"] = createSound(objectId, filename)
+	soundData.interiorRainLoops["big"]["heavy"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = soundDir .. wDir .. "\\sma\\rl.wav"
 	objectId = "tew_s_rainlight"
-	soundData.interiorRainLoops["sma"]["light"] = createSound(objectId, filename)
+	soundData.interiorRainLoops["sma"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = soundDir .. wDir .. "\\sma\\rm.wav"
 	objectId = "tew_s_rainmedium"
-    soundData.interiorRainLoops["sma"]["medium"] = createSound(objectId, filename)
+    soundData.interiorRainLoops["sma"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 	createSound(objectId, filename, soundData.interiorWeather["sma"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["sma"], 5)
 
 	filename = soundDir .. wDir .. "\\sma\\rh.wav"
 	objectId = "tew_s_rainheavy"
-	soundData.interiorRainLoops["sma"]["heavy"] = createSound(objectId, filename)
+	soundData.interiorRainLoops["sma"]["heavy"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = soundDir .. wDir .. "\\ten\\rl.wav"
 	objectId = "tew_t_rainlight"
-	soundData.interiorRainLoops["ten"]["light"] = createSound(objectId, filename)
+	soundData.interiorRainLoops["ten"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = soundDir .. wDir .. "\\ten\\rm.wav"
 	objectId = "tew_t_rainmedium"
-    soundData.interiorRainLoops["ten"]["medium"] = createSound(objectId, filename)
+    soundData.interiorRainLoops["ten"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 	createSound(objectId, filename, soundData.interiorWeather["ten"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["ten"], 5)
 
 	filename = soundDir .. wDir .. "\\ten\\rh.wav"
 	objectId = "tew_t_rainheavy"
-	soundData.interiorRainLoops["ten"]["heavy"] = createSound(objectId, filename)
+	soundData.interiorRainLoops["ten"]["heavy"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename, objectId = nil, nil
 end
@@ -274,27 +274,27 @@ local function buildRain()
 
 	filename = "tew\\A\\R\\tew_rain_light.wav"
 	objectId = "tew_rain_light"
-    soundData.rainLoops["Rain"]["light"] = createSound(objectId, filename)
+    soundData.rainLoops["Rain"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = "tew\\A\\R\\tew_rain_medium.wav"
 	objectId = "tew_rain_medium"
-	soundData.rainLoops["Rain"]["medium"] = createSound(objectId, filename)
+	soundData.rainLoops["Rain"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = "tew\\A\\R\\tew_rain_heavy.wav"
 	objectId = "tew_rain_heavy"
-	soundData.rainLoops["Rain"]["heavy"] = createSound(objectId, filename)
+	soundData.rainLoops["Rain"]["heavy"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = "tew\\A\\R\\tew_thunder_light.wav"
 	objectId = "tew_thunder_light"
-	soundData.rainLoops["Thunderstorm"]["light"] = createSound(objectId, filename)
+	soundData.rainLoops["Thunderstorm"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = "tew\\A\\R\\tew_thunder_medium.wav"
 	objectId = "tew_thunder_medium"
-	soundData.rainLoops["Thunderstorm"]["medium"] = createSound(objectId, filename)
+	soundData.rainLoops["Thunderstorm"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = "tew\\A\\R\\tew_thunder_heavy.wav"
 	objectId = "tew_thunder_heavy"
-	soundData.rainLoops["Thunderstorm"]["heavy"] = createSound(objectId, filename)
+	soundData.rainLoops["Thunderstorm"]["heavy"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename, objectId = nil, nil
 end
@@ -319,12 +319,20 @@ local function getWeatherSounds()
 	local ashSound = tes3.getSound("ashstorm")
 	local blightSound = tes3.getSound("Blight")
 	local blizzardSound = tes3.getSound("BM Blizzard")
+	local rainSound = tes3.getSound("Rain")
+	local thunderSound = tes3.getSound("rain heavy")
 
 	for type in pairs(soundData.interiorWeather) do
 		table.insert(soundData.interiorWeather[type], 6, ashSound)
 		table.insert(soundData.interiorWeather[type], 7, blightSound)
 		table.insert(soundData.interiorWeather[type], 9, blizzardSound)
 	end
+
+    table.insert(soundData.weatherLoops, ashSound)
+    table.insert(soundData.weatherLoops, blightSound)
+    table.insert(soundData.weatherLoops, blizzardSound)
+    table.insert(soundData.weatherLoops, rainSound)
+    table.insert(soundData.weatherLoops, thunderSound)
 end
 
 local function checkForRemovedFiles()

@@ -103,4 +103,51 @@ function this.adjustVolume(options)
     end
 end
 
+function this.setConfigVolumes()
+    local config = mwse.loadConfig("AURA", defaults)
+    local vanillaRain = tes3.getSound("Rain")
+    local vanillaStorm = tes3.getSound("rain heavy")
+    local ashstorm = tes3.getSound("ashstorm")
+    local blight = tes3.getSound("Blight")
+    local blizzard = tes3.getSound("BM Blizzard")
+    debugLog("Setting config volumes.")
+    if config.rainSounds then
+        debugLog("Using variable rain sounds.")
+        if vanillaRain then this.setVolume(vanillaRain, 0) end
+        if vanillaStorm then this.setVolume(vanillaStorm, 0) end
+    end
+    for weatherName, data in pairs(soundData.rainLoops) do
+        for rainType, track in pairs(data) do
+            if track then
+                this.setVolume(track, config.volumes.rain[weatherName][rainType] / 100)
+            end
+        end
+    end
+    if ashstorm then this.setVolume(ashstorm, config.volumes.extremeWeather["Ashstorm"] / 100) end
+    if blight then this.setVolume(blight, config.volumes.extremeWeather["Blight"] / 100) end
+    if blizzard then this.setVolume(blizzard, config.volumes.extremeWeather["Blizzard"] / 100) end
+end
+
+function this.printConfigVolumes()
+    local config = mwse.loadConfig("AURA", defaults)
+    debugLog("Printing config volumes.")
+    for configKey, volumeTable in pairs(config.volumes) do
+        if configKey == "modules" then
+            for moduleName, moduleVol in pairs(volumeTable) do
+                debugLog(string.format("[%s] vol: %s, big: %s, sma: %s, und: %s", moduleName, moduleVol.volume, moduleVol.big, moduleVol.sma, moduleVol.und))
+            end
+        elseif configKey == "rain" then
+            for weatherName, weatherData in pairs(volumeTable) do
+                debugLog(string.format("[%s] light: %s, medium: %s, heavy: %s", weatherName, weatherData.light, weatherData.medium, weatherData.heavy))
+            end
+        else
+            for volumeTableKey, volumeTableValue in pairs(volumeTable) do
+                debugLog(string.format("[%s] %s: %s", configKey, volumeTableKey, volumeTableValue))
+            end
+        end
+    end
+end
+
+event.register(tes3.event.load, this.setConfigVolumes)
+
 return this

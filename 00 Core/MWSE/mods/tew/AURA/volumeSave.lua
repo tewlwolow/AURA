@@ -35,7 +35,7 @@ end
 local function textInputIsActive()
     local menuController = tes3.worldController.menuController
     local inputFocus = menuController.inputController.textInputFocus
-    if inputFocus and inputFocus.visible then
+    if inputFocus and inputFocus.visible and not inputFocus.disabled then
         return true
     end
     return false

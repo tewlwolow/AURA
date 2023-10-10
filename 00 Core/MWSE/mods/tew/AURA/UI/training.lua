@@ -37,5 +37,5 @@ local function onTrainingMenu(e)
 end
 
 
-print("[AURA "..version.."] UI: Training sounds initialised.")
+mwse.log("[AURA "..version.."] UI: Training sounds initialised.")
 event.register("uiActivated", onTrainingMenu, {filter="MenuServiceTraining"})

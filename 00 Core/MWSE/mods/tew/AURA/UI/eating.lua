@@ -12,5 +12,5 @@ local function eating(e)
     end
 end
 
-print("[AURA "..version.."] UI: Eating sound initialised.")
+mwse.log("[AURA "..version.."] UI: Eating sound initialised.")
 event.register("equip", eating)

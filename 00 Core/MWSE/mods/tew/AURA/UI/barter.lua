@@ -22,5 +22,5 @@ local function playBarterSounds(e)
 
 end
 
-print("[AURA "..version.."] UI: Barter sounds initialised.")
+mwse.log("[AURA "..version.."] UI: Barter sounds initialised.")
 event.register("uiActivated", playBarterSounds, {filter="MenuBarter", priority=-15})

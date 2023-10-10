@@ -34,6 +34,6 @@ local function onSpellMenu(e)
 end
 
 
-print("[AURA "..version.."] UI: Spell purchase sounds initialised.")
+mwse.log("[AURA "..version.."] UI: Spell purchase sounds initialised.")
 event.register("uiActivated", onSpellClick, {filter="MenuServiceSpells", priority=-15})
 event.register("uiActivated", onSpellMenu, {filter="MenuDialog", priority=-15})

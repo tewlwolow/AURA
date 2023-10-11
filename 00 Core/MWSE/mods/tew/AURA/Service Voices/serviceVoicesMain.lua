@@ -50,6 +50,7 @@ local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 end
 
 local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysticGateSound, playMenuClickSound)
+    if math.random(1, 100) > config.serviceChance then return end
 	local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))
 	if closeButton then
 		closeButton:register("mouseDown", function()
@@ -68,8 +69,6 @@ local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysti
 	local serviceFeed = getServiceVoiceData(e, voiceData) or {}
 
 	playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
-
-	debugLog("NPC says a comment for the service.")
 
 	if playMysticGateSound and UISpells and moduleUI then
 		tes3.playSound { soundPath = "FX\\MysticGate.wav", reference = tes3.player, volume = UI_VOLUME_MULTIPLIER * config.volumes.misc.UIvol / 100, pitch = 1.8 }
@@ -92,41 +91,21 @@ local function registerGreetEvent(params)
 	end
 end
 
-local function parseServiceData(params)
-	local serviceFlag = params.serviceFlag
-	local greetFunction = params.greetFunction
-	local filter = params.filter
-	local closeButtonName = params.closeButtonName
-	local playMysticGateSound = params.playMysticGateSound
-	local playMenuClickSound = params.playMenuClickSound
-
-	if math.random(1, 100) <= config.serviceChance then
-		registerGreetEvent({
-			serviceFlag = serviceFlag,
-			greetFunction = greetFunction,
-			filter = filter,
-			closeButtonName = closeButtonName,
-			playMysticGateSound = playMysticGateSound,
-			playMenuClickSound = playMenuClickSound,
-		})
-	end
-end
-
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceTravel",
 	greetFunction = travelVoices,
 	filter = "MenuServiceTravel",
 	playMenuClickSound = true
 })
 
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceBarter",
 	greetFunction = commonVoices,
 	filter = "MenuBarter",
 	playMenuClickSound = true
 })
 
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceTraining",
 	greetFunction = trainingVoices,
 	filter = "MenuServiceTraining",
@@ -134,14 +113,14 @@ parseServiceData({
 	playMenuClickSound = true
 })
 
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceEnchantment",
 	greetFunction = commonVoices,
 	filter = "MenuEnchantment",
 	playMenuClickSound = true
 })
 
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceSpellmaking",
 	greetFunction = spellVoices,
 	filter = "MenuSpellmaking",
@@ -149,7 +128,7 @@ parseServiceData({
 	playMenuClickSound = true
 })
 
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceSpells",
 	greetFunction = spellVoices,
 	filter = "MenuServiceSpells",
@@ -158,7 +137,7 @@ parseServiceData({
 	playMenuClickSound = true
 })
 
-parseServiceData({
+registerGreetEvent({
 	serviceFlag = "serviceRepair",
 	greetFunction = commonVoices,
 	filter = "MenuServiceRepair",

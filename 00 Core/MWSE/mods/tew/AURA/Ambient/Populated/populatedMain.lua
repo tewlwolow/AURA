@@ -3,6 +3,7 @@
 
 local data = require("tew.AURA.Ambient.Populated.populatedData")
 local config = require("tew.AURA.config")
+local moduleData = require("tew.AURA.moduleData")
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
 local isOpenPlaza = common.isOpenPlaza
@@ -86,7 +87,7 @@ local function cellCheck()
     debugLog("Weather: " .. weatherNow)
 
     -- No outside activity in ashstorms and that --
-    if (weatherNow >= 4 and weatherNow <= 7) or (weatherNow == 8) and weatherNow ~= weatherLast then
+    if moduleData[moduleName].blockedWeathers[weatherNow] and (weatherNow ~= weatherLast) then
         debugLog("Bad weather detected. Removing sounds.")
         sounds.remove { module = moduleName }
         timeLast = nil
@@ -181,7 +182,6 @@ event.register("cellChanged", cellCheck, { priority = -190 })
 event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -190 })
 event.register("weatherTransitionFinished", cellCheck, { priority = -190 })
 event.register("weatherChangedImmediate", cellCheck, { priority = -190 })
-event.register("AURA:aboveOrUnderwater", cellCheck, { priority = -190 })
 event.register("loaded", populatedTimer)
 event.register("load", runResetter)
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -5 })

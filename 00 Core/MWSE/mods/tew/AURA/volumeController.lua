@@ -13,52 +13,89 @@ local MAX = 1
 local MIN = 0
 
 function this.setVolume(track, volume)
-    local magicMaths = math.round(volume, 2)
+    local magicMaths = math.clamp(math.round(volume, 2), MIN, MAX)
     debugLog(string.format("Setting volume for track %s to %s", track.id, magicMaths))
     track.volume = magicMaths
+end
+
+function this.getCurrentWeatherConfig(moduleName)
+    local regionObject = common.getRegion()
+
+    if not regionObject then return {} end
+
+    local weather = regionObject.weather.index
+    local rainType = cellData.rainType[weather] or "light"
+    local interiorType = common.getInteriorType(cellData.cell)
+    local soundConfig = moduleData[moduleName].soundConfig
+
+    return (soundConfig[interiorType] and soundConfig[interiorType][weather])
+    or (soundConfig[rainType] and soundConfig[rainType][weather])
+    or {}
+end
+
+function this.getPitch(moduleName)
+    local cwConfig = this.getCurrentWeatherConfig(moduleName)
+    local pitch = cwConfig.pitch or MAX
+
+    if (not cellData.cell) or (cellData.cell.isOrBehavesAsExterior) then pitch = MAX end
+
+    if cellData.playerUnderwater then pitch = 0.5 end
+
+    debugLog(string.format("Got pitch for %s: %s", moduleName, pitch))
+    return pitch
 end
 
 function this.getVolume(moduleName, conf)
     local volume = MAX
     local config = conf or mwse.loadConfig("AURA", defaults)
     local moduleVol = config.volumes.modules[moduleName].volume / 100
-    local soundConfig = moduleData[moduleName].soundConfig
+    local cwConfig = this.getCurrentWeatherConfig(moduleName)
+    local weatherMult = cwConfig.mult or 1
+
+    local regionObject = common.getRegion()
+    local weather = regionObject and regionObject.weather.index
+    local blockedWeathers = moduleData[moduleName].blockedWeathers
+    local isEligibleWeather = (weather) and not (blockedWeathers and blockedWeathers[weather])
+
     local interiorType = common.getInteriorType(cellData.cell)
-    local regionObject = tes3.getRegion(true)
-    if not regionObject then regionObject = common.getFallbackRegion() end
-    local weather = regionObject.weather.index
     local rainType = cellData.rainType[weather] or "light"
     local windoorsMult = (moduleData[moduleName].playWindoors == true) and 0.005 or 0
-    if cellData.cell.isInterior and (moduleName == "interiorWeather") then
-        volume = soundConfig[interiorType][weather].mult * moduleVol
-        if (interiorType == "sma") and common.isOpenPlaza(cellData.cell) then
-            debugLog("Applying open plaza volume boost.")
+
+    if not isEligibleWeather then
+        debugLog(string.format("[%s] Not an eligible weather: %s", moduleName, weather))
+        volume = 0
+    else
+        debugLog(string.format("[%s] Weather: %s. Applying weatherMult: %s", moduleName, weather, weatherMult))
+        volume = moduleVol * weatherMult
+    end
+
+    if cellData.cell.isInterior
+    and (moduleName == "interiorWeather")
+    and (interiorType == "sma")
+    and common.isOpenPlaza(cellData.cell) then
+        if isEligibleWeather and (weather == 6 or weather == 7) then
+            volume = 0
+        else
+            debugLog(string.format("[%s] Applying open plaza volume boost.", moduleName))
             volume = math.min(volume + 0.2, 1)
             this.setVolume(tes3.getSound("Rain"), 0)
             this.setVolume(tes3.getSound("rain heavy"), 0)
         end
-    elseif moduleName == "rainOnStatics" then
-        if weather == 4 or weather == 5 then
-         volume = soundConfig[rainType][weather].mult * moduleVol
-        else
-            volume = 0
-        end
-    else
-        volume = moduleVol
     end
 
     if cellData.cell.isInterior then
         if (interiorType == "big") then
+            debugLog(string.format("[%s] Applying big interior mult.", moduleName))
             volume = (config.volumes.modules[moduleName].big * volume) - (windoorsMult * #cellData.windoors)
         elseif (interiorType == "sma") or (interiorType == "ten") then
+            debugLog(string.format("[%s] Applying small interior mult.", moduleName))
             volume = config.volumes.modules[moduleName].sma * volume
         end
     end
 
-    if (not cellData.cell.isInterior) or (cellData.cell.behavesAsExterior) then
-        if moduleData[moduleName].playUnderwater and cellData.playerUnderwater then
-            volume = config.volumes.modules[moduleName].und * volume
-        end
+    if cellData.playerUnderwater then
+        debugLog(string.format("[%s] Applying underwater nerf.", moduleName))
+        volume = config.volumes.modules[moduleName].und * volume
     end
 
     volume = math.max(math.floor(volume * 100) / 100, 0)
@@ -105,17 +142,22 @@ end
 
 function this.setConfigVolumes()
     local config = mwse.loadConfig("AURA", defaults)
-    local vanillaRain = tes3.getSound("Rain")
-    local vanillaStorm = tes3.getSound("rain heavy")
-    local ashstorm = tes3.getSound("ashstorm")
-    local blight = tes3.getSound("Blight")
-    local blizzard = tes3.getSound("BM Blizzard")
-    debugLog("Setting config volumes.")
-    if config.rainSounds then
-        debugLog("Using variable rain sounds.")
-        if vanillaRain then this.setVolume(vanillaRain, 0) end
-        if vanillaStorm then this.setVolume(vanillaStorm, 0) end
+
+    debugLog("Setting config weather volumes.")
+
+    for _, sound in pairs(soundData.weatherLoops) do
+        local id = sound.id:lower()
+        if id == "rain" or id == "rain heavy" then
+            this.setVolume(sound, config.rainSounds and 0 or sound.volume)
+        elseif id == "ashstorm" then
+            this.setVolume(sound, config.volumes.extremeWeather["Ashstorm"] / 100)
+        elseif id == "blight" then
+            this.setVolume(sound, config.volumes.extremeWeather["Blight"] / 100)
+        elseif id == "bm blizzard" then
+            this.setVolume(sound, config.volumes.extremeWeather["Blizzard"] / 100)
+        end
     end
+
     for weatherName, data in pairs(soundData.rainLoops) do
         for rainType, track in pairs(data) do
             if track then
@@ -123,9 +165,6 @@ function this.setConfigVolumes()
             end
         end
     end
-    if ashstorm then this.setVolume(ashstorm, config.volumes.extremeWeather["Ashstorm"] / 100) end
-    if blight then this.setVolume(blight, config.volumes.extremeWeather["Blight"] / 100) end
-    if blizzard then this.setVolume(blizzard, config.volumes.extremeWeather["Blizzard"] / 100) end
 end
 
 function this.printConfigVolumes()

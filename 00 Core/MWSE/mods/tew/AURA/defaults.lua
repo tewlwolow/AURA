@@ -43,8 +43,8 @@ return {
         modules = {
             ["outdoor"] = {volume = 55, big = 0.25, sma = 0.2, und = 0.4},
             ["populated"] = {volume = 50, big = 1, sma = 1, und = 0.3},
-            ["interior"] = {volume = 60, big = 1, sma = 1, und = 0},
-            ["interiorWeather"] = {volume = 65, big = 1, sma = 1, und = 0},
+            ["interior"] = {volume = 60, big = 1, sma = 1, und = 0.5},
+            ["interiorWeather"] = {volume = 65, big = 1, sma = 1, und = 0.3},
             ["wind"] = {volume = 65, big = 0.4, sma = 0.4, und = 0.3},
             ["rainOnStatics"] = {volume = 100, big = 1, sma = 1, und = 0},
         },

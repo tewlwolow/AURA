@@ -114,6 +114,23 @@ function this.getTrackPlaying(track, ref)
 	end
 end
 
+function this.currentlyPlaying(moduleName)
+    local oldTrack = moduleData[moduleName].old
+    local newTrack = moduleData[moduleName].new
+    return (oldTrack and tes3.getSoundPlaying{sound = oldTrack})
+    or (newTrack and tes3.getSoundPlaying{sound = newTrack})
+end
+
+function this.isStopping(moduleName, ref)
+    local oldTrack = moduleData[moduleName].old
+    local newTrack = moduleData[moduleName].new
+    return oldTrack
+    and (fader.isRunning{module = moduleName, track = oldTrack, reference = ref, fadeType = "out"}
+    or fader.isRunning{module = moduleName, track = newTrack, reference = ref, fadeType = "out"})
+    and not (fader.isRunning{module = moduleName, track = newTrack, reference = ref, fadeType = "in"}
+    or fader.isRunning{module = moduleName, track = oldTrack, reference = ref, fadeType = "in"})
+end
+
 -- Sometimes we need to just remove the sounds without fading --
 -- If fade is in progress for the given track and ref, we'll cancel the fade first --
 function this.removeImmediate(options)
@@ -168,11 +185,11 @@ end
 function this.playImmediate(options)
 	local ref = options.newRef or options.reference or tes3.mobilePlayer.reference
 	local track = options.last and moduleData[options.module].new or options.track or getTrack(options)
-	local pitch = options.pitch or MAX
 
 	if track then
 		if not tes3.getSoundPlaying{sound = track, reference = ref} then
             local volume = math.clamp(math.round(options.volume or getVolume(options.module), 2), MIN, MAX)
+            local pitch = options.pitch or volumeController.getPitch(options.module)
 			debugLog(string.format("[%s] Playing with volume %s: %s -> %s", options.module, volume, track.id, tostring(ref)))
 			tes3.playSound{
 				sound = track,

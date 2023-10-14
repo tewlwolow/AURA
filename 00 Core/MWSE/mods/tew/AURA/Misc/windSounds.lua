@@ -2,10 +2,12 @@ local cellData = require("tew.AURA.cellData")
 local common = require("tew.AURA.common")
 local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
+local moduleData = require("tew.AURA.moduleData")
 local sounds = require("tew.AURA.sounds")
+local volumeController = require("tew.AURA.volumeController")
 local moduleName = "wind"
 local playInteriorWind = config.playInteriorWind
-local windVol, bigMult, smaMult
+local windoorVol, windoorPitch = 0, 0
 local windType, cell
 local windTypeLast, cellLast
 local interiorTimer
@@ -13,11 +15,7 @@ local interiorTimer
 local debugLog = common.debugLog
 
 -- These have their own wind sounds --
-local blockedWeathers = {
-    [6] = true,
-    [7] = true,
-    [9] = true
-}
+local blockedWeathers = moduleData[moduleName].blockedWeathers
 
 -- Determine wind type per cloud speed values, set in Watch the Skies --
 local function getWindType(cSpeed)
@@ -44,19 +42,21 @@ local function updateConditions(resetTimerFlag)
     cellLast = cell
 end
 
-local function stopWindoors()
+local function stopWindoors(immediateFlag)
+    local remove = immediateFlag and sounds.removeImmediate or sounds.remove
 	if not table.empty(cellData.windoors) then
-        for _, windoor in ipairs(cellData.windoors) do
-            sounds.removeImmediate { module = moduleName, reference = windoor }
-        end
-    end
+		for _, windoor in ipairs(cellData.windoors) do
+			if windoor ~= nil then
+				remove { module = moduleName, reference = windoor }
+			end
+		end
+	end
 end
 
 -- TODO: don't getVol every time
 local function playWindoors(useLast)
 	if table.empty(cellData.windoors) then return end
 	debugLog("Updating interior doors and windows.")
-	local windoorVol = (bigMult * windVol) - (0.005 * #cellData.windoors)
 	local playerPos = tes3.player.position:copy()
 	local playLast
 	for i, windoor in ipairs(cellData.windoors) do
@@ -70,7 +70,7 @@ local function playWindoors(useLast)
                 module = moduleName,
                 type = windType,
                 volume = windoorVol,
-                pitch = 0.8,
+                pitch = windoorPitch,
                 newRef = windoor,
                 last = playLast,
             }
@@ -113,7 +113,7 @@ local function windCheck(e)
     -- Bugger off if weather is blocked --
     if blockedWeathers[weather.index] then
         debugLog("Uneligible weather detected. Removing sounds.")
-        stopWindoors()
+        stopWindoors(true)
         sounds.remove { module = moduleName }
         updateConditions()
         return
@@ -150,11 +150,6 @@ local function windCheck(e)
 
     if (windTypeLast ~= windType) or (cell ~= cellLast) then
 
-        config = mwse.loadConfig("AURA", defaults)
-        windVol = config.volumes.modules[moduleName].volume / 100
-        bigMult = config.volumes.modules[moduleName].big
-        smaMult = config.volumes.modules[moduleName].sma
-
         if (cell.isOrBehavesAsExterior) then
             -- Using the same track when entering int/ext in same area; time/weather change will randomise it again --
             debugLog(string.format("Found exterior cell. useLast: %s", useLast))
@@ -162,7 +157,7 @@ local function windCheck(e)
             sounds.play { module = moduleName, type = windType, last = useLast }
         else
             debugLog("Found interior cell.")
-            stopWindoors()
+            stopWindoors(true)
             if (cell ~= cellLast) then
                 sounds.removeImmediate { module = moduleName } -- Needed to catch previous interior cell sounds --
             end
@@ -178,14 +173,14 @@ local function windCheck(e)
                 sounds.play{
                     module = moduleName,
                     type = windType,
-                    volume = smaMult * windVol,
-                    pitch = 0.8,
                     last = useLast
                 }
             else
                 debugLog("Found big interior cell.")
                 if not table.empty(cellData.windoors) then
                     debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
+                    windoorVol = volumeController.getVolume(moduleName)
+                    windoorPitch = volumeController.getPitch(moduleName)
                     playWindoors(useLast)
                     updateConditions(true)
                     return
@@ -236,6 +231,21 @@ local function waitCheck(e)
     end)
 end
 
+-- Reset windoors when exiting underwater --
+local function resetWindoors(e)
+    if table.empty(cellData.windoors)
+    or not playInteriorWind
+    or not sounds.currentlyPlaying(moduleName) then
+        return
+    end
+    if interiorTimer then interiorTimer:pause() end
+    debugLog("Resetting windoors.")
+    stopWindoors(true)
+    windoorVol = volumeController.getVolume(moduleName)
+    windoorPitch = volumeController.getPitch(moduleName)
+    if interiorTimer then interiorTimer:reset() end
+end
+
 -- Timer here so that sky textures can work ok... something fishy with weatherTransitionStarted event for sure --
 local function transitionStartedWrapper(e)
     timer.start {
@@ -256,7 +266,7 @@ event.register("weatherChangedImmediate", onConditionChanged, { priority = -100 
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -100 })
 event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -100 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -100 })
-event.register("AURA:aboveOrUnderwater", onConditionChanged, { priority = -100 })
+event.register("AURA:exitedUnderwater", resetWindoors, { priority = -100 })
 event.register("loaded", onLoaded, { priority = -160 })
 event.register("load", runResetter)
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = 10 })

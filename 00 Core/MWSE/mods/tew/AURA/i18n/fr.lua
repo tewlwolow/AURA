@@ -63,6 +63,7 @@ this.messages = {
     fadeInProgress = "L'effet fondu en cours. Essayer plus tard.",
     adjustForInterior = "Ajuster pour l'intérieur",
     adjustForExterior = "Ajuster pour l'extérieur",
+    adjustForUnderwater = "Ajuster pour sous l'eau",
     big = "grand",
     small = "petit",
     exteriorVolume = "le volume à l'extérieur",

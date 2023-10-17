@@ -328,11 +328,11 @@ local function getWeatherSounds()
 		table.insert(soundData.interiorWeather[type], 9, blizzardSound)
 	end
 
+    table.insert(soundData.weatherLoops, rainSound)
+    table.insert(soundData.weatherLoops, thunderSound)
     table.insert(soundData.weatherLoops, ashSound)
     table.insert(soundData.weatherLoops, blightSound)
     table.insert(soundData.weatherLoops, blizzardSound)
-    table.insert(soundData.weatherLoops, rainSound)
-    table.insert(soundData.weatherLoops, thunderSound)
 end
 
 local function checkForRemovedFiles()

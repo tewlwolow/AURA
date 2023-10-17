@@ -272,4 +272,10 @@ function this.getFallbackRegion()
 	end
 end
 
+function this.getRegion()
+    local regionObject = tes3.getRegion(true) or this.getFallbackRegion()
+    if not regionObject then this.debugLog("Couldn't fetch region object.") end
+    return regionObject
+end
+
 return this

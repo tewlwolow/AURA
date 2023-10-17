@@ -50,6 +50,7 @@ this.messages = {
     fadeInProgress = "Fade in progress. Try later.",
     adjustForInterior = "Adjust for interior",
     adjustForExterior = "Adjust for exterior",
+    adjustForUnderwater = "Adjust for underwater",
     big = "big",
     small = "small",
     exteriorVolume = "exterior volume",

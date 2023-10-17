@@ -122,7 +122,7 @@ local function doExtremes()
         local entry = createEntry()
         local trackInfo = entry:findChild(this.id_trackInfo)
         trackInfo.text = string.format("%s: %s", cw.name, track.id)
-        if tes3.mobilePlayer and tes3.mobilePlayer.isSwimming and this.config.underwaterRain then
+        if cellData.playerUnderwater and config.underwaterRain then
             trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto, math.round(track.volume, 2) * 100)
         else
             createSlider(entry, sc)
@@ -153,7 +153,7 @@ local function doRain()
     local entry = createEntry()
     local trackInfo = entry:findChild(this.id_trackInfo)
     trackInfo.text = string.format("%s (%s): %s", cw.name, rainType, track.id)
-    if tes3.mobilePlayer and tes3.mobilePlayer.isSwimming and this.config.underwaterRain then
+    if cellData.playerUnderwater and config.underwaterRain then
         trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto, math.round(track.volume, 2) * 100)
     else
         createSlider(entry, sc)
@@ -163,14 +163,20 @@ end
 
 local function doModules()
     local menu = tes3ui.findMenu(this.id_menu)
+    local mp = tes3.mobilePlayer
     for moduleName, data in pairs(moduleData) do
-        if data.new and data.newRef and tes3.getSoundPlaying{sound = data.new, reference = data.newRef} then
+        if mp and data.new and data.newRef and tes3.getSoundPlaying{sound = data.new, reference = data.newRef} then
             local ref = data.newRef
             local track = data.new
             local configKey = common.getInteriorType(this.cell):gsub("ten", "sma")
             local sc = {}
             local entry = createEntry()
             local trackInfo = entry:findChild(this.id_trackInfo)
+
+            -- No point adjusting tracks attached to refs other than player's while underwater
+            if cellData.playerUnderwater and (ref ~= mp.reference) then
+                goto nextModule
+            end
             if fader.isRunning(moduleName) then
                 trackInfo.text = string.format("%s: %s", moduleName, messages.fadeInProgress)
                 goto nextModule
@@ -184,7 +190,7 @@ local function doModules()
             and (moduleName ~= "interior") then
                 sc.sliderType = sliderCoefficient
             else
-                if (ref ~= tes3.mobilePlayer.reference) and (moduleName == "rainOnStatics") then
+                if (ref ~= mp.reference) and (moduleName == "rainOnStatics") then
                     trackInfo.text = string.format("%s: %s", moduleName, messages.findOutdoorShelter)
                     trackInfo:register(tes3.uiEvent.help, function(e)
                         local tooltip = tes3ui.createTooltipMenu()
@@ -218,14 +224,13 @@ local function updateHeader()
     local trackList = menu:findChild(this.id_trackList)
     local hLabel = menu:findChild(this.id_headerLabel)
     local cellType
-    if (trackList) and (this.entries > 0) and this.cell.isInterior then
+    if (trackList) and (this.entries > 0) and cellData.playerUnderwater then
+        hLabel.text = messages.adjustForUnderwater
+    elseif (trackList) and (this.entries > 0) and this.cell.isInterior then
         cellType = common.getInteriorType(this.cell):gsub("^sma$", messages.small):gsub("^ten$", messages.small):gsub("^big$", messages.big)
         hLabel.text = string.format("%s (%s)", messages.adjustForInterior, cellType)
     elseif (trackList) and (this.entries > 0) and not this.cell.isInterior then
         hLabel.text = messages.adjustForExterior
-        if cellData.playerUnderwater then
-            hLabel.text = string.format("%s\n(%s)", hLabel.text, messages.underwater)
-        end
     else
         hLabel.text = messages.noTracksPlaying
     end

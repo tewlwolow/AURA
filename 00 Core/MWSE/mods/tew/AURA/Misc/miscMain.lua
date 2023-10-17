@@ -8,7 +8,6 @@ local function init()
     local rainSounds = config.rainSounds
     local windSounds = config.windSounds
     local playRainOnStatics = config.playRainOnStatics
-    local underwaterRain = config.underwaterRain
 
     mwse.log(string.format("[AURA %s] %s underwater.lua.", version, messages.loadingFile))
     dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Misc\\underwater.lua")
@@ -31,11 +30,6 @@ local function init()
     if playRainOnStatics then
         mwse.log(string.format("[AURA %s] %s rainOnStatics.lua.", version, messages.loadingFile))
         dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Misc\\rainOnStatics.lua")
-    end
-
-    if underwaterRain then
-        mwse.log(string.format("[AURA %s] %s underwaterRain.lua.", version, messages.loadingFile))
-        dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Misc\\underwaterRain.lua")
     end
 end
 

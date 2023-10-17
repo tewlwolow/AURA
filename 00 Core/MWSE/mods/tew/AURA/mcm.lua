@@ -103,7 +103,7 @@ pageOA:createCategory {
 pageOA:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.OAVol, messages.default, defaults.OAvol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("OAvol")
@@ -123,7 +123,7 @@ pageIA:createCategory {
 pageIA:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.IAVol, messages.default, defaults.intVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("intVol")
@@ -196,7 +196,7 @@ pagePA:createCategory {
 pagePA:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.PAVol, messages.default, defaults.popVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("popVol")
@@ -209,7 +209,7 @@ pageIW:createCategory {
 pageIW:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.IWVol, messages.default, defaults.IWvol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("IWvol")
@@ -259,7 +259,7 @@ pageSV:createSlider {
 pageSV:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.SVVol, messages.default, defaults.volumes.misc.SVvol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("SVvol", config.volumes.misc)
@@ -296,7 +296,7 @@ pagePC:createYesNoButton {
 pagePC:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.vsVol, messages.default, defaults.volumes.misc.vsVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("vsVol", config.volumes.misc)
@@ -312,7 +312,7 @@ pagePC:createSlider {
 pagePC:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.tVol, messages.default, defaults.volumes.misc.tVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("tVol", config.volumes.misc)
@@ -325,7 +325,7 @@ pageC:createCategory {
 pageC:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.CVol, messages.default, defaults.volumes.misc.Cvol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("Cvol", config.volumes.misc)
@@ -358,7 +358,7 @@ pageUI:createYesNoButton {
 pageUI:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.UIVol, messages.default, defaults.volumes.misc.UIvol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("UIvol", config.volumes.misc)
@@ -390,7 +390,7 @@ pageOA:createYesNoButton {
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.windVol, messages.default, defaults.windVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("windVol")
@@ -403,7 +403,7 @@ pageMisc:createYesNoButton {
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.splashVol, messages.default, defaults.volumes.misc.splashVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("splashVol", config.volumes.misc)
@@ -415,7 +415,7 @@ pageMisc:createYesNoButton {
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.yurtVol, messages.default, defaults.volumes.misc.yurtVol, messages.volume),
 	min = 0,
-	max = 200,
+	max = 100,
 	step = 1,
 	jump = 10,
 	variable = registerVariable("yurtVol", config.volumes.misc)

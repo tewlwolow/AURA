@@ -1,6 +1,7 @@
 return {
     moduleAmbientOutdoor = true,
     moduleAmbientInterior = true,
+    moduleInteriorToExterior = true,
     moduleAmbientPopulated = true,
     moduleInteriorWeather = true,
     moduleServiceVoices = true,
@@ -47,6 +48,7 @@ return {
             ["populated"] = {volume = 50, big = 1, sma = 1, und = 0.3},
             ["interior"] = {volume = 60, big = 1, sma = 1, und = 0.5},
             ["interiorWeather"] = {volume = 75, big = 1, sma = 1, und = 0.3},
+            ["interiorToExterior"] = {volume = 80, big = 1, sma = 1, und = 0},
             ["wind"] = {volume = 65, big = 0.4, sma = 0.4, und = 0.3},
             ["rainOnStatics"] = {volume = 100, big = 1, sma = 1, und = 0},
         },

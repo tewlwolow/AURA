@@ -31,6 +31,7 @@ local function init()
 
     local moduleAmbientOutdoor = config.moduleAmbientOutdoor
     local moduleAmbientInterior = config.moduleAmbientInterior
+    local moduleInteriorToExterior = config.moduleInteriorToExterior
     local moduleInteriorWeather = config.moduleInteriorWeather
     local moduleServiceVoices = config.moduleServiceVoices
     local moduleContainers = config.moduleContainers
@@ -56,6 +57,11 @@ local function init()
     if moduleAmbientInterior then
         mwse.log(string.format("[%s %s] %s interiorMain.lua.", modName, version, messages.loadingFile))
         dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Ambient\\Interior\\interiorMain.lua")
+    end
+
+    if moduleAmbientInterior and moduleInteriorToExterior then
+        mwse.log(string.format("[%s %s] %s interiorToExterior.lua.", modName, version, messages.loadingFile))
+        dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Ambient\\Interior\\interiorToExterior.lua")
     end
 
     if moduleAmbientPopulated then

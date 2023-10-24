@@ -18,26 +18,27 @@ function this.setVolume(track, volume)
     track.volume = magicMaths
 end
 
-function this.getCurrentWeatherConfig(moduleName)
+function this.getModuleSoundConfig(moduleName)
     local regionObject = common.getRegion()
 
     if not regionObject then return {} end
 
+    local cell = cellData.cell
     local weather = regionObject.weather.index
     local rainType = cellData.rainType[weather] or "light"
     local interiorType = common.getInteriorType(cellData.cell)
+    local exterior = cell and cell.isOrBehavesAsExterior and "exterior"
     local soundConfig = moduleData[moduleName].soundConfig
 
-    return (soundConfig[interiorType] and soundConfig[interiorType][weather])
+    return (exterior and soundConfig[exterior])
+    or (soundConfig[interiorType] and soundConfig[interiorType][weather])
     or (soundConfig[rainType] and soundConfig[rainType][weather])
     or {}
 end
 
 function this.getPitch(moduleName)
-    local cwConfig = this.getCurrentWeatherConfig(moduleName)
-    local pitch = cwConfig.pitch or MAX
-
-    if (not cellData.cell) or (cellData.cell.isOrBehavesAsExterior) then pitch = MAX end
+    local moduleSoundConfig = this.getModuleSoundConfig(moduleName)
+    local pitch = moduleSoundConfig.pitch or MAX
 
     if cellData.playerUnderwater then pitch = 0.5 end
 
@@ -49,8 +50,8 @@ function this.getVolume(moduleName, conf)
     local volume = MAX
     local config = conf or mwse.loadConfig("AURA", defaults)
     local moduleVol = config.volumes.modules[moduleName].volume / 100
-    local cwConfig = this.getCurrentWeatherConfig(moduleName)
-    local weatherMult = cwConfig.mult or 1
+    local moduleSoundConfig = this.getModuleSoundConfig(moduleName)
+    local weatherMult = moduleSoundConfig.mult or 1
 
     local regionObject = common.getRegion()
     local weather = regionObject and regionObject.weather.index
@@ -69,28 +70,32 @@ function this.getVolume(moduleName, conf)
         volume = moduleVol * weatherMult
     end
 
-    if cellData.cell.isInterior
-    and (moduleName == "interiorWeather")
-    and (interiorType == "sma")
-    and common.isOpenPlaza(cellData.cell) then
-        if isEligibleWeather and (weather == 6 or weather == 7) then
-            volume = 0
-        else
-            debugLog(string.format("[%s] Applying open plaza volume boost.", moduleName))
-            volume = math.min(volume + 0.2, 1)
-            this.setVolume(tes3.getSound("Rain"), 0)
-            this.setVolume(tes3.getSound("rain heavy"), 0)
+    if cellData.cell then
+        if cellData.cell.isInterior
+        and (moduleName == "interiorWeather")
+        and (interiorType == "sma")
+        and common.isOpenPlaza(cellData.cell) then
+            if isEligibleWeather and (weather == 6 or weather == 7) then
+                volume = 0
+            else
+                debugLog(string.format("[%s] Applying open plaza volume boost.", moduleName))
+                volume = math.min(volume + 0.2, 1)
+                this.setVolume(tes3.getSound("Rain"), 0)
+                this.setVolume(tes3.getSound("rain heavy"), 0)
+            end
         end
-    end
 
-    if cellData.cell.isInterior then
-        if (interiorType == "big") then
-            debugLog(string.format("[%s] Applying big interior mult.", moduleName))
-            volume = (config.volumes.modules[moduleName].big * volume) - (windoorsMult * #cellData.windoors)
-        elseif (interiorType == "sma") or (interiorType == "ten") then
-            debugLog(string.format("[%s] Applying small interior mult.", moduleName))
-            volume = config.volumes.modules[moduleName].sma * volume
+        if cellData.cell.isInterior then
+            if (interiorType == "big") then
+                debugLog(string.format("[%s] Applying big interior mult.", moduleName))
+                volume = (config.volumes.modules[moduleName].big * volume) - (windoorsMult * #cellData.windoors)
+            elseif (interiorType == "sma") or (interiorType == "ten") then
+                debugLog(string.format("[%s] Applying small interior mult.", moduleName))
+                volume = config.volumes.modules[moduleName].sma * volume
+            end
         end
+    else
+        volume = 0
     end
 
     if cellData.playerUnderwater then
@@ -105,12 +110,12 @@ end
 
 function this.adjustVolume(options)
     local moduleName = options.module
-    local track = options.track or moduleData[moduleName].new
+    local defaultTrack = options.track or moduleData[moduleName].new
     local targetRef = options.reference
     local targetVolume = options.volume
     local config = options.config
     local inOrOut = options.inOrOut or ""
-    local function adjust(reference)
+    local function adjust(track, reference)
         if not (track and reference) then return end
         if tes3.getSoundPlaying{sound = track, reference = reference} then
             local volume = targetVolume or this.getVolume(moduleName, config)
@@ -124,19 +129,21 @@ function this.adjustVolume(options)
             moduleData[moduleName].lastVolume = volume
         end
     end
-    local function adjustAllWindoors()
-        debugLog("Adjusting all windoors.")
-        for _, windoor in ipairs(cellData.windoors) do
-            adjust(windoor)
-        end
-    end
 
     if targetRef then
-        adjust(targetRef)
+        adjust(defaultTrack, targetRef)
     elseif moduleData[moduleName].playWindoors and not table.empty(cellData.windoors) then
-        adjustAllWindoors()
+        debugLog("Adjusting all windoors.")
+        for _, windoor in ipairs(cellData.windoors) do
+            adjust(defaultTrack, windoor)
+        end
+    elseif moduleName == "interiorToExterior" then
+        debugLog("Adjusting all exterior doors.")
+        for _, door in pairs(cellData.exteriorDoors) do
+            adjust(door.tempData.tew.track, door)
+        end
     else
-        adjust(moduleData[moduleName].newRef)
+        adjust(defaultTrack, moduleData[moduleName].newRef)
     end
 end
 

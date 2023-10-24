@@ -63,6 +63,39 @@ this.windows = {
 	"_windowin_"
 }
 
+local defaultModData = {
+    visitedInteriorCells = {}
+}
+
+--- This function will recursively set all the fields on our
+--- tes3.player.data table if they don't exist already
+---@param data table
+---@param t table
+local function initTableValues(data, t)
+    for k, v in pairs(t) do
+        -- If a field already exists - we initialized the data
+        -- table for this character before. Don't do anything.
+        if data[k] == nil then
+            if type(v) ~= "table" then
+                data[k] = v
+            elseif v == {} then
+                data[k] = {}
+            else
+                -- Fill out the sub-tables
+                data[k] = {}
+                initTableValues(data[k], v)
+            end
+        end
+    end
+end
+
+function this.initModData()
+    local data = tes3.player.data
+    data.AURA = data.AURA or {}
+    local modData = data.AURA
+    initTableValues(modData, defaultModData)
+end
+
 -- Check if transitioning int/ext or the other way around --
 function this.checkCellDiff(cell, cellLast)
 	if (cellLast == nil) then return true end

@@ -56,6 +56,7 @@ this.messages = {
     exteriorVolume = "exterior volume",
     underwater = "underwater",
     adjustingAuto = "Adjusting automatically",
+    currentlyPlayingDoors = "Doors currently playing",
 
 	refreshManifest = "Refresh manifest file",
 
@@ -73,6 +74,8 @@ this.messages = {
 	tavernsDesc = "Select which taverns the music is disabled in.",
 	tavernsDisabled = "Disabled taverns",
 	tavernsEnabled = "Enabled taverns",
+
+    enableInteriorToExterior = "Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",
 
 	PA = "Populated Ambient",
 	PADesc = "Plays ambient sounds in populated areas, like towns and villages.",

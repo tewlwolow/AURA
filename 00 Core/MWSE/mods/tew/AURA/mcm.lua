@@ -134,6 +134,11 @@ pageIA:createYesNoButton {
 	variable = registerVariable("interiorMusic"),
 	restartRequired = true
 }
+pageIA:createYesNoButton {
+	label = messages.enableInteriorToExterior,
+	variable = registerVariable("moduleInteriorToExterior"),
+	restartRequired = true
+}
 
 template:createExclusionsPage {
 	label = messages.tavernsBlacklist,

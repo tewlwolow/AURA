@@ -4,6 +4,7 @@ local common = require("tew.AURA.common")
 this.cell = nil
 this.playerUnderwater = false
 this.windoors = {}
+this.exteriorDoors = {}
 this.rainType = {
     [4] = nil,
     [5] = nil

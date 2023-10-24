@@ -17,7 +17,7 @@ local MAX = 1
 local MIN = 0
 
 -- Resolve options and return the randomised track per conditions given --
-local function getTrack(options)
+function this.getTrack(options)
 	debugLog("Parsing passed options.")
 
 	if not options.module then debugLog("No module detected. Returning.") end
@@ -50,13 +50,8 @@ local function getTrack(options)
 		end
 	elseif options.module == "interior" then
 		debugLog("Got interior module.")
-		if options.race then
-			debugLog("Got tavern for " .. options.race .. " race.")
-			table = soundData.interior["tav"][options.race]
-		else
-			debugLog("Got interior " .. options.type .. " type.")
-			table = soundData.interior[options.type]
-		end
+        debugLog("Got interior " .. options.type .. " type.")
+        table = soundData.interior[options.type] or soundData.interior["tav"][options.type]
 	elseif options.module == "interiorWeather" then
 		debugLog("Got interior weather module. Weather: " .. options.weather)
 		debugLog("Got interior type: " .. options.type)
@@ -184,7 +179,7 @@ end
 -- decision to remove sounds before immediately playing anything else.
 function this.playImmediate(options)
 	local ref = options.newRef or options.reference or tes3.mobilePlayer.reference
-	local track = options.last and moduleData[options.module].new or options.track or getTrack(options)
+	local track = options.last and moduleData[options.module].new or options.track or this.getTrack(options)
 
 	if track then
 		if not tes3.getSoundPlaying{sound = track, reference = ref} then
@@ -218,7 +213,7 @@ function this.play(options)
 	else
 		local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts
 		-- Get the new track, if nothing is returned then bugger off (shouldn't really happen at all, but oh well) --
-		newTrack = options.newTrack or getTrack(options)
+		newTrack = options.newTrack or this.getTrack(options)
 		newRef = options.newRef or options.reference or tes3.mobilePlayer.reference
 		if not newTrack then debugLog("No track selected. Returning.") return end
 

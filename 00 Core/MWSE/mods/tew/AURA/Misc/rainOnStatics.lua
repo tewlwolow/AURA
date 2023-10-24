@@ -218,7 +218,6 @@ local function processRef(ref)
 	local playerPos = tes3.player.position:copy()
 	local refPos = ref.position:copy()
 	local objId = ref.object.id:lower()
-    local pitch = moduleData[moduleName].soundConfig[rainType][WtC.currentWeather.index].pitch
 
 	-- Check if sheltered by current ref.
 	-- If we are, then either fadeIn or crossFade.
@@ -232,21 +231,19 @@ local function processRef(ref)
 			debugLog("[sheltered] Sound not playing on shelter ref. Running fadeIn.")
 			sounds.play{
 				module = moduleName,
-				pitch = pitch,
 				newRef = playerRef,
 				newTrack = sound,
-				duration = 0.7,
+				duration = 1.4,
 			}
 		else
 			debugLog("[sheltered] Sound playing on shelter ref. Running crossfade.")
 			sounds.play{
 				module = moduleName,
-				pitch = pitch,
 				oldRef = ref,
 				newRef = playerRef,
 				oldTrack = sound,
 				newTrack = sound,
-				duration = 0.7,
+				duration = 1.4,
 			}
 		end
 		-- Also add data to our new shelter so that we remove playerRef
@@ -270,7 +267,7 @@ local function processRef(ref)
 			module = moduleName,
 			volume = volume,
 			reference = playerRef,
-			duration = 0.7,
+			duration = 1.2,
 		}
 		-- Since we're no longer sheltered, let's clear shelter data.
 		currentShelter.ref = nil
@@ -289,7 +286,6 @@ local function processRef(ref)
             module = moduleName,
             track = sound,
 			reference = ref,
-			pitch = pitch, 
         }
 	end
 end

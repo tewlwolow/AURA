@@ -69,6 +69,7 @@ this.messages = {
     exteriorVolume = "le volume à l'extérieur",
     underwater = "sous l'eau",
     adjustingAuto = "Ajustement automatique",
+    currentlyPlayingDoors = "Portes en cours de lecture",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 
@@ -86,6 +87,8 @@ this.messages = {
 	tavernsDesc = "Sélectionnez les tavernes où les musiques sont désactivées.",
 	tavernsDisabled = "Tavernes désactivées",
 	tavernsEnabled = "Tavernes activées",
+
+    enableInteriorToExterior = "Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
 
 	PA = "Ambiance Population",
 	PADesc = "Joue des sons d'ambiance dans les lieux peuplés commes les villes et les villages.",

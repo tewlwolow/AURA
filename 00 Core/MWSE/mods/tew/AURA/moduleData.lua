@@ -36,7 +36,8 @@ return {
                 [3] = {pitch = 0.82},
                 [4] = {pitch = 0.8},
                 [8] = {pitch = 0.87},
-            }
+            },
+            ["exterior"] = {pitch = 1.0},
         },
         faderData = {
             ["out"] = {
@@ -63,7 +64,9 @@ return {
             [8] = true,
             [9] = true,
         },
-        soundConfig = {},
+        soundConfig = {
+            ["exterior"] = {pitch = 1.0},
+        },
         faderData = {
             ["out"] = {
                 duration = 4.0,
@@ -89,6 +92,26 @@ return {
             },
             ["in"] = {
                 duration = 3.0,
+                inProgress = {},
+            },
+        },
+	},
+    ["interiorToExterior"] = {
+        old = nil,
+        new = nil,
+        oldRef = nil,
+        newRef = nil,
+        lastVolume = nil,
+        soundConfig = {
+            ["exterior"] = {pitch = 0.9},
+        },
+        faderData = {
+            ["out"] = {
+                duration = 1.0,
+                inProgress = {},
+            },
+            ["in"] = {
+                duration = 1.0,
                 inProgress = {},
             },
         },
@@ -128,7 +151,7 @@ return {
                 [6] = {mult = 0.4, pitch = 0.8},
                 [7] = {mult = 0.4, pitch = 0.8},
                 [9] = {mult = 0.4, pitch = 0.8}
-            }
+            },
         },
         faderData = {
             ["out"] = {
@@ -180,7 +203,8 @@ return {
                 [4] = {pitch = 0.78},
                 [5] = {pitch = 0.77},
                 [8] = {pitch = 0.76},
-            }
+            },
+            ["exterior"] = {pitch = 1.0},
         },
         faderData = {
             ["out"] = {

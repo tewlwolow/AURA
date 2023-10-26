@@ -68,7 +68,7 @@ end
 local function playDisease()
     if diseaseFlag == 1 then return end
     if not diseaseTimer then
-        diseaseTimer = timer.start { type = timer.real, duration = 20, iterations = -1, callback = function()
+        diseaseTimer = timer.start { type = timer.real, duration = math.random(45, 90), iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderDisease, volume = 0.7 * vsVol, reference = player }
         end }
     else
@@ -81,7 +81,7 @@ end
 local function playBlight()
     if blightFlag == 1 then return end
     if not blightTimer then
-        blightTimer = timer.start { type = timer.real, duration = 35, iterations = -1, callback = function()
+        blightTimer = timer.start { type = timer.real, duration = math.random(35, 45), iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\blight.wav", volume = 0.9 * vsVol, reference = player }
         end }
     else
@@ -108,7 +108,7 @@ end
 local function playFatigue()
     if fatigueFlag == 1 then return end
     if not fatigueTimer then
-        fatigueTimer = timer.start { type = timer.real, duration = 10, iterations = -1, callback = function()
+        fatigueTimer = timer.start { type = timer.real, duration = math.random(10, 20), iterations = -1, callback = function()
             tes3.say {
                 volume = 0.9 * vsVol,
                 soundPath = "Vo\\tew\\A\\PC\\" .. genderFatigue, reference = player
@@ -124,7 +124,7 @@ end
 local function playMagicka()
     if magickaFlag == 1 then return end
     if not magickaTimer then
-        magickaTimer = timer.start { type = timer.real, duration = 12, iterations = -1, callback = function()
+        magickaTimer = timer.start { type = timer.real, duration = math.random(12, 25), iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\magicka.wav", volume = 0.6 * vsVol, pitch = 0.8, reference = player }
         end }
     else

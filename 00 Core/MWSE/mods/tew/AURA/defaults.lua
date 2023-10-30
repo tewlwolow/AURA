@@ -38,6 +38,8 @@ return {
     interiorMusic = false,
     windSounds = true,
     rainSounds = true,
+    thunderSounds = true,
+    thunderSoundsDelay = true,
     disabledTaverns = {},
     volumes = {
         modules = {
@@ -67,6 +69,8 @@ return {
             Cvol = 75,
             vsVol = 70,
             tVol = 75,
+            thunderVolMin = 70,
+            thunderVolMax = 100,
         },
     },
     playInteriorWind = true,

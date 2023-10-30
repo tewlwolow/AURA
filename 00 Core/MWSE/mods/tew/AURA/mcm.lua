@@ -426,6 +426,30 @@ pageMisc:createYesNoButton {
 	variable = registerVariable("underwaterRain"),
 	restartRequired = true
 }
+pageMisc:createYesNoButton {
+	label = messages.thunderSounds,
+	variable = registerVariable("thunderSounds"),
+}
+pageMisc:createYesNoButton {
+	label = messages.thunderSoundsDelay,
+	variable = registerVariable("thunderSoundsDelay"),
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.thunderVolMin, messages.default, defaults.volumes.misc.thunderVolMin, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 5,
+	variable = registerVariable("thunderVolMin", config.volumes.misc)
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.thunderVolMax, messages.default, defaults.volumes.misc.thunderVolMax, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 5,
+	variable = registerVariable("thunderVolMax", config.volumes.misc)
+}
 
 template:saveOnClose(configPath, config)
 mwse.mcm.register(template)

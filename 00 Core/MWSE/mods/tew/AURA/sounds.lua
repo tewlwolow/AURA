@@ -130,7 +130,7 @@ end
 -- If fade is in progress for the given track and ref, we'll cancel the fade first --
 function this.removeImmediate(options)
 
-	local ref = options.reference or tes3.mobilePlayer.reference
+	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 
 	-- Remove old file if playing --
 	local oldTrack = this.getTrackPlaying(moduleData[options.module].old, ref)
@@ -152,7 +152,7 @@ end
 -- Remove the sound for a given module, but with fade out --
 function this.remove(options)
 
-    local ref = options.reference or tes3.mobilePlayer.reference
+    local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 
 	local oldTrack = this.getTrackPlaying(moduleData[options.module].old, ref)
 	local newTrack = this.getTrackPlaying(moduleData[options.module].new, ref)
@@ -178,7 +178,7 @@ end
 -- This function doesn't remove sounds on its own. It's the module's
 -- decision to remove sounds before immediately playing anything else.
 function this.playImmediate(options)
-	local ref = options.newRef or options.reference or tes3.mobilePlayer.reference
+	local ref = options.newRef or options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 	local track = options.last and moduleData[options.module].new or options.track or this.getTrack(options)
 
 	if track then
@@ -214,7 +214,7 @@ function this.play(options)
 		local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts
 		-- Get the new track, if nothing is returned then bugger off (shouldn't really happen at all, but oh well) --
 		newTrack = options.newTrack or this.getTrack(options)
-		newRef = options.newRef or options.reference or tes3.mobilePlayer.reference
+		newRef = options.newRef or options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 		if not newTrack then debugLog("No track selected. Returning.") return end
 
 		-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --

@@ -168,7 +168,7 @@ local function doModules()
         if mp and data.new and data.newRef and tes3.getSoundPlaying{sound = data.new, reference = data.newRef} then
             local ref = data.newRef
             local track = data.new
-            local configKey = common.getInteriorType(this.cell):gsub("ten", "sma")
+            local configKey
             local sc = {}
             local entry = createEntry()
             local trackInfo = entry:findChild(this.id_trackInfo)
@@ -186,8 +186,10 @@ local function doModules()
             sc.volumeTableCurrent = this.config.volumes.modules[moduleName]
 
             if this.cell.isInterior
+            and (moduleName ~= "interiorToExterior")
             and (moduleName ~= "interiorWeather")
             and (moduleName ~= "interior") then
+                configKey = common.getInteriorType(this.cell):gsub("ten", "sma")
                 sc.sliderType = sliderCoefficient
             else
                 if (ref ~= mp.reference) and (moduleName == "rainOnStatics") then
@@ -199,28 +201,31 @@ local function doModules()
                     end)
                     goto nextModule
                 end
-                if moduleName == "interiorToExterior" then
-                    local info = {}
-                    for _, door in pairs(cellData.exteriorDoors) do
-                        if door ~= nil and door.tempData.tew.track
-                        and tes3.getSoundPlaying{sound = door.tempData.tew.track, reference = door} then
-                            table.insert(info, string.format("%s: %s", door.tempData.tew.track.id, door.destination.cell.name))
-                        end
+                configKey = "volume"
+                sc.sliderType = sliderPercent
+            end
+
+            if moduleName == "interiorToExterior" then
+                local info = {}
+                for _, door in pairs(cellData.exteriorDoors) do
+                    if door ~= nil and door.tempData.tew.track
+                    and tes3.getSoundPlaying{sound = door.tempData.tew.track, reference = door} then
+                        table.insert(info, string.format("%s: %s", door.tempData.tew.track.id, door.destination.cell.name))
                     end
-                    trackInfo.text = string.format("%s: %s: %s [?]", moduleName, messages.currentlyPlayingDoors, tostring(#info))
-                    trackInfo:register(tes3.uiEvent.help, function(e)
-                        local tooltip = tes3ui.createTooltipMenu()
-                        local tip = table.concat(info, '\n')
-                        tooltip:createLabel{ text = tip }
-                    end)
                 end
-                if cellData.playerUnderwater then
-                    configKey = "und"
-                    sc.sliderType = sliderCoefficient
-                else
-                    configKey = "volume"
-                    sc.sliderType = sliderPercent
-                end
+                trackInfo.text = string.format("%s: %s: %s [?]", moduleName, messages.currentlyPlayingDoors, tostring(#info))
+                trackInfo:register(tes3.uiEvent.help, function(e)
+                    local tooltip = tes3ui.createTooltipMenu()
+                    local tip = table.concat(info, '\n')
+                    tooltip:createLabel{ text = tip }
+                end)
+                configKey = "volume"
+                sc.sliderType = sliderPercent
+            end
+
+            if cellData.playerUnderwater then
+                configKey = "und"
+                sc.sliderType = sliderCoefficient
             end
 
             sc.key = configKey

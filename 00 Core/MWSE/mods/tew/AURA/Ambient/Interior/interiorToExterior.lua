@@ -27,7 +27,9 @@ local function cellCheck()
     exteriorTimer:pause()
 
     local cell = tes3.getPlayerCell()
-    if not cell or not cell.isOrBehavesAsExterior then return end
+    if not cell then return end
+
+    if cell.isInterior then table.clear(cellData.exteriorDoors) end
 
     local modData = tes3.player.data.AURA
     if not modData or not modData.visitedInteriorCells then return end
@@ -35,19 +37,24 @@ local function cellCheck()
     debugLog("Searching for eligible doors.")
 
     for door in cell:iterateReferences(tes3.objectType.door) do
-        if table.find(cellData.exteriorDoors, door)
-        or not (door.destination and door.destination.cell.isInterior and door.tempData) then
+        if not (door.destination and door.destination.cell.isInterior and door.tempData) then
             goto nextDoor
         end
         local cellId = door.destination.cell.id:lower()
         local visitedCellData = modData.visitedInteriorCells[cellId]
         if (visitedCellData) and (visitedCellData.type) then
             debugLog("Parsing door destination cell: " .. cellId)
-            if getEligibleCellType(visitedCellData.type, visitedCellData.actorCount) then
-                debugLog("Interior has been visited and is eligible, adding door.")
+            -- Interior type is appropriate. But has something changed in
+            -- the mean time? NPCs should have mobile objects attached now
+            -- that the cell has been visited, so let's count them.
+            local actorCount = common.getActorCount(door.destination.cell)
+            if getEligibleCellType(visitedCellData.type, actorCount) then
+                debugLog("Interior has been visited and is eligible.")
                 if not door.tempData.tew then door.tempData.tew = {} end
                 door.tempData.tew.interiorType = visitedCellData.type
-                common.setInsert(cellData.exteriorDoors, door)
+                if not table.find(cellData.exteriorDoors, door) then
+                    table.insert(cellData.exteriorDoors, door)
+                end
             else
                 debugLog("Interior has been visited, but is not eligible, skipping door.")
             end

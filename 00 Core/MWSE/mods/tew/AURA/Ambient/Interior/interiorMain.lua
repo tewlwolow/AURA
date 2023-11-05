@@ -22,16 +22,6 @@ local function isEnabled(cellName)
     end
 end
 
-local function getActorCount(cell)
-    local count = 0
-    for npc in cell:iterateReferences(tes3.objectType.npc) do
-        if (npc.object.mobile) and (not npc.object.mobile.isDead) then
-            count = count + 1
-        end
-    end
-    return count
-end
-
 local function getByArchitecture(maxCount, cell)
     local count = 0
     local typeCell
@@ -91,15 +81,15 @@ local function getByRace(cell)
 end
 
 -- See if the cell warrants populated sounds - or whether you killed them all, you bastard --
-local function getPopulatedCell(maxCount, cell)
-    local count = 0
-    for npc in cell:iterateReferences(tes3.objectType.NPC) do
-        if (npc.object.mobile) and (not npc.object.mobile.isDead) then
-            count = count + 1
+local function getEligibleCellType(cellType, actorCount)
+    if cellType then
+        if (data.names[cellType] or data.tavernNames[cellType])
+        and (actorCount) and (actorCount < 2) then
+            debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
+            return nil
         end
-        if count >= maxCount then --[[debugLog("Enough people in a cell. Count: "..count)]] return true end
+        return cellType
     end
-    if count < maxCount then --[[debugLog("Too few people in a cell. Count: "..count)]] return false end
 end
 
 -- Music bit per culture --
@@ -144,17 +134,6 @@ for folder in lfs.dir("Data Files\\Music\\tew\\AURA") do
     end
 end
 
-local function getEligibleCellType(cellType, actorCount)
-    if cellType then
-        if (data.names[cellType] or data.tavernNames[cellType])
-        and (actorCount) and (actorCount < 2) then
-            debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
-            return nil
-        end
-        return cellType
-    end
-end
-
 local function cellCheck()
 
     -- Gets messy otherwise
@@ -182,13 +161,14 @@ local function cellCheck()
         local track
         for _, door in pairs(cellData.exteriorDoors) do
             if (door ~= nil) and (door.destination.cell == cell) and (door.tempData.tew.track) then
-                debugLog("Ext->Int transition, using last known door track.")
+                local doorIntOrExt = door.cell.isInterior and "Interior" or "Exterior"
+                debugLog(string.format("%s->Interior transition, using last known door track.", doorIntOrExt))
                 track = door.tempData.tew.track
                 break
             end
         end
 
-        local actorCount = getActorCount(cell)
+        local actorCount = common.getActorCount(cell)
         local typeByArchitecture = getByArchitecture(5, cell)
         local typeByTavernName = getByTavernName(cell)
         local typeByName = getByName(cell)
@@ -214,11 +194,12 @@ local function cellCheck()
         if interiorMusic and cell.name and not cell.behavesAsExterior and actorCount > 2 then
             if not isEnabled(cell.name) then
                 debugLog("Tavern blacklisted: " .. cell.name .. ". Not playing music.")
+                stopMusic()
             -- Do we want to stop music if say, we go on a killing spree inside a tavern until
             -- just the barmaid and that shady lizard in the corner are the only ones alive?
             -- Then just ditch the actorCount check above and uncomment below.
             --[[
-            elseif getPopulatedCell(3, cell) == false then
+            elseif actorCount < 3 then
                 stopMusic()
             --]]
             else
@@ -242,12 +223,7 @@ local function cellCheck()
         end
 
         debugLog("Updating interior cell data: " .. cellId)
-
         modData.visitedInteriorCells[cellId].type = cellType
-        modData.visitedInteriorCells[cellId].actorCount = actorCount
-
-        -- Safe to clear exterior doors when inside
-        table.clear(cellData.exteriorDoors)
     end
     cellLast = cell
 end

@@ -104,6 +104,7 @@ return {
         lastVolume = nil,
         soundConfig = {
             ["exterior"] = {pitch = 0.9},
+            ["interior"] = {pitch = 0.92},
         },
         faderData = {
             ["out"] = {

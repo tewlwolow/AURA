@@ -28,9 +28,11 @@ function this.getModuleSoundConfig(moduleName)
     local rainType = cellData.rainType[weather] or "light"
     local interiorType = common.getInteriorType(cellData.cell)
     local exterior = cell and cell.isOrBehavesAsExterior and "exterior"
+    local interior = cell and cell.isInterior and "interior"
     local soundConfig = moduleData[moduleName].soundConfig
 
     return (exterior and soundConfig[exterior])
+    or (interior and soundConfig[interior])
     or (soundConfig[interiorType] and soundConfig[interiorType][weather])
     or (soundConfig[rainType] and soundConfig[rainType][weather])
     or {}

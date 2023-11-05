@@ -194,6 +194,19 @@ function this.getInteriorType(cell)
 	end
 end
 
+function this.getActorCount(cell)
+    local count = 0
+    if not cell then return count end
+    for npc in cell:iterateReferences(tes3.objectType.npc) do
+        local mobileObject = npc.object.mobile
+        if ((mobileObject) and (not mobileObject.isDead))
+        or ((not mobileObject) and (npc.isDead == false)) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
 -- If given a target ref, returns true if origin ref is sheltered by
 -- target ref, or false otherwise. If not given a target ref, returns
 -- whether origin ref is sheltered at all.

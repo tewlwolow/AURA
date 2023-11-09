@@ -143,7 +143,11 @@ this.messages = {
 	splashVol = "Changer le % de volume des sons d'éclaboussures.",
 	playYurtFlap = "Activer les sons des portes de yourte ou en peau d'ours ?",
 	yurtVol = "Changer le % de volume des sons des portes de yourte ou en peau d'ours.",
-	underwaterRain = "Activer la mise à l'échelle du volume des effets de la météo sous l'eau ?"
+	underwaterRain = "Activer la mise à l'échelle du volume des effets de la météo sous l'eau ?",
+    thunderSounds = "Activer de nouveaux sons de tonnerre à intensité variable ?",
+    thunderSoundsDelay = "Ajouter un petit délai aléatoire avant la diffusion du son du tonnerre ?",
+    thunderVolMin = "Le volume minimum auquel les sons du tonnerre seront joués.",
+    thunderVolMax = "Le volume maximum auquel les sons du tonnerre seront joués.",
 
 }
 

@@ -299,6 +299,17 @@ local function buildRain()
 	filename, objectId = nil, nil
 end
 
+local function buildThunders()
+	debugLog("|---------------------- Creating thunder sound objects. ----------------------|\n")
+    for soundfile in lfs.dir(AURAdir .. "\\T") do
+		if string.endswith(soundfile, ".wav") then
+            local objectId = "tew_thndr" .. soundfile:gsub(".wav", "")
+			local filename = soundDir .. "\\T\\" .. soundfile
+			createSound(objectId, filename, soundData.thunders)
+		end
+	end
+end
+
 function this.flushManifestFile()
 	tes3.messageBox({
 		message = messages.manifestConfirm,
@@ -368,6 +379,7 @@ function this.build()
 	buildWeatherSounds()
 	buildMisc()
 	buildRain()
+    buildThunders()
 
 	checkForRemovedFiles()
 	-- Write manifest file if it was modified

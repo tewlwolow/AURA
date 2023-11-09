@@ -130,7 +130,11 @@ this.messages = {
 	splashVol = "Changes % volume for splash sounds.",
 	playYurtFlap = "Enable sounds for yurts and pelt entrances?",
 	yurtVol = "Changes % volume for yurt and pelt entrances sounds.",
-	underwaterRain = "Enable volume scaling of weather effects when underwater?"
+	underwaterRain = "Enable volume scaling of weather effects when underwater?",
+    thunderSounds = "Enable new, variable intensity thunder sounds?",
+    thunderSoundsDelay = "Add a small randomized lead time before the thunder plays?",
+    thunderVolMin = "Minimum volume thunder sounds will play at.",
+    thunderVolMax = "Maximum volume thunder sounds will play at.",
 }
 
 this.interiorNames = {

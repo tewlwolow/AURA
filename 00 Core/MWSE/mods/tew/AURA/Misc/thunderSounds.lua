@@ -60,7 +60,7 @@ local function onSoundObjectPlay(e)
     end
 
     local volume = math.random(lower, upper) / 100
-    local pitch = math.random(85, 120) / 100
+    local pitch = math.random(65, 130) / 100
 
 	timer.start{
 		duration = addDelay and delay or 0.001,

@@ -63,6 +63,39 @@ this.windows = {
 	"_windowin_"
 }
 
+local defaultModData = {
+    visitedInteriorCells = {}
+}
+
+--- This function will recursively set all the fields on our
+--- tes3.player.data table if they don't exist already
+---@param data table
+---@param t table
+local function initTableValues(data, t)
+    for k, v in pairs(t) do
+        -- If a field already exists - we initialized the data
+        -- table for this character before. Don't do anything.
+        if data[k] == nil then
+            if type(v) ~= "table" then
+                data[k] = v
+            elseif v == {} then
+                data[k] = {}
+            else
+                -- Fill out the sub-tables
+                data[k] = {}
+                initTableValues(data[k], v)
+            end
+        end
+    end
+end
+
+function this.initModData()
+    local data = tes3.player.data
+    data.AURA = data.AURA or {}
+    local modData = data.AURA
+    initTableValues(modData, defaultModData)
+end
+
 -- Check if transitioning int/ext or the other way around --
 function this.checkCellDiff(cell, cellLast)
 	if (cellLast == nil) then return true end
@@ -161,11 +194,30 @@ function this.getInteriorType(cell)
 	end
 end
 
+function this.getActorCount(cell)
+    local count = 0
+    if not cell then return count end
+    for npc in cell:iterateReferences(tes3.objectType.npc) do
+        local mobileObject = npc.object.mobile
+        if (mobileObject) and (not mobileObject.isDead) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+function this.getTrackPlaying(track, ref)
+	if track and ref and tes3.getSoundPlaying{sound = track, reference = ref} then
+		return track
+	end
+end
+
 -- If given a target ref, returns true if origin ref is sheltered by
 -- target ref, or false otherwise. If not given a target ref, returns
 -- whether origin ref is sheltered at all.
 function this.isRefSheltered(options)
 
+    local quiet = options.quiet
     local originRef = options.originRef or tes3.player
 	local targetRef = options.targetRef
 	local ignoreList = options.ignoreList
@@ -176,6 +228,11 @@ function this.isRefSheltered(options)
 
     if this.cellIsInterior(cell) then
         return true
+    end
+
+    local function log(message)
+        if quiet then return end
+        this.debugLog(message)
     end
 
 	local height = originRef.object.boundingBox
@@ -200,7 +257,7 @@ function this.isRefSheltered(options)
 		maxDistance = 500
 	end
 
-	this.debugLog("[rayTest] Performing test on origin ref: " .. tostring(originRef))
+	log("[rayTest] Performing test on origin ref: " .. tostring(originRef))
 
     local hitResults = tes3.rayTest{
         position = {
@@ -216,33 +273,63 @@ function this.isRefSheltered(options)
         useBackTriangles = useBackTriangles,
     }
     if hitResults then
-		this.debugLog("[rayTest] Got results.")
+		log("[rayTest] Got results.")
         for _, hit in ipairs(hitResults) do
             if hit and hit.reference and hit.reference.object then
 				if (hit.reference.object.objectType == tes3.objectType.static)
 				or (hit.reference.object.objectType == tes3.objectType.activator) then
 					if ignoreList and this.getMatch(ignoreList, hit.reference.object.id:lower()) then
-						this.debugLog("[rayTest] Ignoring result -> " .. hit.reference.object.id:lower())
+						log("[rayTest] Ignoring result -> " .. hit.reference.object.id:lower())
 						goto continue
 					end
 					if targetRef then
 						if (hit.reference.object.id:lower() == targetRef.object.id:lower()) then
-							this.debugLog("[rayTest] Matched target ref -> " .. tostring(targetRef))
+							log("[rayTest] Matched target ref -> " .. tostring(targetRef))
 							return true
 						else
-							this.debugLog("[rayTest] Did not match target ref -> " .. tostring(targetRef))
+							log("[rayTest] Did not match target ref -> " .. tostring(targetRef))
 							return false
 						end
 					end
-					this.debugLog("[rayTest] Ref " .. tostring(originRef) .. " is sheltered by " .. hit.reference.object.id:lower())
+					log("[rayTest] Ref " .. tostring(originRef) .. " is sheltered by " .. hit.reference.object.id:lower())
 					return true
 				end
             end
 			:: continue ::
         end
     end
-	this.debugLog("[rayTest] Ref " .. tostring(originRef) .. " is NOT sheltered.")
+	log("[rayTest] Ref " .. tostring(originRef) .. " is NOT sheltered.")
 	return false
+end
+
+function this.getCurrentWeather()
+    return tes3.worldController.weatherController.currentWeather
+end
+
+function this.getRainLoopSoundPlaying()
+    local cw = this.getCurrentWeather()
+    if cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
+        return cw.rainLoopSound
+    end
+end
+
+function this.getExtremeWeatherTrackPlaying()
+    local cw = this.getCurrentWeather()
+    local track
+    if (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
+        if cw.name == "Ashstorm" then
+            track = tes3.getSound("Ashstorm")
+        elseif cw.name == "Blight" then
+            track = tes3.getSound("Blight")
+        elseif cw.name == "Blizzard" then
+            track = tes3.getSound("BM Blizzard")
+        end
+        if track and track:isPlaying() then return track end
+    end
+end
+
+function this.getWeatherTrack()
+    return this.getRainLoopSoundPlaying() or this.getExtremeWeatherTrackPlaying()
 end
 
 function this.isOpenPlaza(cell)

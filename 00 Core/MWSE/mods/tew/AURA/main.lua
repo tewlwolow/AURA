@@ -31,10 +31,12 @@ local function init()
 
     local moduleAmbientOutdoor = config.moduleAmbientOutdoor
     local moduleAmbientInterior = config.moduleAmbientInterior
+    local moduleInteriorToExterior = config.moduleInteriorToExterior
     local moduleInteriorWeather = config.moduleInteriorWeather
     local moduleServiceVoices = config.moduleServiceVoices
     local moduleContainers = config.moduleContainers
     local moduleAmbientPopulated = config.moduleAmbientPopulated
+    local moduleSoundsOnStatics = config.moduleSoundsOnStatics
     local moduleUI = config.moduleUI
     local moduleMisc = config.moduleMisc
     local modulePC = config.modulePC
@@ -58,9 +60,19 @@ local function init()
         dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Ambient\\Interior\\interiorMain.lua")
     end
 
+    if moduleAmbientInterior and moduleInteriorToExterior then
+        mwse.log(string.format("[%s %s] %s interiorToExterior.lua.", modName, version, messages.loadingFile))
+        dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Ambient\\Interior\\interiorToExterior.lua")
+    end
+
     if moduleAmbientPopulated then
         mwse.log(string.format("[%s %s] %s populatedMain.lua.", modName, version, messages.loadingFile))
         dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Ambient\\Populated\\populatedMain.lua")
+    end
+
+    if moduleSoundsOnStatics then
+        mwse.log(string.format("[%s %s] %s staticsMain.lua.", modName, version, messages.loadingFile))
+        dofile("Data Files\\MWSE\\mods\\tew\\AURA\\Sounds On Statics\\staticsMain.lua")
     end
 
     if moduleInteriorWeather then

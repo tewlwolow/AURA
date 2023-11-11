@@ -2,7 +2,8 @@ local this = {}
 
 local config = require("tew.AURA.config")
 local cellData = require("tew.AURA.cellData")
-local moduleData = require("tew.AURA.moduleData")
+local modules = require("tew.AURA.modules")
+local moduleData = modules.data
 local soundData = require("tew.AURA.soundData")
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
@@ -55,8 +56,8 @@ end
 -- Modules will handle that individually.
 local function underwaterResetModules()
     for moduleName, data in pairs(moduleData) do
-        if tes3.mobilePlayer
-        and sounds.getTrackPlaying(moduleData[moduleName].new, tes3.mobilePlayer.reference)
+        if data.playUnderwater and tes3.mobilePlayer
+        and common.getTrackPlaying(moduleData[moduleName].new, tes3.mobilePlayer.reference)
         and not sounds.isStopping(moduleName, tes3.mobilePlayer.reference)
         then
             debugLog("Resetting sounds for module " .. moduleName)
@@ -74,6 +75,7 @@ local function underwaterCheck(e)
     playerHeight = tes3.player.object.boundingBox and tes3.player.object.boundingBox.max.z or 0
 	if (not cellData.playerUnderwater) and tes3.mobilePlayer.isSwimming and (playerPosZ + playerHeight < waterLevel) then
         cellData.playerUnderwater = true
+        event.trigger("AURA:enteredUnderwater")
         debugLog("Player underwater.")
         if config.playSplash then
             tes3.playSound { sound = "splash_lrg", volume = 0.5 * splashVol, pitch = 0.6 }
@@ -85,7 +87,6 @@ local function underwaterCheck(e)
             event.register(tes3.event.simulate, modifyWeatherVolume)
             debugLog("Started underwater volume scaling.")
         end
-        event.trigger("AURA:enteredUnderwater")
     elseif cellData.playerUnderwater and ((not tes3.mobilePlayer.isSwimming) or (playerPosZ + playerHeight >= waterLevel)) then
         cellData.playerUnderwater = false
         debugLog("Player above water level.")

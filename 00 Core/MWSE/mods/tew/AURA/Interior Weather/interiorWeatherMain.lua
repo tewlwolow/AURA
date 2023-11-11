@@ -1,7 +1,9 @@
+local config = require("tew.AURA.config")
 local cellData = require("tew.AURA.cellData")
 local common = require("tew.AURA.common")
 local defaults = require("tew.AURA.defaults")
-local moduleData = require("tew.AURA.moduleData")
+local modules = require("tew.AURA.modules")
+local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
 local soundData = require("tew.AURA.soundData")
 local volumeController = require("tew.AURA.volumeController")
@@ -15,7 +17,7 @@ local sound
 local interiorTimer, scalarTimer, transitionScalarLast
 local cell, cellLast, interiorType, weather, weatherLast
 local thunRef, thunder, thunderTimer, thunderTime
-local thunArray = common.thunArray
+local thunArray = config.thunderSounds and soundData.thunders or common.thunArray
 local blockedWeathers = moduleData[moduleName].blockedWeathers
 
 local debugLog = common.debugLog
@@ -25,11 +27,11 @@ local isOpenPlaza = common.isOpenPlaza
 local function playThunder()
 	local thunVol, thunPitch
 	if thunRef == nil then return end
-	thunVol = (math.random(1, 5)) / 10
+	thunVol = (math.random(2, 5)) / 10
 	thunPitch = (math.random(5, 15)) / 10
 
 	thunder = thunArray[math.random(1, #thunArray)]
-	debugLog("Playing thunder: " .. thunder)
+	debugLog("Playing thunder: " .. tostring(thunder))
 
 	-- Exposing thunderPlayed event for GitD --
 	local result = event.trigger("AURA:thunderPlayed", { sound = thunder, reference = thunRef, windoors = cellData.windoors, delay = 1.0 })
@@ -231,7 +233,7 @@ local function cellCheck(e)
 	else
 		if not table.empty(cellData.windoors) then
 			debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
-            windoorVol = volumeController.getVolume(moduleName)
+            windoorVol = volumeController.getVolume{module = moduleName}
             windoorPitch = volumeController.getPitch(moduleName)
 			playWindoors()
 			interiorTimer:reset()
@@ -313,16 +315,18 @@ local function waitCheck(e)
 	end)
 end
 
--- Reset windoors when exiting underwater --
+-- Weather loops get reset to their original volume after underwater
+-- volume scaling and this might cause some volume jumps if one of those
+-- loops happens to be playing on our windoors. Reset volumes to be safe.
 local function resetWindoors(e)
     if table.empty(cellData.windoors)
-    or not sounds.currentlyPlaying(moduleName) then
+    or not modules.getWindoorPlaying(moduleName) then
         return
     end
     if interiorTimer then interiorTimer:pause() end
     debugLog("Resetting windoors.")
     stopWindoors(true)
-    windoorVol = volumeController.getVolume(moduleName)
+    windoorVol = volumeController.getVolume{module = moduleName}
     windoorPitch = volumeController.getPitch(moduleName)
     if interiorTimer then interiorTimer:reset() end
 end

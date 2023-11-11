@@ -310,6 +310,12 @@ local function buildThunders()
 	end
 end
 
+local function buildStaticsSounds()
+    debugLog("|---------------------- Creating statics sound objects. ----------------------|\n")
+	createSound("tew_tentwind", "tew\\A\\ST\\tentwind.wav")
+	createSound("tew_ropebridge", "tew\\A\\ST\\ropebridge.wav")
+end
+
 function this.flushManifestFile()
 	tes3.messageBox({
 		message = messages.manifestConfirm,
@@ -380,6 +386,7 @@ function this.build()
 	buildMisc()
 	buildRain()
     buildThunders()
+    buildStaticsSounds()
 
 	checkForRemovedFiles()
 	-- Write manifest file if it was modified

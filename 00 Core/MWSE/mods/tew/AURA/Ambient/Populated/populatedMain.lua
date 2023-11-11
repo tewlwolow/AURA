@@ -3,7 +3,8 @@
 
 local data = require("tew.AURA.Ambient.Populated.populatedData")
 local config = require("tew.AURA.config")
-local moduleData = require("tew.AURA.moduleData")
+local modules = require("tew.AURA.modules")
+local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
 local isOpenPlaza = common.isOpenPlaza

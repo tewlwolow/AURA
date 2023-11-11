@@ -34,6 +34,7 @@ this.messages = {
 	enableInterior = "Enable Interior Ambient module?",
 	enablePopulated = "Enable Populated Ambient module?",
 	enableInteriorWeather = "Enable Interior Weather module?",
+    enableSoundsOnStatics = "Enable Sounds on Statics module?",
 	enableServiceVoices = "Enable Service Voices module?",
 	enableUI = "Enable UI module?",
 	enableContainers = "Enable Containers module?",
@@ -56,6 +57,7 @@ this.messages = {
     exteriorVolume = "exterior volume",
     underwater = "underwater",
     adjustingAuto = "Adjusting automatically",
+    currentlyPlayingDoors = "Doors currently playing",
 
 	refreshManifest = "Refresh manifest file",
 
@@ -73,6 +75,16 @@ this.messages = {
 	tavernsDesc = "Select which taverns the music is disabled in.",
 	tavernsDisabled = "Disabled taverns",
 	tavernsEnabled = "Enabled taverns",
+
+    SS = "Sounds on Statics",
+    SSDesc = "Plays appropriate sounds in accordance with the current weather when in close proximity of selected game-world objects.",
+    rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
+    shelterRain = "Enable atmospheric rain sounds while sheltered outside? Supported shelter statics include portable tents (such as Ashfall modular tents), overhangs, awnings and sheds. Requires variable rain sounds.",
+    shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
+    shelterWeather = "Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
+    ropeBridge = "Enable creaking sounds on rope bridges outside?",
+
+    enableInteriorToExterior = "Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",
 
 	PA = "Populated Ambient",
 	PADesc = "Plays ambient sounds in populated areas, like towns and villages.",
@@ -122,7 +134,7 @@ this.messages = {
 	misc = "Misc",
 	miscDesc = "Plays various miscellaneous sounds.",
 	rainSounds = "Enable variable rain sounds per max particles?",
-	rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
+	--rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
 	windSounds = "Enable variable wind sounds per clouds speed?",
 	playInteriorWind = "Enable wind sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",
 	windVol = "Changes % volume for wind sounds.",

@@ -47,6 +47,7 @@ this.messages = {
 	enableInterior = "Activer le module Ambiance Intérieure ?",
 	enablePopulated = "Activer le module Ambiance Population ?",
 	enableInteriorWeather = "Activer le module Météo Intérieure ?",
+    enableSoundsOnStatics = "Activer le module Sons sur les Objets ?",
 	enableServiceVoices = "Activer le module Commentaires Services ?",
 	enableUI = "Activer le module Interface ?",
 	enableContainers = "Activer le module Conteneurs ?",
@@ -69,6 +70,7 @@ this.messages = {
     exteriorVolume = "le volume à l'extérieur",
     underwater = "sous l'eau",
     adjustingAuto = "Ajustement automatique",
+    currentlyPlayingDoors = "Portes en cours de lecture",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 
@@ -86,6 +88,16 @@ this.messages = {
 	tavernsDesc = "Sélectionnez les tavernes où les musiques sont désactivées.",
 	tavernsDisabled = "Tavernes désactivées",
 	tavernsEnabled = "Tavernes activées",
+
+    SS = "Sons sur les Objets",
+    SSDesc = "Joue des sons appropriés en fonction de la météo actuelle à proximité de divers objets du monde du jeu.",
+	rainOnStaticsSounds = "Activer les sons de la pluie pour certains objets à l'extérieur ? Nécessite des sons variables de la pluie.",
+    shelterRain = "Activer les sons de pluie atmosphériques lorsque vous êtes à l'abri à l'extérieur ? Les abris pris en charge comprennent des tentes portables (telles que les tentes modulaires Ashfall), des surplombs, des auvents et des hangars. Nécessite des sons variables de la pluie.",
+    shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
+    shelterWeather = "Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
+    ropeBridge = "Activer les grincements sur les ponts de singe à l'extérieur ?",
+
+    enableInteriorToExterior = "Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
 
 	PA = "Ambiance Population",
 	PADesc = "Joue des sons d'ambiance dans les lieux peuplés commes les villes et les villages.",
@@ -135,7 +147,6 @@ this.messages = {
 	misc = "Divers",
 	miscDesc = "Joue des sons additionnels divers.",
 	rainSounds = "Activer les sons variables de la pluie en fonction du nombre de particules ?",
-	rainOnStaticsSounds = "Activer le sons de la pluie pour certains objets à l'extérieur ? Nécessite des sons variables de la pluie.",
 	windSounds = "Activer les sons variables du vent en fonction de la vitesse des nuages ?",
 	playInteriorWind = "Activer les sons de vent en intérieur ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
 	windVol = "Changer le % volume des sons de vent.",

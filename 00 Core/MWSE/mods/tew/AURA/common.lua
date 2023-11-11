@@ -103,20 +103,16 @@ function this.getWindoors(cell)
 		end
 	end
 
-	if table.empty(windoors) then
-		return windoors
-	else
-		for stat in cell:iterateReferences(tes3.objectType.static) do
-			if (not string.find(cell.name:lower(), "plaza")) then
-				for _, window in pairs(this.windows) do
-					if string.find(stat.object.id:lower(), window) then
-						table.insert(windoors, stat)
-					end
+	for stat in cell:iterateReferences(tes3.objectType.static) do
+		if (not string.find(cell.name:lower(), "plaza")) then
+			for _, window in pairs(this.windows) do
+				if string.find(stat.object.id:lower(), window) then
+					table.insert(windoors, stat)
 				end
 			end
 		end
-		return windoors
 	end
+	return windoors
 end
 
 -- Emulates a set of unique elements. This function adds a new element to the set. --

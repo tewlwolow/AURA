@@ -145,13 +145,13 @@ local function cellCheck(e)
 
 	-- Checking time --
 	local gameHour = tes3.worldController.hour.value
-	if (gameHour >= WtC.sunriseHour - 1.5) and (gameHour < WtC.sunriseHour + 1.5) then
+	if (gameHour >= WtC.sunriseHour - 3) and (gameHour < WtC.sunriseHour + 3) then
 		timeNow = "sr"
-	elseif (gameHour >= WtC.sunriseHour + 1.5) and (gameHour < WtC.sunsetHour - 1.5) then
+	elseif (gameHour >= WtC.sunriseHour + 3) and (gameHour < WtC.sunsetHour - 3) then
 		timeNow = "d"
-	elseif (gameHour >= WtC.sunsetHour - 1.5) and (gameHour < WtC.sunsetHour + 1.5) then
+	elseif (gameHour >= WtC.sunsetHour - 3) and (gameHour < WtC.sunsetHour + 3) then
 		timeNow = "ss"
-	elseif (gameHour >= WtC.sunsetHour + 1.5) or (gameHour < WtC.sunriseHour - 1.5) then
+	elseif (gameHour >= WtC.sunsetHour + 3) or (gameHour < WtC.sunriseHour - 3) then
 		timeNow = "n"
 	end
 	debugLog("Time: " .. timeNow)

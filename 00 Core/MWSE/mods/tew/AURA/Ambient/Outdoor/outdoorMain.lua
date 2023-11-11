@@ -204,6 +204,7 @@ local function cellCheck(e)
 			if not moduleInteriorWeather then updateConditions() return end
 			if not table.empty(cellData.windoors) then
 				debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
+				debugLog("Playing regular weather track. useLast: " .. tostring(useLast))
                 windoorVol = volumeController.getVolume(moduleName)
                 windoorPitch = volumeController.getPitch(moduleName)
 				playWindoors(useLast)

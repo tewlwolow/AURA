@@ -131,11 +131,7 @@ local function cellCheck(e)
 	end
 
 	-- Checking climate --
-	for kRegion, vClimate in pairs(climates.regions) do
-		if kRegion == region then
-			climateNow = vClimate
-		end
-	end
+	climateNow = climates.regions[region]
 
 	if not climateNow then
 		debugLog("Blacklisted region - no climate detected. Returning.")

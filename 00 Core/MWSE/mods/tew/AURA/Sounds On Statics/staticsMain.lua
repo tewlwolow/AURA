@@ -399,6 +399,7 @@ local function tick()
         debugLog("Conditions not met. Removing statics sounds.")
         onConditionsNotMet()
         playingBlocked = true
+        runResetter() -- Clear everything when not outside
     end
 end
 

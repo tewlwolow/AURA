@@ -241,9 +241,11 @@ local function doModules()
         if moduleName == "interiorToExterior" then
             local info = {}
             for _, door in pairs(cellData.exteriorDoors) do
-                if door ~= nil and door.tempData.tew.track
-                and tes3.getSoundPlaying{sound = door.tempData.tew.track, reference = door} then
-                    table.insert(info, string.format("%s: %s", door.tempData.tew.track.id, door.destination.cell.name))
+                if door ~= nil then
+                    local doorTrack = common.getTrackPlaying(modules.getExteriorDoorTrack(door), door)
+                    if doorTrack then
+                        table.insert(info, string.format("%s: %s", doorTrack.id, door.destination.cell.name))
+                    end
                 end
             end
             trackInfo.text = string.format("%s: %s: %s [?]", moduleName, messages.currentlyPlayingDoors, tostring(#info))

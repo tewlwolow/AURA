@@ -361,6 +361,14 @@ function this.getWindoorPlaying(moduleName)
     end
 end
 
+function this.getExteriorDoorTrack(ref)
+    return ref and ref.tempData
+    and ref.tempData.tew
+    and ref.tempData.tew.AURA
+    and ref.tempData.tew.AURA.IE
+    and ref.tempData.tew.AURA.IE.track
+end
+
 function this.getExteriorDoorPlaying(moduleName)
     if not this.data[moduleName].playExteriorDoors
     or not cellData.exteriorDoors
@@ -368,8 +376,8 @@ function this.getExteriorDoorPlaying(moduleName)
         return
     end
     for _, door in pairs(cellData.exteriorDoors) do
-        if door ~= nil and door.tempData.tew then
-            local track = door.tempData.tew.track
+        if door ~= nil then
+            local track = this.getExteriorDoorTrack(door)
             if common.getTrackPlaying(track, door) then
                 return {track, door}
             end

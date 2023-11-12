@@ -161,11 +161,14 @@ local function cellCheck()
         -- But not the other way around, for more sound variety.
         local track
         for _, door in pairs(cellData.exteriorDoors) do
-            if (door ~= nil) and (door.destination.cell == cell) and (door.tempData.tew.track) then
-                local doorIntOrExt = door.cell.isInterior and "Interior" or "Exterior"
-                debugLog(string.format("%s->Interior transition, using last known door track.", doorIntOrExt))
-                track = door.tempData.tew.track
-                break
+            if (door ~= nil) and (door.destination.cell == cell) then
+                local doorTrack = modules.getExteriorDoorTrack(door)
+                if doorTrack then
+                    local doorIntOrExt = door.cell.isInterior and "Interior" or "Exterior"
+                    debugLog(string.format("%s->Interior transition, using last known door track.", doorIntOrExt))
+                    track = doorTrack
+                    break
+                end
             end
         end
 

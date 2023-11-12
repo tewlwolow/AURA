@@ -40,7 +40,7 @@ local function cellCheck()
     debugLog("Searching for eligible doors.")
 
     for door in cell:iterateReferences(tes3.objectType.door) do
-        if not (door.destination and door.destination.cell.isInterior and door.tempData) then
+        if not (door.destination and door.destination.cell and door.destination.cell.isInterior and door.tempData) then
             goto nextDoor
         end
         local cellId = door.destination.cell.id:lower()
@@ -53,9 +53,11 @@ local function cellCheck()
             debugLog(string.format("Last time visited: %.5f game hours ago.", (now - last)))
 
             if not door.tempData.tew then door.tempData.tew = {} end
-            door.tempData.tew.interiorType = visitedCellData.type
-            door.tempData.tew.actorCount = visitedCellData.actorCount
-            door.tempData.tew.lastVisited = visitedCellData.lastVisited
+            if not door.tempData.tew.AURA then door.tempData.tew.AURA = {} end
+            if not door.tempData.tew.AURA.IE then door.tempData.tew.AURA.IE = {} end
+            door.tempData.tew.AURA.IE.interiorType = visitedCellData.type
+            door.tempData.tew.AURA.IE.actorCount = visitedCellData.actorCount
+            door.tempData.tew.AURA.IE.lastVisited = visitedCellData.lastVisited
             if not table.find(cellData.exteriorDoors, door) then
                 table.insert(cellData.exteriorDoors, door)
             end
@@ -79,13 +81,15 @@ local function playExteriorDoors()
 	for _, door in pairs(cellData.exteriorDoors) do
 		if door ~= nil and door.destination.cell
         and playerPos:distance(door.position:copy()) < 800 then
-            local doorTrack = common.getTrackPlaying(door.tempData.tew.track, door)
+            local tempData = door.tempData.tew and door.tempData.tew.AURA and door.tempData.tew.AURA.IE
+            if not tempData then goto continue end
+            local doorTrack = common.getTrackPlaying(tempData.track, door)
             local now = tes3.getSimulationTimestamp(true)
-            local last = door.tempData.tew.lastVisited
-            local interiorType = door.tempData.tew.interiorType
+            local last = tempData.lastVisited
+            local interiorType = tempData.interiorType
             local actorCount
             if (last) and (now - last) >= 72 then
-                actorCount = door.tempData.tew.actorCount
+                actorCount = tempData.actorCount
             else
                 actorCount = common.getActorCount(door.destination.cell)
             end
@@ -98,14 +102,14 @@ local function playExteriorDoors()
                 -- Naaa, using the same track is boooorin'
                 local track = sounds.getTrack{
                     module = "interior",
-                    type = door.tempData.tew.interiorType,
+                    type = interiorType,
                 }
                 sounds.playImmediate{
                     module = moduleName,
                     track = track,
                     reference = door,
                 }
-                door.tempData.tew.track = track
+                door.tempData.tew.AURA.IE.track = track
             elseif not isEligible and doorTrack then
                 debugLog(string.format("Door destination is not eligible, removing sound. | cellId: %s | actorCount: %s", cellId, actorCount))
                 sounds.removeImmediate{
@@ -115,6 +119,7 @@ local function playExteriorDoors()
                 }
             end
 		end
+        :: continue ::
 	end
 end
 

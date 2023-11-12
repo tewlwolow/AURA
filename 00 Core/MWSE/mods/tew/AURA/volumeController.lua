@@ -160,7 +160,7 @@ function this.adjustVolume(options)
     elseif adjustAllExteriorDoors then
         debugLog("Adjusting all exterior doors.")
         for _, door in pairs(cellData.exteriorDoors) do
-            if (door ~= nil) then adjust(door.tempData.tew.track, door) end
+            if (door ~= nil) then adjust(modules.getExteriorDoorTrack(door), door) end
         end
     elseif isTrackUnattached then
         adjust(targetTrack)

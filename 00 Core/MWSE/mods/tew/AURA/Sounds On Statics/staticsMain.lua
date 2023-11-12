@@ -69,7 +69,8 @@ local function restoreWeatherVolumes()
         debugLog("[shelterWeather] Restoring original volumes for weather tracks.")
         fader.cancel("shelterWeather")
         volumeController.setConfigVolumes()
-        runResetter()
+        weatherVolumeDelta = 0
+        cellData.isWeatherVolumeDynamic = false
     end
 end
 
@@ -149,11 +150,7 @@ local function playRainOnStatic(ref)
 
     debugLog(string.format("[%s] Adding sound %s for -> %s", moduleName, sound.id, ref))
 
-    sounds.playImmediate{
-        module = moduleName,
-        track = sound,
-        reference = ref,
-    }
+    playImmediate(moduleName, sound, ref)
 end
 
 local function playShelterRain()

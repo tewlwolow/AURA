@@ -60,12 +60,15 @@ local function playWindoors(useLast)
 	local playerPos = tes3.player.position:copy()
 	local playLast
 	for i, windoor in ipairs(cellData.windoors) do
+
+        -- Get the first closest windoor and set the proper flag, the rest will follow
+        if i == 1 then
+			playLast = useLast
+		else
+			playLast = true
+		end
+
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
-			if i == 1 then
-				playLast = useLast
-			else
-				playLast = true
-			end
             sounds.play{
                 module = moduleName,
                 type = windType,

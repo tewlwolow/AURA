@@ -113,6 +113,7 @@ function this.getWindoors(cell)
 			end
 		end
 
+		-- Let's sort to ensure we scan the closest one first for the useLast flag further down the line
 		local playerPos = tes3.player.position:copy()
 		table.sort(windoors, function(a, b) return playerPos:distance(a.position:copy()) < playerPos:distance(b.position:copy()) end)
 

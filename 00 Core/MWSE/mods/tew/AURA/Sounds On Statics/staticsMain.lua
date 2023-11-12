@@ -191,11 +191,19 @@ local function playShelterWind()
     local moduleName = "shelterWind"
 
     if not modules.isActive(moduleName) then return end
+
+    local supportedShelterTypes = staticsData.modules[moduleName].ids
+    local shelter = cellData.currentShelter.ref
+    local isValidShelterType = shelter and common.getMatch(supportedShelterTypes, shelter.object.id:lower())
+    local sound = sounds.getTrack{module = moduleName}
+    local weather = modules.getEligibleWeather(moduleName)
+    local weatherTrack = common.getWeatherTrack()
+
+    local ready = isValidShelterType and sound and weather and weatherTrack
+    if not ready then remove(moduleName) return end
+
     if cellData.playerUnderwater then removeImmediate(moduleName) return end
     if modules.getCurrentlyPlaying(moduleName) then return end
-
-    local sound = sounds.getTrack{module = moduleName}
-    if not sound then remove(moduleName) return end
 
     debugLog(string.format("[%s] Playing track: %s", moduleName, sound.id))
 

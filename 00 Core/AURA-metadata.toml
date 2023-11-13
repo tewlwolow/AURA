@@ -15,7 +15,6 @@ assets = [
 	"Textures\\tew\\AURA",
 	"Sound\\tew\\A",
 	"Sound\\Vo\\tew\\A",
-	"Music\\tew\\AURA"
 ]
 
 [dependencies.mwse]

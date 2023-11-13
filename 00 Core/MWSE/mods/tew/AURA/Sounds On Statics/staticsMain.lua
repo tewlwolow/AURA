@@ -24,6 +24,8 @@ local bridgeStatics = staticsData.modules["ropeBridge"].ids
 local rainyStatics = staticsData.modules["rainOnStatics"].ids
 local shelterStatics = staticsData.shelterStatics
 
+local mainTimer
+
 
 ---------------------------------------------------------------------
 local function playing(sound, ref)

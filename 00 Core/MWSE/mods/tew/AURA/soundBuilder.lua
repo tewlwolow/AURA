@@ -18,7 +18,8 @@ local soundDir = "tew\\A"
 local climDir = "\\C\\"
 local comDir = "\\S\\"
 local popDir = "\\P\\"
-local interiorDir = "\\I\\"
+local interiorDir = "I"
+local intToExtDir = "IE"
 local wDir = "\\W\\"
 local quietDir = "q"
 local warmDir = "w"
@@ -111,31 +112,29 @@ local function buildPopulatedSounds()
 	end
 end
 
--- Interior --
+-- Interior + Interior-to-Exterior --
 local function buildInteriorSounds()
-	debugLog("|---------------------- Building interior sounds table. ----------------------|\n")
-	for interiorType, _ in pairs(soundData.interior) do
-		for soundfile in lfs.dir(AURAdir .. interiorDir .. interiorType) do
-			if soundfile and soundfile ~= ".." and soundfile ~= "." and string.endswith(soundfile, ".wav") then
-				local objectId = string.sub("I_" .. interiorType .. "_" .. soundfile, 1, -5)
-				local filename = soundDir .. interiorDir .. interiorType .. "\\" .. soundfile
-				createSound(objectId, filename, soundData.interior[interiorType])
-			end
-		end
-	end
-end
-
-local function buildTavernSounds()
-	debugLog("|---------------------- Building tavern sounds table. ----------------------|\n")
-	for folder in lfs.dir(AURAdir .. interiorDir .. "\\tav\\") do
-		for soundfile in lfs.dir(AURAdir .. interiorDir .. "\\tav\\" .. folder) do
-			if soundfile and soundfile ~= ".." and soundfile ~= "." and string.endswith(soundfile, ".wav") then
-				local objectId = string.sub("I_tav_" .. folder .. "_" .. soundfile, 1, -5)
-				local filename = soundDir .. interiorDir .. "tav\\" .. folder .. "\\" .. soundfile
-				createSound(objectId, filename, soundData.interior["tav"][folder])
-			end
-		end
-	end
+    local function buildSoundDataTable(parentDir, soundDataTable)
+        for interiorType, subTable in pairs(soundDataTable) do
+            if not table.empty(subTable) then
+                local subDir = parentDir .. "\\" .. interiorType
+                buildSoundDataTable(subDir, subTable)
+            else
+                local path = ("%s\\%s\\%s"):format(AURAdir, parentDir, interiorType)
+                for soundfile in lfs.dir(path) do
+                    if soundfile and soundfile ~= ".." and soundfile ~= "." and string.endswith(soundfile, ".wav") then
+                        local objectId = ("%s_%s_%s"):format(parentDir:gsub("\\", "_"), interiorType, soundfile:gsub(".wav", ""))
+                        local filename = ("%s\\%s\\%s\\%s"):format(soundDir, parentDir, interiorType, soundfile)
+                        createSound(objectId, filename, soundDataTable[interiorType])
+                    end
+                end
+            end
+        end
+    end
+    debugLog("|---------------------- Building interior sounds table. ----------------------|\n")
+    buildSoundDataTable(interiorDir, soundData.interior)
+    debugLog("|---------------------- Building interiorToExterior sounds table. ----------------------|\n")
+    buildSoundDataTable(intToExtDir, soundData.interiorToExterior)
 end
 
 local function buildWeatherSounds()
@@ -310,6 +309,12 @@ local function buildThunders()
 	end
 end
 
+local function buildStaticsSounds()
+    debugLog("|---------------------- Creating statics sound objects. ----------------------|\n")
+	createSound("tew_tentwind", "tew\\A\\ST\\tentwind.wav")
+	createSound("tew_ropebridge", "tew\\A\\ST\\ropebridge.wav")
+end
+
 function this.flushManifestFile()
 	tes3.messageBox({
 		message = messages.manifestConfirm,
@@ -375,11 +380,11 @@ function this.build()
 	buildContextSounds(coldDir, soundData.cold)
 	buildPopulatedSounds()
 	buildInteriorSounds()
-	buildTavernSounds()
 	buildWeatherSounds()
 	buildMisc()
 	buildRain()
     buildThunders()
+    buildStaticsSounds()
 
 	checkForRemovedFiles()
 	-- Write manifest file if it was modified

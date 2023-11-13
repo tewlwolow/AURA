@@ -2,7 +2,8 @@ local cellData = require("tew.AURA.cellData")
 local common = require("tew.AURA.common")
 local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
-local moduleData = require("tew.AURA.moduleData")
+local modules = require("tew.AURA.modules")
+local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
 local volumeController = require("tew.AURA.volumeController")
 local moduleName = "wind"
@@ -182,7 +183,7 @@ local function windCheck(e)
                 debugLog("Found big interior cell.")
                 if not table.empty(cellData.windoors) then
                     debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
-                    windoorVol = volumeController.getVolume(moduleName)
+                    windoorVol = volumeController.getVolume{module = moduleName}
                     windoorPitch = volumeController.getPitch(moduleName)
                     playWindoors(useLast)
                     updateConditions(true)
@@ -238,13 +239,13 @@ end
 local function resetWindoors(e)
     if table.empty(cellData.windoors)
     or not playInteriorWind
-    or not sounds.currentlyPlaying(moduleName) then
+    or not modules.getWindoorPlaying(moduleName) then
         return
     end
     if interiorTimer then interiorTimer:pause() end
     debugLog("Resetting windoors.")
     stopWindoors(true)
-    windoorVol = volumeController.getVolume(moduleName)
+    windoorVol = volumeController.getVolume{module = moduleName}
     windoorPitch = volumeController.getPitch(moduleName)
     if interiorTimer then interiorTimer:reset() end
 end

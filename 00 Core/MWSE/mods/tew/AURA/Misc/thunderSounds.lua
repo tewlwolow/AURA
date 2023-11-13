@@ -35,14 +35,14 @@ local function onSoundObjectPlay(e)
     -- make sure we play our thunders without a delay, since these are
     -- scripted thunders that need to play at precise times:
 
-    -- [cell name]                                   [CS script]
-    -- Bamz-Amschend, Skybreak Gallery       (tr_weathermachine)
-    -- Ald Daedroth, Inner Shrine           (SheogorathBlessing)
-    -- Vivec, Puzzle Canal, Center                 (puzzlecanal)
-    -- Hlormaren, Propylon Chamber                  (Warp_Andra)
-    -- Berandas, Propylon Chamber                   (Warp_Andra)
-    -- Falasmaryon, Propylon Chamber                (Warp_Beran)
-    -- Andasreth, Propylon Chamber                  (Warp_Beran)
+    -- [cell name]                                             [CS script]
+    -- Bamz-Amschend, Skybreak Gallery                 (tr_weathermachine)
+    -- Ald Daedroth, Inner Shrine                     (SheogorathBlessing)
+    -- Vivec, Puzzle Canal, Center                           (puzzlecanal)
+    -- Hlormaren, Propylon Chamber                            (Warp_Andra)
+    -- Berandas, Propylon Chamber                             (Warp_Andra)
+    -- Falasmaryon, Propylon Chamber                          (Warp_Beran)
+    -- Andasreth, Propylon Chamber                            (Warp_Beran)
 
     -- Also for reference, thunder sound ids from Distant Thunder mod:
     -- Distant_Thunder_00, Distant_Thunder_01, Distant_Thunder_02, Distant_Thunder_03

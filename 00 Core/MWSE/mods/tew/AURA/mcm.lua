@@ -18,7 +18,7 @@ local template = mwse.mcm.createTemplate {
 	name = metadata.package.name,
 	headerImagePath = "\\Textures\\tew\\AURA\\AURA_logo.tga" }
 
-local page = template:createPage { label = messages.mainSettings, noScroll = true }
+local page = template:createPage { label = messages.mainSettings, noScroll = false }
 page:createCategory {
 	label = string.format("%s %s %s %s.\n%s \n\n%s:", metadata.package.name, version, messages.by, util.getAuthors(metadata.package.authors), messages.mainLabel, messages.settings)
 }
@@ -60,6 +60,11 @@ page:createYesNoButton {
 page:createYesNoButton {
 	label = messages.enableInteriorWeather,
 	variable = registerVariable("moduleInteriorWeather"),
+	restartRequired = true
+}
+page:createYesNoButton {
+	label = messages.enableSoundsOnStatics,
+	variable = registerVariable("moduleSoundsOnStatics"),
 	restartRequired = true
 }
 page:createYesNoButton {
@@ -134,6 +139,11 @@ pageIA:createYesNoButton {
 	variable = registerVariable("interiorMusic"),
 	restartRequired = true
 }
+pageIA:createYesNoButton {
+	label = messages.enableInteriorToExterior,
+	variable = registerVariable("moduleInteriorToExterior"),
+	restartRequired = true
+}
 
 template:createExclusionsPage {
 	label = messages.tavernsBlacklist,
@@ -186,6 +196,31 @@ template:createExclusionsPage {
 		},
 
 	}
+}
+
+local pageSS = template:createPage { label = messages.SS }
+pageIA:createCategory {
+	label = string.format("%s\n\n%s:", messages.SSDesc, messages.settings)
+}
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.rainOnStaticsSounds),
+	variable = registerVariable("playRainOnStatics"),
+}
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.shelterRain),
+	variable = registerVariable("playRainInsideShelter"),
+}
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.shelterWind),
+	variable = registerVariable("playWindInsideShelter"),
+}
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.shelterWeather),
+	variable = registerVariable("shelterWeather"),
+}
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.ropeBridge),
+	variable = registerVariable("playRopeBridge"),
 }
 
 --[[
@@ -372,10 +407,12 @@ pageMisc:createYesNoButton {
 	label = string.format("%s %s ", messages.rainSounds, messages.WtS),
 	variable = registerVariable("rainSounds"),
 }
+--[[
 pageMisc:createYesNoButton {
 	label = string.format("%s", messages.rainOnStaticsSounds),
 	variable = registerVariable("playRainOnStatics"),
 }
+--]]
 pageMisc:createYesNoButton {
 	label = string.format("%s %s", messages.windSounds, messages.WtS),
 	variable = registerVariable("windSounds"),

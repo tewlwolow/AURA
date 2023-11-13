@@ -3,7 +3,8 @@ local climates = require("tew.AURA.Ambient.Outdoor.outdoorClimates")
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
 local defaults = require("tew.AURA.defaults")
-local moduleData = require("tew.AURA.moduleData")
+local modules = require("tew.AURA.modules")
+local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
 local volumeController = require("tew.AURA.volumeController")
 
@@ -210,8 +211,8 @@ local function cellCheck(e)
 			if not moduleInteriorWeather then updateConditions() return end
 			if not table.empty(cellData.windoors) then
 				debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
-                windoorVol = volumeController.getVolume(moduleName)
-                windoorPitch = volumeController.getPitch(moduleName)
+        windoorVol = volumeController.getVolume{module = moduleName}
+        windoorPitch = volumeController.getPitch(moduleName)
 				playWindoors(useLast)
 				updateConditions(true)
 				return
@@ -250,13 +251,13 @@ local function resetWindoors(e)
     if table.empty(cellData.windoors)
     or not moduleInteriorWeather
     or not playInteriorAmbient
-    or not sounds.currentlyPlaying(moduleName) then
+    or not modules.getWindoorPlaying(moduleName) then
         return
     end
     if interiorTimer then interiorTimer:pause() end
     debugLog("Resetting windoors.")
     stopWindoors(true)
-    windoorVol = volumeController.getVolume(moduleName)
+    windoorVol = volumeController.getVolume{module = moduleName}
     windoorPitch = volumeController.getPitch(moduleName)
     if interiorTimer then interiorTimer:reset() end
 end

@@ -453,6 +453,7 @@ local function onWeatherTransitionFinished()
 	-- to update according to the new weather type.
     removeRainOnStatics()
     onExitedShelter()
+    restoreWeatherVolumes()
 	refreshCache()
 end
 

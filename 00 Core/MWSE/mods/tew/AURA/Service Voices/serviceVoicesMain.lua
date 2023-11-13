@@ -19,7 +19,7 @@ local debugLog = common.debugLog
 local lastVoice = "init"
 
 local function getServiceVoiceData(e, voiceData)
-	local npcId = tes3ui.getServiceActor(e)
+	local npcId = tes3ui.getServiceActor()
 	local raceId = npcId.object.race.id
 	local raceLet = raceNames[raceId]
 	local sexLet = npcId.object.female and "f" or "m"
@@ -42,7 +42,7 @@ local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 		tes3.say {
 			volume = config.volumes.misc.SVvol / 100,
 			soundPath = string.format("Vo\\%s\\%s\\%s.mp3", raceLet, sexLet, newVoice),
-			reference = npcId
+			reference = npcId,
 		}
 		lastVoice = newVoice
 		debugLog("NPC says a comment for the service.")
@@ -50,7 +50,7 @@ local function playServiceVoice(npcId, raceLet, sexLet, serviceFeed)
 end
 
 local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysticGateSound, playMenuClickSound)
-    if math.random(1, 100) > config.serviceChance then return end
+	if math.random(1, 100) > config.serviceChance then return end
 	local closeButton = e.element:findChild(tes3ui.registerID(closeButtonName))
 	if closeButton then
 		closeButton:register("mouseDown", function()
@@ -60,7 +60,7 @@ local function handleServiceGreet(e, voiceData, flag, closeButtonName, playMysti
 		end)
 	end
 
-	local npcId = tes3ui.getServiceActor(e)
+	local npcId = tes3ui.getServiceActor()
 	if not (npcId) or (npcId and not npcId.object.race) then return end
 	local raceId = npcId.object.race.id
 	local raceLet = raceNames[raceId]
@@ -95,14 +95,14 @@ registerGreetEvent({
 	serviceFlag = "serviceTravel",
 	greetFunction = travelVoices,
 	filter = "MenuServiceTravel",
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })
 
 registerGreetEvent({
 	serviceFlag = "serviceBarter",
 	greetFunction = commonVoices,
 	filter = "MenuBarter",
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })
 
 registerGreetEvent({
@@ -110,14 +110,14 @@ registerGreetEvent({
 	greetFunction = trainingVoices,
 	filter = "MenuServiceTraining",
 	closeButtonName = "MenuServiceTraining_Okbutton",
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })
 
 registerGreetEvent({
 	serviceFlag = "serviceEnchantment",
 	greetFunction = commonVoices,
 	filter = "MenuEnchantment",
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })
 
 registerGreetEvent({
@@ -125,7 +125,7 @@ registerGreetEvent({
 	greetFunction = spellVoices,
 	filter = "MenuSpellmaking",
 	closeButtonName = "MenuSpellmaking_Cancelbutton",
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })
 
 registerGreetEvent({
@@ -134,7 +134,7 @@ registerGreetEvent({
 	filter = "MenuServiceSpells",
 	closeButtonName = "MenuServiceSpells_Okbutton",
 	playMysticGateSound = true,
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })
 
 registerGreetEvent({
@@ -142,5 +142,5 @@ registerGreetEvent({
 	greetFunction = commonVoices,
 	filter = "MenuServiceRepair",
 	closeButtonName = "MenuServiceRepair_Okbutton",
-	playMenuClickSound = true
+	playMenuClickSound = true,
 })

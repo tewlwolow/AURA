@@ -38,6 +38,29 @@ this.interior = {
 	}
 }
 
+this.interiorToExterior = {
+	["aba"] = {},
+	["alc"] = {},
+	["cou"] = {},
+	["cav"] = {},
+	["clo"] = {},
+	["dae"] = {},
+	["dwe"] = {},
+	["ice"] = {},
+	["mag"] = {},
+	["fig"] = {},
+	["tem"] = {},
+	["lib"] = {},
+	["smi"] = {},
+	["tra"] = {},
+	["tom"] = {},
+	["tav"] = {
+		["imp"] = {},
+		["dar"] = {},
+		["nor"] = {},
+	}
+}
+
 this.interiorWeather = {
 	["big"] = {
 		[4] = nil,

@@ -54,7 +54,13 @@ function this.getTrack(options)
 	elseif moduleName == "interior" then
 		debugLog("Got interior module.")
         debugLog("Got interior " .. options.type .. " type.")
-        table = soundData.interior[options.type] or soundData.interior["tav"][options.type]
+        local IsoundTable = soundData.interior
+        table = IsoundTable[options.type] or IsoundTable["tav"][options.type]
+    elseif moduleName == "interiorToExterior" then
+		debugLog("Got interiorToExterior module.")
+        debugLog("Got interior " .. options.type .. " type.")
+        local IEsoundTable = soundData.interiorToExterior
+        table = IEsoundTable[options.type] or IEsoundTable["tav"][options.type]
 	elseif moduleName == "interiorWeather" then
 		debugLog("Got interior weather module. Weather: " .. options.weather)
 		debugLog("Got interior type: " .. options.type)

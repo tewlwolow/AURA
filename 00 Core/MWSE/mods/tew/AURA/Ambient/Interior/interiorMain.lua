@@ -166,7 +166,7 @@ local function cellCheck()
                 if doorTrack then
                     local doorIntOrExt = door.cell.isInterior and "Interior" or "Exterior"
                     debugLog(string.format("%s->Interior transition, using last known door track.", doorIntOrExt))
-                    track = doorTrack
+                    track = tes3.getSound(doorTrack.id:lower():gsub("^ie_", "i_"))
                     break
                 end
             end

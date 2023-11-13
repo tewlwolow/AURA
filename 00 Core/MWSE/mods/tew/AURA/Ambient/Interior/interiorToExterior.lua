@@ -101,7 +101,7 @@ local function playExteriorDoors()
                 -- Unless we want to trade variety for ultra-realism
                 -- Naaa, using the same track is boooorin'
                 local track = sounds.getTrack{
-                    module = "interior",
+                    module = moduleName,
                     type = interiorType,
                 }
                 sounds.playImmediate{

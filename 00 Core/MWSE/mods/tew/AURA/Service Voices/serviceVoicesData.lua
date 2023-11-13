@@ -10,7 +10,7 @@ this.raceNames = {
     ["Orc"] = "o",
     ["Nord"] = "n",
     ["Redguard"] = "r",
-    ["Wood Elf"] = "w"
+    ["Wood Elf"] = "w",
 }
 
 this.commonVoices = {
@@ -93,7 +93,7 @@ this.commonVoices = {
             "tHlo_DF157",
             "tHlo_DF160",
             "tHlo_DF164",
-            "tHlo_DF169"
+            "tHlo_DF169",
         },
         ["m"] = {
             "Srv_DM025",
@@ -319,7 +319,7 @@ this.commonVoices = {
             "Hlo_WM090",
             "Hlo_WM077",
         },
-    }
+    },
 }
 
 this.travelVoices = {
@@ -327,12 +327,12 @@ this.travelVoices = {
         ["f"] = {
             "Flw_AF001",
             "Srv_AF001",
-            "Srv_AF001"
+            "Srv_AF001",
         },
         ["m"] = {
             "Flw_AM001",
             "Srv_AM001",
-            "Srv_AM001"
+            "Srv_AM001",
         },
     },
     ["b"] = {
@@ -404,7 +404,7 @@ this.travelVoices = {
             "Srv_KF010",
             "Hlo_KF085",
             "Hlo_KF088",
-            "Hlo_KF089"
+            "Hlo_KF089",
         },
         ["m"] = {
             "Srv_KM007",
@@ -432,7 +432,7 @@ this.travelVoices = {
             "Hlo_OM086",
             "Hlo_OM090",
             "Hlo_OM091",
-            "Hlo_OM092"
+            "Hlo_OM092",
         },
     },
     ["n"] = {
@@ -464,7 +464,7 @@ this.travelVoices = {
 
 
         },
-    }
+    },
 
 }
 
@@ -559,7 +559,7 @@ this.spellVoices = {
             "Hlo_OF057",
             "Hlo_OF058",
             "Hlo_OF059",
-            "Hlo_OF060"
+            "Hlo_OF060",
         },
         ["m"] = {
 
@@ -595,7 +595,7 @@ this.spellVoices = {
 
 
         },
-    }
+    },
 
 }
 
@@ -745,7 +745,7 @@ this.trainingVoices = {
             "Srv_WM005",
             "Hlo_WM091",
         },
-    }
+    },
 
 }
 

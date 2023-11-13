@@ -42,9 +42,9 @@ local function textInputIsActive()
 
     -- Patch for UI Expansion not releasing text input after leaving menu mode
     if not tes3ui.menuMode()
-    and inputFocus
-    and inputFocus.widget
-    and inputFocus.widget.element.name == "UIEXP:FiltersearchBlock" then
+        and inputFocus
+        and inputFocus.widget
+        and inputFocus.widget.element.name == "UIEXP:FiltersearchBlock" then
         tes3ui.acquireTextInput(nil)
         inputFocus = getTextInputFocus()
     end
@@ -75,7 +75,7 @@ local sliderCoefficient = {
 local function createSlider(parent, sc)
     local current = sc.volumeTableCurrent[sc.key] * sc.sliderType.sliderMult
     local default = sc.volumeTableDefault[sc.key] * sc.sliderType.sliderMult
-    local slider = parent:createSlider{
+    local slider = parent:createSlider {
         current = current,
         min = sc.sliderType.sliderMin,
         max = sc.sliderType.sliderMax,
@@ -85,15 +85,17 @@ local function createSlider(parent, sc)
     slider.widthProportional = 0.99
     slider.borderTop = 5
     slider.borderBottom = 5
-    local sliderLabel = parent:createLabel{ id = this.id_sliderLabel, text = "" }
-    sliderLabel.text = string.format(sc.sliderType.labelFmt, current / sc.sliderType.sliderMult, messages.default, default / sc.sliderType.sliderMult)
+    local sliderLabel = parent:createLabel { id = this.id_sliderLabel, text = "" }
+    sliderLabel.text = string.format(sc.sliderType.labelFmt, current / sc.sliderType.sliderMult, messages.default,
+        default / sc.sliderType.sliderMult)
     slider:register("PartScrollBar_changed", function(e)
         local sliderValue = slider:getPropertyInt("PartScrollBar_current")
         local newValue = sliderValue / sc.sliderType.sliderMult
-        sliderLabel.text = string.format(sc.sliderType.labelFmt, newValue, messages.default, default / sc.sliderType.sliderMult)
+        sliderLabel.text = string.format(sc.sliderType.labelFmt, newValue, messages.default,
+            default / sc.sliderType.sliderMult)
         sc.volumeTableCurrent[sc.key] = newValue
         if sc.moduleName then
-            adjustVolume{module = sc.moduleName, config = this.config}
+            adjustVolume { module = sc.moduleName, config = this.config }
             common.setInsert(this.adjustedModules, sc.moduleName)
         else
             setVolume(sc.track, newValue / 100)
@@ -104,13 +106,13 @@ end
 local function createEntry(id)
     local menu = tes3ui.findMenu(this.id_menu)
     local trackList = menu:findChild(this.id_trackList)
-    local trackBlock = trackList:createBlock{ id = id or this.id_trackBlock }
+    local trackBlock = trackList:createBlock { id = id or this.id_trackBlock }
     trackBlock.widthProportional = 1
     trackBlock.autoHeight = true
     trackBlock.flowDirection = tes3.flowDirection.topToBottom
     trackBlock.borderTop = 5
     trackBlock.borderBottom = 20
-    local trackInfo = trackBlock:createLabel{ id = this.id_trackInfo, text = ""}
+    local trackInfo = trackBlock:createLabel { id = this.id_trackInfo, text = "" }
     trackInfo.wrapText = true
     this.entries = this.entries + 1
     return trackBlock
@@ -133,8 +135,9 @@ local function doExtremes()
         local entry = createEntry()
         local trackInfo = entry:findChild(this.id_trackInfo)
 
-        if fader.isRunning{module = "shelterWeather"} or cellData.isWeatherVolumeDynamic then
-            trackInfo.text = string.format("%s: %s\n%s: %s%%", cw.name, track.id, messages.adjustingAuto, math.round(track.volume, 2) * 100)
+        if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
+            trackInfo.text = string.format("%s: %s\n%s: %s%%", cw.name, track.id, messages.adjustingAuto,
+                math.round(track.volume, 2) * 100)
             menu:updateLayout()
             return
         end
@@ -147,7 +150,8 @@ local function doExtremes()
         sc.volumeTableCurrent = this.config.volumes.extremeWeather
         trackInfo.text = string.format("%s: %s", cw.name, track.id)
         if cellData.playerUnderwater and config.underwaterRain then
-            trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto, math.round(track.volume, 2) * 100)
+            trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto,
+                math.round(track.volume, 2) * 100)
         else
             createSlider(entry, sc)
         end
@@ -170,8 +174,9 @@ local function doRain()
     local entry = createEntry()
     local trackInfo = entry:findChild(this.id_trackInfo)
 
-    if fader.isRunning{module = "shelterWeather"} or cellData.isWeatherVolumeDynamic then
-        trackInfo.text = string.format("%s (%s): %s\n%s: %s%%", cw.name, rainType, track.id, messages.adjustingAuto, math.round(track.volume, 2) * 100)
+    if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
+        trackInfo.text = string.format("%s (%s): %s\n%s: %s%%", cw.name, rainType, track.id, messages.adjustingAuto,
+            math.round(track.volume, 2) * 100)
         menu:updateLayout()
         return
     end
@@ -186,7 +191,8 @@ local function doRain()
     trackInfo.text = string.format("%s (%s): %s", cw.name, rainType, track.id)
 
     if cellData.playerUnderwater and config.underwaterRain then
-        trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto, math.round(track.volume, 2) * 100)
+        trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto,
+            math.round(track.volume, 2) * 100)
     else
         createSlider(entry, sc)
     end
@@ -198,13 +204,12 @@ local function doModules()
     local mp = tes3.mobilePlayer
     if not mp then return end
     for moduleName in pairs(moduleData) do
-
         -- This one has a special regime, doesn't play on any reference
         if moduleName == "shelterWeather" then goto nextModule end
 
         local playing = modules.getCurrentlyPlaying(moduleName)
-        or modules.getWindoorPlaying(moduleName)
-        or modules.getExteriorDoorPlaying(moduleName)
+            or modules.getWindoorPlaying(moduleName)
+            or modules.getExteriorDoorPlaying(moduleName)
 
         if not playing then goto nextModule end
         local track, ref = table.unpack(playing)
@@ -219,7 +224,7 @@ local function doModules()
             entry:destroy()
             goto nextModule
         end
-        if fader.isRunning{module = moduleName} then
+        if fader.isRunning { module = moduleName } then
             trackInfo.text = string.format("%s: %s", moduleName, messages.fadeInProgress)
             goto nextModule
         end
@@ -228,9 +233,9 @@ local function doModules()
         sc.volumeTableCurrent = this.config.volumes.modules[moduleName]
 
         if this.cell.isInterior
-        and (moduleName ~= "interiorToExterior")
-        and (moduleName ~= "interiorWeather")
-        and (moduleName ~= "interior") then
+            and (moduleName ~= "interiorToExterior")
+            and (moduleName ~= "interiorWeather")
+            and (moduleName ~= "interior") then
             configKey = common.getInteriorType(this.cell):gsub("ten", "sma")
             sc.sliderType = sliderCoefficient
         else
@@ -251,8 +256,8 @@ local function doModules()
             trackInfo.text = string.format("%s: %s: %s [?]", moduleName, messages.currentlyPlayingDoors, tostring(#info))
             trackInfo:register(tes3.uiEvent.help, function(e)
                 local tooltip = tes3ui.createTooltipMenu()
-                local tip = table.concat(info, '\n')
-                tooltip:createLabel{ text = tip }
+                local tip = table.concat(info, "\n")
+                tooltip:createLabel { text = tip }
             end)
         end
 
@@ -270,7 +275,7 @@ local function doModules()
 
         createSlider(entry, sc)
 
-       :: nextModule ::
+        :: nextModule ::
     end
     menu:updateLayout()
 end
@@ -283,7 +288,8 @@ local function updateHeader()
     if (trackList) and (this.entries > 0) and cellData.playerUnderwater then
         hLabel.text = messages.adjustForUnderwater
     elseif (trackList) and (this.entries > 0) and this.cell.isInterior then
-        cellType = common.getInteriorType(this.cell):gsub("^sma$", messages.small):gsub("^ten$", messages.small):gsub("^big$", messages.big)
+        cellType = common.getInteriorType(this.cell):gsub("^sma$", messages.small):gsub("^ten$", messages.small):gsub(
+        "^big$", messages.big)
         hLabel.text = string.format("%s (%s)", messages.adjustForInterior, cellType)
     elseif (trackList) and (this.entries > 0) and not this.cell.isInterior then
         hLabel.text = messages.adjustForExterior
@@ -294,13 +300,13 @@ end
 
 local function createHeader()
     local menu = tes3ui.findMenu(this.id_menu)
-    local headerBlock = menu:createBlock{ id = this.id_header }
+    local headerBlock = menu:createBlock { id = this.id_header }
     headerBlock.widthProportional = 1
     headerBlock.autoHeight = true
     headerBlock.flowDirection = tes3.flowDirection.topToBottom
     headerBlock.borderTop = 20
     headerBlock.borderBottom = 25
-    local hLabel = headerBlock:createLabel{ id = this.id_headerLabel, text = "" }
+    local hLabel = headerBlock:createLabel { id = this.id_headerLabel, text = "" }
     hLabel.widthProportional = 1
     hLabel.wrapText = true
     hLabel.justifyText = "center"
@@ -308,19 +314,19 @@ end
 
 local function createFooter()
     local menu = tes3ui.findMenu(this.id_menu)
-    local buttonBlock = menu:createBlock{ id = this.id_buttonBlock }
+    local buttonBlock = menu:createBlock { id = this.id_buttonBlock }
     buttonBlock.absolutePosAlignX = 0.99
     buttonBlock.absolutePosAlignY = 0.99
     buttonBlock.autoWidth = true
     buttonBlock.autoHeight = true
 
-    local buttonRestoreDefaults = buttonBlock:createButton{ id = this.id_buttonRestoreDefaults, text = messages.restoreDefaults }
-    local buttonUndo = buttonBlock:createButton{ id = this.id_buttonUndo, text = messages.undo }
+    local buttonRestoreDefaults = buttonBlock:createButton { id = this.id_buttonRestoreDefaults, text = messages.restoreDefaults }
+    local buttonUndo = buttonBlock:createButton { id = this.id_buttonUndo, text = messages.undo }
 
     -- Don't want to restore default volumes while we're dynamically adjusting weather track volume
-    if fader.isRunning{module = "shelterWeather"} then
+    if fader.isRunning { module = "shelterWeather" } then
         local function notify()
-            tes3.messageBox{message = messages.fadeInProgress}
+            tes3.messageBox { message = messages.fadeInProgress }
         end
         debugLog("Fade in progress for shelterWeather. Disabling footer buttons.")
         buttonRestoreDefaults:register(tes3.uiEvent.mouseClick, notify)
@@ -339,7 +345,7 @@ local function createBody()
     local trackList = menu:findChild(this.id_trackList)
     if not trackList then
         this.entries = 0
-        trackList = menu:createVerticalScrollPane{ id = this.id_trackList }
+        trackList = menu:createVerticalScrollPane { id = this.id_trackList }
         trackList.widthProportional = 0.99
         trackList.heightProportional = 0.9
     end
@@ -350,8 +356,7 @@ local function createBody()
 end
 
 local function createWindow()
-
-    local menu = tes3ui.createMenu{ id = this.id_menu, dragFrame = true }
+    local menu = tes3ui.createMenu { id = this.id_menu, dragFrame = true }
     tes3ui.enterMenuMode(this.id_menu)
 
     menu.text = "AURA"
@@ -389,7 +394,7 @@ local function redraw()
     cellData.isWeatherVolumeDynamic = false
     createBody()
     for _, moduleName in ipairs(this.adjustedModules) do
-        adjustVolume{module = moduleName, config = this.config}
+        adjustVolume { module = moduleName, config = this.config }
     end
     table.clear(this.adjustedModules)
     volumeController.setConfigVolumes()
@@ -397,14 +402,12 @@ local function redraw()
 end
 
 function this.toggle(e)
-
     if textInputIsActive() then
         debugLog("Text input active, returning.")
         return
     end
 
     if e.isShiftDown then
-
         local menu = tes3ui.findMenu(this.id_menu)
 
         if (not menu) then
@@ -429,7 +432,6 @@ function this.toggle(e)
             this.entries = 0
             table.clear(this.adjustedModules)
         end
-
     end
 end
 
@@ -447,7 +449,7 @@ function this.onRestoreDefaults(e)
     this.config.volumes.rain = defaults.volumes.rain
     this.config.volumes.extremeWeather = defaults.volumes.extremeWeather
     redraw()
-    tes3.messageBox{ message = messages.defaultsRestored }
+    tes3.messageBox { message = messages.defaultsRestored }
 end
 
 this.init()

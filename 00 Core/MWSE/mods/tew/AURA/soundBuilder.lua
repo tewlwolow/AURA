@@ -41,7 +41,7 @@ local function createSound(objectId, filename, soundTable, i)
 		id = objectId,
 		objectType = tes3.objectType.sound,
 		filename = filename,
-		getIfExists = fileUnmodified
+		getIfExists = fileUnmodified,
 	}
 
 	if soundTable then
@@ -57,7 +57,7 @@ local function createSound(objectId, filename, soundTable, i)
 		debugLog(filename .. " modified. Refreshing object.\n---------------")
 	end
 
-    return sound
+	return sound
 end
 
 ----- Building tables -----
@@ -114,27 +114,28 @@ end
 
 -- Interior + Interior-to-Exterior --
 local function buildInteriorSounds()
-    local function buildSoundDataTable(parentDir, soundDataTable)
-        for interiorType, subTable in pairs(soundDataTable) do
-            if not table.empty(subTable) then
-                local subDir = parentDir .. "\\" .. interiorType
-                buildSoundDataTable(subDir, subTable)
-            else
-                local path = ("%s\\%s\\%s"):format(AURAdir, parentDir, interiorType)
-                for soundfile in lfs.dir(path) do
-                    if soundfile and soundfile ~= ".." and soundfile ~= "." and string.endswith(soundfile, ".wav") then
-                        local objectId = ("%s_%s_%s"):format(parentDir:gsub("\\", "_"), interiorType, soundfile:gsub(".wav", ""))
-                        local filename = ("%s\\%s\\%s\\%s"):format(soundDir, parentDir, interiorType, soundfile)
-                        createSound(objectId, filename, soundDataTable[interiorType])
-                    end
-                end
-            end
-        end
-    end
-    debugLog("|---------------------- Building interior sounds table. ----------------------|\n")
-    buildSoundDataTable(interiorDir, soundData.interior)
-    debugLog("|---------------------- Building interiorToExterior sounds table. ----------------------|\n")
-    buildSoundDataTable(intToExtDir, soundData.interiorToExterior)
+	local function buildSoundDataTable(parentDir, soundDataTable)
+		for interiorType, subTable in pairs(soundDataTable) do
+			if not table.empty(subTable) then
+				local subDir = parentDir .. "\\" .. interiorType
+				buildSoundDataTable(subDir, subTable)
+			else
+				local path = ("%s\\%s\\%s"):format(AURAdir, parentDir, interiorType)
+				for soundfile in lfs.dir(path) do
+					if soundfile and soundfile ~= ".." and soundfile ~= "." and string.endswith(soundfile, ".wav") then
+						local objectId = ("%s_%s_%s"):format(parentDir:gsub("\\", "_"), interiorType,
+							soundfile:gsub(".wav", ""))
+						local filename = ("%s\\%s\\%s\\%s"):format(soundDir, parentDir, interiorType, soundfile)
+						createSound(objectId, filename, soundDataTable[interiorType])
+					end
+				end
+			end
+		end
+	end
+	debugLog("|---------------------- Building interior sounds table. ----------------------|\n")
+	buildSoundDataTable(interiorDir, soundData.interior)
+	debugLog("|---------------------- Building interiorToExterior sounds table. ----------------------|\n")
+	buildSoundDataTable(intToExtDir, soundData.interiorToExterior)
 end
 
 local function buildWeatherSounds()
@@ -148,7 +149,7 @@ local function buildWeatherSounds()
 
 	filename = soundDir .. wDir .. "\\big\\rm.wav"
 	objectId = "tew_b_rainmedium"
-    soundData.interiorRainLoops["big"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
+	soundData.interiorRainLoops["big"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 	createSound(objectId, filename, soundData.interiorWeather["big"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["big"], 5)
 
@@ -162,7 +163,7 @@ local function buildWeatherSounds()
 
 	filename = soundDir .. wDir .. "\\sma\\rm.wav"
 	objectId = "tew_s_rainmedium"
-    soundData.interiorRainLoops["sma"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
+	soundData.interiorRainLoops["sma"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 	createSound(objectId, filename, soundData.interiorWeather["sma"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["sma"], 5)
 
@@ -176,7 +177,7 @@ local function buildWeatherSounds()
 
 	filename = soundDir .. wDir .. "\\ten\\rm.wav"
 	objectId = "tew_t_rainmedium"
-    soundData.interiorRainLoops["ten"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
+	soundData.interiorRainLoops["ten"]["medium"] = createSound(objectId, filename, soundData.weatherLoops)
 	createSound(objectId, filename, soundData.interiorWeather["ten"], 4)
 	createSound(objectId, filename, soundData.interiorWeather["ten"], 5)
 
@@ -196,7 +197,7 @@ local function buildMisc()
 		id = "splash_lrg",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\envrn\\splash_lrg.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 	debugLog("Adding misc file: splash_lrg")
 
@@ -204,7 +205,7 @@ local function buildMisc()
 		id = "splash_sml",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\envrn\\splash_sml.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 	debugLog("Adding misc file: splash_sml")
 
@@ -212,42 +213,42 @@ local function buildMisc()
 		id = "tew_clap",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\envrn\\ent_react04a.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 
 	tes3.createObject {
 		id = "tew_potnpour",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\item\\potnpour.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 
 	tes3.createObject {
 		id = "tew_shield",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\item\\shield.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 
 	tes3.createObject {
 		id = "tew_blunt",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\item\\bluntOut.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 
 	tes3.createObject {
 		id = "tew_longblad",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\item\\longblad.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 
 	tes3.createObject {
 		id = "tew_spear",
 		objectType = tes3.objectType.sound,
 		filename = "Fx\\item\\spear.wav",
-		getIfExists = true
+		getIfExists = true,
 	}
 
 	filename = "tew\\A\\M\\yurtflap.wav"
@@ -273,7 +274,7 @@ local function buildRain()
 
 	filename = "tew\\A\\R\\tew_rain_light.wav"
 	objectId = "tew_rain_light"
-    soundData.rainLoops["Rain"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
+	soundData.rainLoops["Rain"]["light"] = createSound(objectId, filename, soundData.weatherLoops)
 
 	filename = "tew\\A\\R\\tew_rain_medium.wav"
 	objectId = "tew_rain_medium"
@@ -300,9 +301,9 @@ end
 
 local function buildThunders()
 	debugLog("|---------------------- Creating thunder sound objects. ----------------------|\n")
-    for soundfile in lfs.dir(AURAdir .. "\\T") do
+	for soundfile in lfs.dir(AURAdir .. "\\T") do
 		if string.endswith(soundfile, ".wav") then
-            local objectId = "tew_thndr" .. soundfile:gsub(".wav", "")
+			local objectId = "tew_thndr" .. soundfile:gsub(".wav", "")
 			local filename = soundDir .. "\\T\\" .. soundfile
 			createSound(objectId, filename, soundData.thunders)
 		end
@@ -310,7 +311,7 @@ local function buildThunders()
 end
 
 local function buildStaticsSounds()
-    debugLog("|---------------------- Creating statics sound objects. ----------------------|\n")
+	debugLog("|---------------------- Creating statics sound objects. ----------------------|\n")
 	createSound("tew_tentwind", "tew\\A\\ST\\tentwind.wav")
 	createSound("tew_ropebridge", "tew\\A\\ST\\ropebridge.wav")
 end
@@ -327,7 +328,7 @@ function this.flushManifestFile()
 				debugLog(message)
 				tes3.messageBox({ message = message })
 			end
-		end
+		end,
 	})
 end
 
@@ -344,11 +345,11 @@ local function getWeatherSounds()
 		table.insert(soundData.interiorWeather[type], 9, blizzardSound)
 	end
 
-    table.insert(soundData.weatherLoops, rainSound)
-    table.insert(soundData.weatherLoops, thunderSound)
-    table.insert(soundData.weatherLoops, ashSound)
-    table.insert(soundData.weatherLoops, blightSound)
-    table.insert(soundData.weatherLoops, blizzardSound)
+	table.insert(soundData.weatherLoops, rainSound)
+	table.insert(soundData.weatherLoops, thunderSound)
+	table.insert(soundData.weatherLoops, ashSound)
+	table.insert(soundData.weatherLoops, blightSound)
+	table.insert(soundData.weatherLoops, blizzardSound)
 end
 
 local function checkForRemovedFiles()
@@ -370,7 +371,7 @@ end
 
 function this.build()
 	--event.register("loaded", getWeatherSounds) -- Needed to do after initialisation, errors out otherwise
-    getWeatherSounds()
+	getWeatherSounds()
 
 	manifest = json.loadfile(manifestPath) or {}
 
@@ -383,8 +384,8 @@ function this.build()
 	buildWeatherSounds()
 	buildMisc()
 	buildRain()
-    buildThunders()
-    buildStaticsSounds()
+	buildThunders()
+	buildStaticsSounds()
 
 	checkForRemovedFiles()
 	-- Write manifest file if it was modified

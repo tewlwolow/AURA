@@ -34,7 +34,8 @@ local function playThunder()
 	debugLog("Playing thunder: " .. tostring(thunder))
 
 	-- Exposing thunderPlayed event for GitD --
-	local result = event.trigger("AURA:thunderPlayed", { sound = thunder, reference = thunRef, windoors = cellData.windoors, delay = 1.0 })
+	local result = event.trigger("AURA:thunderPlayed",
+		{ sound = thunder, reference = thunRef, windoors = cellData.windoors, delay = 1.0 })
 	local delay = table.get(result, "delay", 1.0)
 
 	timer.start {
@@ -42,7 +43,7 @@ local function playThunder()
 		type = timer.real,
 		callback = function()
 			tes3.playSound { sound = thunder, volume = thunVol, pitch = thunPitch, reference = thunRef }
-		end
+		end,
 	}
 
 	thunderTime = math.random(3, 20)
@@ -59,9 +60,9 @@ end
 -- Not too proud of this --
 local function updateConditions(resetTimerFlag)
 	if resetTimerFlag
-	and interiorTimer
-	and cell.isInterior
-	and not table.empty(cellData.windoors) then
+		and interiorTimer
+		and cell.isInterior
+		and not table.empty(cellData.windoors) then
 		interiorTimer:reset()
 	end
 	weatherLast = weather
@@ -69,15 +70,15 @@ local function updateConditions(resetTimerFlag)
 end
 
 local function playSmall()
-    sounds.play{
-        module = moduleName,
-        weather = weather,
-        type = interiorType,
-    }
+	sounds.play {
+		module = moduleName,
+		weather = weather,
+		type = interiorType,
+	}
 end
 
 local function stopWindoors(immediateFlag)
-    local remove = immediateFlag and sounds.removeImmediate or sounds.remove
+	local remove = immediateFlag and sounds.removeImmediate or sounds.remove
 	if not table.empty(cellData.windoors) then
 		for _, windoor in ipairs(cellData.windoors) do
 			if windoor ~= nil then
@@ -93,13 +94,13 @@ local function playWindoors()
 	local playerPos = tes3.player.position:copy()
 	for i, windoor in ipairs(cellData.windoors) do
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
-            sounds.play{
-                module = moduleName,
-                newTrack = sound,
-                newRef = windoor,
-                volume = windoorVol,
-                pitch = windoorPitch,
-            }
+			sounds.play {
+				module = moduleName,
+				newTrack = sound,
+				newRef = windoor,
+				volume = windoorVol,
+				pitch = windoorPitch,
+			}
 		end
 	end
 end
@@ -118,24 +119,26 @@ local function clearTimers()
 end
 
 local function cellCheck(e)
-
 	-- Gets messy otherwise --
 	-- We don't want to reset sounds when the player is waiting for a longer time --
 	-- We'll resolve conditions after UI waiting element is destroyed --
-    local mp = tes3.mobilePlayer
-    if (not mp) or (mp and (mp.waiting or mp.traveling or mp.sleeping)) then
-        return
-    end
+	local mp = tes3.mobilePlayer
+	if (not mp) or (mp and (mp.waiting or mp.traveling or mp.sleeping)) then
+		return
+	end
 
 	debugLog("Starting cell check for module: " .. moduleName)
 
 	-- Cell resolution --
 	cell = e and e.cell or tes3.getPlayerCell()
-	if not cell then debugLog("No cell detected. Returning.") return end
+	if not cell then
+		debugLog("No cell detected. Returning.")
+		return
+	end
 
 	-- If exterior - bugger off and stop timers --
 	if (cell.isOrBehavesAsExterior)
-	and not (isOpenPlaza(cell)) then
+		and not (isOpenPlaza(cell)) then
 		debugLog("Found exterior cell. Removing sounds and returning.")
 		cellLast = cell
 		sounds.removeImmediate { module = moduleName }
@@ -171,23 +174,24 @@ local function cellCheck(e)
 	if (isOpenPlaza(cell) == true)
 		and (weather == 6
 			or weather == 7) then
-        updateConditions()
+		updateConditions()
 		return
 	end
 
 	-- Resolve if we're transitioning, play the interior sound only after the particles appear (roughly) --
 
 	if transitionScalarLast
-	and transitionScalarNow
-	and (transitionScalarNow > 0)
-	and (transitionScalarNow <= transitionScalarThreshold)
-	and (transitionScalarLast ~= transitionScalarNow) then
-		debugLog(string.format("Weather transitioning. Scalar: %.2f | Threshold: %.2f", transitionScalarNow, transitionScalarThreshold))
-		scalarTimer = timer.start{
+		and transitionScalarNow
+		and (transitionScalarNow > 0)
+		and (transitionScalarNow <= transitionScalarThreshold)
+		and (transitionScalarLast ~= transitionScalarNow) then
+		debugLog(string.format("Weather transitioning. Scalar: %.2f | Threshold: %.2f", transitionScalarNow,
+			transitionScalarThreshold))
+		scalarTimer = timer.start {
 			iterations = 1,
 			type = timer.simulate,
 			duration = 2,
-			callback = cellCheck
+			callback = cellCheck,
 		}
 		return
 	end
@@ -201,7 +205,7 @@ local function cellCheck(e)
 	debugLog("Interior type: " .. interiorType)
 
 	-- Resolve track early since we're going to reuse it when updating windoors --
-    sound = soundData.interiorWeather[interiorType][weather]
+	sound = soundData.interiorWeather[interiorType][weather]
 
 	-- Remove sounds from small type of interior if the weather has changed --
 	if weatherLast and (not blockedWeathers[weatherLast]) and (weatherLast ~= weather) then
@@ -225,16 +229,16 @@ local function cellCheck(e)
 		else
 			thunRef = cell
 		end
-        playSmall()
+		playSmall()
 	elseif interiorType == "ten" then
 		debugLog("Playing tent interior sounds.")
 		thunRef = cell
-        playSmall()
+		playSmall()
 	else
 		if not table.empty(cellData.windoors) then
 			debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
-            windoorVol = volumeController.getVolume{module = moduleName}
-            windoorPitch = volumeController.getPitch(moduleName)
+			windoorVol = volumeController.getVolume { module = moduleName }
+			windoorPitch = volumeController.getPitch(moduleName)
 			playWindoors()
 			interiorTimer:reset()
 			thunRef = cellData.windoors[math.random(1, #cellData.windoors)]
@@ -259,19 +263,19 @@ condition change. One example is after loading a save in an interior where
 weather transition was in progress at the time the save was made.
 --]]
 local function onConditionChanged(e)
-    if interiorTimer then interiorTimer:pause() end
+	if interiorTimer then interiorTimer:pause() end
 	transitionScalarLast = nil
 	local transitionScalar = tes3.worldController.weatherController.transitionScalar
 	if transitionScalar and transitionScalar > 0 then
 		-- Apparently transitioning. cellCheck() will determine if we really are
 		transitionScalarLast = transitionScalar
-		timer.start{
+		timer.start {
 			iterations = 1,
 			duration = 0.5,
 			type = timer.simulate,
 			callback = function()
 				cellCheck(e)
-			end
+			end,
 		}
 		return
 	else
@@ -293,11 +297,11 @@ end
 -- Start and pause interiorTimer on loaded --
 local function onLoaded()
 	if not interiorTimer then
-		interiorTimer = timer.start{
+		interiorTimer = timer.start {
 			duration = 1,
 			iterations = -1,
 			callback = playWindoors,
-			type = timer.simulate
+			type = timer.simulate,
 		}
 	end
 	interiorTimer:pause()
@@ -310,7 +314,7 @@ local function waitCheck(e)
 		timer.start {
 			type = timer.game,
 			duration = 0.01,
-			callback = onConditionChanged
+			callback = onConditionChanged,
 		}
 	end)
 end
@@ -319,23 +323,24 @@ end
 -- volume scaling and this might cause some volume jumps if one of those
 -- loops happens to be playing on our windoors. Reset volumes to be safe.
 local function resetWindoors(e)
-    if table.empty(cellData.windoors)
-    or not modules.getWindoorPlaying(moduleName) then
-        return
-    end
-    if interiorTimer then interiorTimer:pause() end
-    debugLog("Resetting windoors.")
-    stopWindoors(true)
-    windoorVol = volumeController.getVolume{module = moduleName}
-    windoorPitch = volumeController.getPitch(moduleName)
-    if interiorTimer then interiorTimer:reset() end
+	if table.empty(cellData.windoors)
+		or not modules.getWindoorPlaying(moduleName) then
+		return
+	end
+	if interiorTimer then interiorTimer:pause() end
+	debugLog("Resetting windoors.")
+	stopWindoors(true)
+	windoorVol = volumeController.getVolume { module = moduleName }
+	windoorPitch = volumeController.getPitch(moduleName)
+	if interiorTimer then interiorTimer:reset() end
 end
 
 -- Suck it Java --
 local function runResetter()
-	cell, cellLast, thunRef, thunder, interiorTimer, scalarTimer, thunderTimer, thunderTime, interiorType, weather, weatherLast, sound = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+	cell, cellLast, thunRef, thunder, interiorTimer, scalarTimer, thunderTimer, thunderTime, interiorType, weather, weatherLast, sound =
+	nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 	transitionScalarLast = nil
-    windoorVol, windoorPitch = 0, 0
+	windoorVol, windoorPitch = 0, 0
 end
 
 event.register("cellChanged", onCellChanged, { priority = -165 })

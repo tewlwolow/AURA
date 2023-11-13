@@ -16,7 +16,8 @@ local this = {}
 -- Translate ONLY the values on the right hand side of the = signs. --
 
 this.messages = {
-	audioWarning = "Le volume général et celui des effets sonores doit être à son maximum pour que le mod fonctionne correctement.",
+	audioWarning =
+	"Le volume général et celui des effets sonores doit être à son maximum pour que le mod fonctionne correctement.",
 	buildingSoundsStarted = "Construction d'objet sonore en cours.",
 	buildingSoundsFinished = "Construction d'objet sonore terminée.",
 	loadingFile = "Chargement du fichier :",
@@ -47,57 +48,60 @@ this.messages = {
 	enableInterior = "Activer le module Ambiance Intérieure ?",
 	enablePopulated = "Activer le module Ambiance Population ?",
 	enableInteriorWeather = "Activer le module Météo Intérieure ?",
-    enableSoundsOnStatics = "Activer le module Sons sur les Objets ?",
+	enableSoundsOnStatics = "Activer le module Sons sur les Objets ?",
 	enableServiceVoices = "Activer le module Commentaires Services ?",
 	enableUI = "Activer le module Interface ?",
 	enableContainers = "Activer le module Conteneurs ?",
 	enablePC = "Activer le module PJ ?",
 	enableMisc = "Activer le module Divers ?",
 
-    volumeSave = "Shift + cette touche affichera un menu dans lequel vous pourrez régler le volume des pistes AURA en cours de lecture.",
-    undo = "Annuler",
-    restoreDefaults = "Réinitialiser",
-    defaultsRestored = "Paramètres par défaut restaurés",
-    noTracksPlaying = "Aucune piste en cours de lecture",
-    findOutdoorShelter = "Trouvez un abri extérieur pour régler ce volume. [?]",
-    findOutdoorShelterTooltip = "Les statiques d'abri prises en charge sont: les tentes\nportables (telles que les tentes modulaires Ashfall), les\nsurplombs, les auvents et les remises.",
-    fadeInProgress = "L'effet fondu en cours. Essayer plus tard.",
-    adjustForInterior = "Ajuster pour l'intérieur",
-    adjustForExterior = "Ajuster pour l'extérieur",
-    adjustForUnderwater = "Ajuster pour sous l'eau",
-    big = "grand",
-    small = "petit",
-    exteriorVolume = "le volume à l'extérieur",
-    underwater = "sous l'eau",
-    adjustingAuto = "Ajustement automatique",
-    currentlyPlayingDoors = "Portes en cours de lecture",
+	volumeSave =
+	"Shift + cette touche affichera un menu dans lequel vous pourrez régler le volume des pistes AURA en cours de lecture.",
+	undo = "Annuler",
+	restoreDefaults = "Réinitialiser",
+	defaultsRestored = "Paramètres par défaut restaurés",
+	noTracksPlaying = "Aucune piste en cours de lecture",
+	findOutdoorShelter = "Trouvez un abri extérieur pour régler ce volume. [?]",
+	findOutdoorShelterTooltip =
+	"Les statiques d'abri prises en charge sont: les tentes\nportables (telles que les tentes modulaires Ashfall), les\nsurplombs, les auvents et les remises.",
+	fadeInProgress = "L'effet fondu en cours. Essayer plus tard.",
+	adjustForInterior = "Ajuster pour l'intérieur",
+	adjustForExterior = "Ajuster pour l'extérieur",
+	adjustForUnderwater = "Ajuster pour sous l'eau",
+	big = "grand",
+	small = "petit",
+	exteriorVolume = "le volume à l'extérieur",
+	underwater = "sous l'eau",
+	adjustingAuto = "Ajustement automatique",
+	currentlyPlayingDoors = "Portes en cours de lecture",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 
 	OA = "Ambiance Extérieure",
-	OADesc = "Joue des sons d'ambiance en fonction du climat, de la météo, de la position du joueur et de l'heure de la journée.",
+	OADesc =
+	"Joue des sons d'ambiance en fonction du climat, de la météo, de la position du joueur et de l'heure de la journée.",
 	OAVol = "Changer le % de volume des sons du module Ambiance Extérieure.",
-	playInteriorAmbient = "Activer les sons ambiants extérieurs dans les intérieurs ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
+	playInteriorAmbient =
+	"Activer les sons ambiants extérieurs dans les intérieurs ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
 
 	IA = "Ambiance Intérieure",
-	IADesc = "Joue des sons d'ambiance en fonction du type d'intérieur. Inclut les tavernes, les guildes, les boutiques, les bibliothèques, les tombeaux, les grottes et les ruines.",
+	IADesc =
+	"Joue des sons d'ambiance en fonction du type d'intérieur. Inclut les tavernes, les guildes, les boutiques, les bibliothèques, les tombeaux, les grottes et les ruines.",
 	IAVol = "Changer le % de volume des sons du module Ambiance Intérieure.",
 
-	enableTaverns = "Activer les musiques de taverne dépendant de la culture ? Notez que vous profiterez davantage de cette option si vous désactivez vos sous-dossiers 'Battle' et 'Explore' dans votre dossier 'Music' et n'utilisez pas de mod de musique.",
-	tavernsBlacklist = "Liste noire des tavernes",
-	tavernsDesc = "Sélectionnez les tavernes où les musiques sont désactivées.",
-	tavernsDisabled = "Tavernes désactivées",
-	tavernsEnabled = "Tavernes activées",
+	SS = "Sons sur les Objets",
+	SSDesc = "Joue des sons appropriés en fonction de la météo actuelle à proximité de divers objets du monde du jeu.",
+	rainOnStaticsSounds =
+	"Activer les sons de la pluie pour certains objets à l'extérieur ? Nécessite des sons variables de la pluie.",
+	shelterRain =
+	"Activer les sons de pluie atmosphériques lorsque vous êtes à l'abri à l'extérieur ? Les abris pris en charge comprennent des tentes portables (telles que les tentes modulaires Ashfall), des surplombs, des auvents et des hangars. Nécessite des sons variables de la pluie.",
+	shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
+	shelterWeather =
+	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
+	ropeBridge = "Activer les grincements sur les ponts de singe à l'extérieur ?",
 
-    SS = "Sons sur les Objets",
-    SSDesc = "Joue des sons appropriés en fonction de la météo actuelle à proximité de divers objets du monde du jeu.",
-	rainOnStaticsSounds = "Activer les sons de la pluie pour certains objets à l'extérieur ? Nécessite des sons variables de la pluie.",
-    shelterRain = "Activer les sons de pluie atmosphériques lorsque vous êtes à l'abri à l'extérieur ? Les abris pris en charge comprennent des tentes portables (telles que les tentes modulaires Ashfall), des surplombs, des auvents et des hangars. Nécessite des sons variables de la pluie.",
-    shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
-    shelterWeather = "Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
-    ropeBridge = "Activer les grincements sur les ponts de singe à l'extérieur ?",
-
-    enableInteriorToExterior = "Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
+	enableInteriorToExterior =
+	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
 
 	PA = "Ambiance Population",
 	PADesc = "Joue des sons d'ambiance dans les lieux peuplés commes les villes et les villages.",
@@ -148,17 +152,18 @@ this.messages = {
 	miscDesc = "Joue des sons additionnels divers.",
 	rainSounds = "Activer les sons variables de la pluie en fonction du nombre de particules ?",
 	windSounds = "Activer les sons variables du vent en fonction de la vitesse des nuages ?",
-	playInteriorWind = "Activer les sons de vent en intérieur ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
+	playInteriorWind =
+	"Activer les sons de vent en intérieur ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
 	windVol = "Changer le % volume des sons de vent.",
 	playSplash = "Activer les sons d'éclaboussures en entrant et sortant de l'eau ?",
 	splashVol = "Changer le % de volume des sons d'éclaboussures.",
 	playYurtFlap = "Activer les sons des portes de yourte ou en peau d'ours ?",
 	yurtVol = "Changer le % de volume des sons des portes de yourte ou en peau d'ours.",
 	underwaterRain = "Activer la mise à l'échelle du volume des effets de la météo sous l'eau ?",
-    thunderSounds = "Activer de nouveaux sons de tonnerre à intensité variable ?",
-    thunderSoundsDelay = "Ajouter un petit délai aléatoire avant la diffusion du son du tonnerre ?",
-    thunderVolMin = "Le volume minimum auquel les sons du tonnerre seront joués.",
-    thunderVolMax = "Le volume maximum auquel les sons du tonnerre seront joués.",
+	thunderSounds = "Activer de nouveaux sons de tonnerre à intensité variable ?",
+	thunderSoundsDelay = "Ajouter un petit délai aléatoire avant la diffusion du son du tonnerre ?",
+	thunderVolMin = "Le volume minimum auquel les sons du tonnerre seront joués.",
+	thunderVolMax = "Le volume maximum auquel les sons du tonnerre seront joués.",
 
 }
 
@@ -186,10 +191,10 @@ this.interiorNames = {
 		"zone dissimulée",
 		"Grand conseil",
 		"place",
-		"complexes"
+		"complexes",
 	},
 	["mag"] = {
-		"guilde des Mages" -- [[The names are the same in every city in the French version]]
+		"guilde des Mages", -- [[The names are the same in every city in the French version]]
 	},
 	["fig"] = {
 		"guilde des Guerriers", -- [[Same here]]
@@ -200,12 +205,12 @@ this.interiorNames = {
 		"chapelle de Vos",
 		"Grand Sanctuaire",
 		"Fane of the Ancestors", -- [[Doesn't exist in the base French version for some reason, maybe it's from a mod]]
-		"Tiriramannu", -- [[Same here]]
+		"Tiriramannu",     -- [[Same here]]
 	},
 	["lib"] = {
 		"bibliothèque",
 		"bouquiniste",
-		"livres"
+		"livres",
 	},
 	["smi"] = {
 		"forgeron",
@@ -238,7 +243,7 @@ this.interiorNames = {
 		"crypte",
 		"tertre",
 		"catacombes",
-	}
+	},
 }
 
 ------------------------------------------------------------------------------------------------
@@ -251,16 +256,16 @@ this.tavernNames = {
 	["dar"] = {
 		"Marmite du Rat",
 		"Maison des Plaisirs Terrestres",
-		"Nation elfique"
+		"Nation elfique",
 	},
 	["imp"] = {
 		"Coeurébène, les Six Poissons",
-		"Arrile"
+		"Arrile",
 	},
 	["nor"] = {
 		"Village Skaal, grande salle",
-		"Solstheim, Thirsk" -- [[actually the same name in the French version, for obvious reasons]]
-	}
+		"Solstheim, Thirsk", -- [[actually the same name in the French version, for obvious reasons]]
+	},
 }
 
 ------------------------------------------------------------------------------------------------

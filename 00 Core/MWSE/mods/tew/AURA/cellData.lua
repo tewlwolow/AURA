@@ -10,7 +10,7 @@ this.staticsCache = {}
 this.currentShelter = {}
 this.rainType = {
     [4] = nil,
-    [5] = nil
+    [5] = nil,
 }
 
 local function update(e)

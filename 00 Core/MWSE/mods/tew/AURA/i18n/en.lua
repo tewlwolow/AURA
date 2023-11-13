@@ -34,57 +34,59 @@ this.messages = {
 	enableInterior = "Enable Interior Ambient module?",
 	enablePopulated = "Enable Populated Ambient module?",
 	enableInteriorWeather = "Enable Interior Weather module?",
-    enableSoundsOnStatics = "Enable Sounds on Statics module?",
+	enableSoundsOnStatics = "Enable Sounds on Statics module?",
 	enableServiceVoices = "Enable Service Voices module?",
 	enableUI = "Enable UI module?",
 	enableContainers = "Enable Containers module?",
 	enablePC = "Enable PC module?",
 	enableMisc = "Enable Misc module?",
 
-    volumeSave = "Shift + this key will display a menu where you can adjust the volume for the currently playing AURA tracks.",
-    undo = "Undo",
-    restoreDefaults = "Restore defaults",
-    defaultsRestored = "Defaults restored",
-    noTracksPlaying = "No tracks playing",
-    findOutdoorShelter = "Find outdoor shelter to adjust this volume. [?]",
-    findOutdoorShelterTooltip = "Supported shelter statics are: portable\ntents (such as Ashfall modular tents),\noverhangs, awnings and sheds.",
-    fadeInProgress = "Fade in progress. Try later.",
-    adjustForInterior = "Adjust for interior",
-    adjustForExterior = "Adjust for exterior",
-    adjustForUnderwater = "Adjust for underwater",
-    big = "big",
-    small = "small",
-    exteriorVolume = "exterior volume",
-    underwater = "underwater",
-    adjustingAuto = "Adjusting automatically",
-    currentlyPlayingDoors = "Doors currently playing",
+	volumeSave =
+	"Shift + this key will display a menu where you can adjust the volume for the currently playing AURA tracks.",
+	undo = "Undo",
+	restoreDefaults = "Restore defaults",
+	defaultsRestored = "Defaults restored",
+	noTracksPlaying = "No tracks playing",
+	findOutdoorShelter = "Find outdoor shelter to adjust this volume. [?]",
+	findOutdoorShelterTooltip =
+	"Supported shelter statics are: portable\ntents (such as Ashfall modular tents),\noverhangs, awnings and sheds.",
+	fadeInProgress = "Fade in progress. Try later.",
+	adjustForInterior = "Adjust for interior",
+	adjustForExterior = "Adjust for exterior",
+	adjustForUnderwater = "Adjust for underwater",
+	big = "big",
+	small = "small",
+	exteriorVolume = "exterior volume",
+	underwater = "underwater",
+	adjustingAuto = "Adjusting automatically",
+	currentlyPlayingDoors = "Doors currently playing",
 
 	refreshManifest = "Refresh manifest file",
 
 	OA = "Outdoor Ambient",
 	OADesc = "Plays ambient sounds in accordance with local climate, weather, player position, and time.",
 	OAVol = "Changes % volume for Outdoor Ambient module.",
-	playInteriorAmbient = "Enable exterior ambient sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",
+	playInteriorAmbient =
+	"Enable exterior ambient sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",
 
 	IA = "Interior Ambient",
-	IADesc = "Plays ambient sounds in accordance with interior type. Includes taverns, guilds, shops, libraries, tombs, caves, and ruins.",
+	IADesc =
+	"Plays ambient sounds in accordance with interior type. Includes taverns, guilds, shops, libraries, tombs, caves, and ruins.",
 	IAVol = "Changes % volume for Interior Ambient module.",
 
-	enableTaverns = "Enable culture-specific music in taverns? Note that this works best if you have empty explore/battle folders and use no music mod.",
-	tavernsBlacklist = "Taverns blacklist",
-	tavernsDesc = "Select which taverns the music is disabled in.",
-	tavernsDisabled = "Disabled taverns",
-	tavernsEnabled = "Enabled taverns",
+	SS = "Sounds on Statics",
+	SSDesc =
+	"Plays appropriate sounds in accordance with the current weather when in close proximity of selected game-world objects.",
+	rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
+	shelterRain =
+	"Enable atmospheric rain sounds while sheltered outside? Supported shelter statics include portable tents (such as Ashfall modular tents), overhangs, awnings and sheds. Requires variable rain sounds.",
+	shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
+	shelterWeather =
+	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
+	ropeBridge = "Enable creaking sounds on rope bridges outside?",
 
-    SS = "Sounds on Statics",
-    SSDesc = "Plays appropriate sounds in accordance with the current weather when in close proximity of selected game-world objects.",
-    rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
-    shelterRain = "Enable atmospheric rain sounds while sheltered outside? Supported shelter statics include portable tents (such as Ashfall modular tents), overhangs, awnings and sheds. Requires variable rain sounds.",
-    shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
-    shelterWeather = "Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
-    ropeBridge = "Enable creaking sounds on rope bridges outside?",
-
-    enableInteriorToExterior = "Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",
+	enableInteriorToExterior =
+	"Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",
 
 	PA = "Populated Ambient",
 	PADesc = "Plays ambient sounds in populated areas, like towns and villages.",
@@ -136,17 +138,18 @@ this.messages = {
 	rainSounds = "Enable variable rain sounds per max particles?",
 	--rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
 	windSounds = "Enable variable wind sounds per clouds speed?",
-	playInteriorWind = "Enable wind sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",
+	playInteriorWind =
+	"Enable wind sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",
 	windVol = "Changes % volume for wind sounds.",
 	playSplash = "Enable splash sounds when going underwater and back to surface?",
 	splashVol = "Changes % volume for splash sounds.",
 	playYurtFlap = "Enable sounds for yurts and pelt entrances?",
 	yurtVol = "Changes % volume for yurt and pelt entrances sounds.",
 	underwaterRain = "Enable volume scaling of weather effects when underwater?",
-    thunderSounds = "Enable new, variable intensity thunder sounds?",
-    thunderSoundsDelay = "Add a small randomized lead time before the thunder plays?",
-    thunderVolMin = "Minimum volume thunder sounds will play at.",
-    thunderVolMax = "Maximum volume thunder sounds will play at.",
+	thunderSounds = "Enable new, variable intensity thunder sounds?",
+	thunderSoundsDelay = "Add a small randomized lead time before the thunder plays?",
+	thunderVolMin = "Minimum volume thunder sounds will play at.",
+	thunderVolMax = "Maximum volume thunder sounds will play at.",
 }
 
 this.interiorNames = {
@@ -165,12 +168,12 @@ this.interiorNames = {
 		"Arena Hidden Area",
 		"Grand Council",
 		"Plaza",
-		"Waistworks"
+		"Waistworks",
 	},
 	["mag"] = {
 		"Mages Guild",
 		"Mage's Guild",
-		"Guild of Mages"
+		"Guild of Mages",
 	},
 	["fig"] = {
 		"Fighters Guild",
@@ -188,7 +191,7 @@ this.interiorNames = {
 	["lib"] = {
 		"Library",
 		"Bookseller",
-		"Books"
+		"Books",
 	},
 	["smi"] = {
 		"Smith",
@@ -222,23 +225,23 @@ this.interiorNames = {
 		"Crypt",
 		"Barrow",
 		"Catacomb",
-	}
+	},
 }
 
 this.tavernNames = {
 	["dar"] = {
 		"Rat in the Pot",
 		"House of Earthly Delights",
-		"Elven Nations"
+		"Elven Nations",
 	},
 	["imp"] = {
 		"Ebonheart, Six Fishes",
-		"Arrille"
+		"Arrille",
 	},
 	["nor"] = {
 		"Skaal Village, The Greathall",
-		"Solstheim, Thirsk"
-	}
+		"Solstheim, Thirsk",
+	},
 }
 
 return this

@@ -89,7 +89,10 @@ end
 
 local function combatCheck(e)
     if tes3.worldController.charGenState.value ~= -1 then return end -- We don't know the race or gender yet, so f- off --
-    if playedTaunt == 1 then debugLog("Flag on. Returning.") return end
+    if playedTaunt == 1 then
+        debugLog("Flag on. Returning.")
+        return
+    end
 
     local player = tes3.mobilePlayer
     if tes3.mobilePlayer.werewolf then
@@ -97,7 +100,7 @@ local function combatCheck(e)
         tes3.playSound {
             sound = taunt,
             volume = 0.9 * tVol,
-            reference = player.reference
+            reference = player.reference,
         }
         playedTaunt = 1
         debugLog("Played werewolf battle taunt: " .. taunt)
@@ -111,8 +114,10 @@ local function combatCheck(e)
         and playerRace ~= nil
         and playerSex ~= nil
         and playedTaunt == 0 then
-
-        if tauntChance < math.random() then debugLog("Dice roll failed. Returning.") return end
+        if tauntChance < math.random() then
+            debugLog("Dice roll failed. Returning.")
+            return
+        end
 
         local taunt
 
@@ -150,7 +155,7 @@ local function combatCheck(e)
         tes3.say {
             volume = 0.9 * tVol,
             soundPath = "Vo\\" .. playerRace .. "\\" .. playerSex .. "\\" .. taunt,
-            reference = player.reference
+            reference = player.reference,
         }
 
         playedTaunt = 1
@@ -159,13 +164,11 @@ local function combatCheck(e)
         timer.start { type = timer.real, duration = 5, callback = function()
             playedTaunt = 0
         end }
-
     else
         debugLog("Could not determine battle situation.")
         debugLog(e.target.object.id)
         debugLog(e.actor.object.id)
     end
-
 end
 
 event.register("cellChanged", playerCheck)

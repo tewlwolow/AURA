@@ -36,9 +36,9 @@ local function updateConditions(resetTimerFlag)
 	debugLog("Updating conditions.")
 
 	if resetTimerFlag
-	and interiorTimer
-	and cell.isInterior
-	and not table.empty(cellData.windoors) then
+		and interiorTimer
+		and cell.isInterior
+		and not table.empty(cellData.windoors) then
 		interiorTimer:reset()
 	end
 	timeLast = timeNow
@@ -48,7 +48,7 @@ local function updateConditions(resetTimerFlag)
 end
 
 local function stopWindoors(immediateFlag)
-    local remove = immediateFlag and sounds.removeImmediate or sounds.remove
+	local remove = immediateFlag and sounds.removeImmediate or sounds.remove
 	if not table.empty(cellData.windoors) then
 		for _, windoor in ipairs(cellData.windoors) do
 			if windoor ~= nil then
@@ -65,30 +65,28 @@ local function playWindoors(useLast)
 	local playerPos = tes3.player.position:copy()
 	local playLast
 	for i, windoor in ipairs(cellData.windoors) do
-
-        -- Get the first closest windoor and set the proper flag, the rest will follow
-        if i == 1 then
+		-- Get the first closest windoor and set the proper flag, the rest will follow
+		if i == 1 then
 			playLast = useLast
 		else
 			playLast = true
 		end
 
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
-            sounds.play{
-                module = moduleName,
-                climate = climateNow,
-                time = timeNow,
-                volume = windoorVol,
-                pitch = windoorPitch,
-                newRef = windoor,
-                last = playLast,
-            }
+			sounds.play {
+				module = moduleName,
+				climate = climateNow,
+				time = timeNow,
+				volume = windoorVol,
+				pitch = windoorPitch,
+				newRef = windoor,
+				last = playLast,
+			}
 		end
 	end
 end
 
 local function cellCheck(e)
-
 	-- Gets messy otherwise --
 	-- We don't want to reset sounds when the player is waiting for a longer time --
 	-- We'll resolve conditions after UI waiting element is destroyed --
@@ -120,12 +118,12 @@ local function cellCheck(e)
 
 	local region = regionObject.id
 
-    if e and e.to then
+	if e and e.to then
 		debugLog("Weather transitioning.")
-        weatherNow = e.to.index
-    else
+		weatherNow = e.to.index
+	else
 		weatherNow = regionObject.weather.index
-    end
+	end
 	debugLog("Weather: " .. weatherNow)
 
 	-- Bugger off if weather is blocked --
@@ -172,19 +170,19 @@ local function cellCheck(e)
 		debugLog("Found same cell, same conditions. Returning.")
 		updateConditions(true)
 		return
-    end
+	end
 
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then
 		debugLog(string.format("Found exterior cell. useLast: %s", useLast))
 		if not useLast then sounds.remove { module = moduleName } end
-		sounds.play{
+		sounds.play {
 			module = moduleName,
 			climate = climateNow,
 			time = timeNow,
 			last = useLast,
 		}
-	-- Interior cells --
+		-- Interior cells --
 	elseif cell.isInterior then
 		debugLog("Found interior cell.")
 		stopWindoors(true)
@@ -198,9 +196,9 @@ local function cellCheck(e)
 			return
 		end
 		if common.getCellType(cell, common.cellTypesSmall) == true
-		or common.getCellType(cell, common.cellTypesTent) == true then
+			or common.getCellType(cell, common.cellTypesTent) == true then
 			debugLog("Found small interior cell. useLast: " .. tostring(useLast))
-			sounds.play{
+			sounds.play {
 				module = moduleName,
 				climate = climateNow,
 				time = timeNow,
@@ -208,16 +206,20 @@ local function cellCheck(e)
 			}
 		else
 			debugLog("Found big interior cell.")
-			if not moduleInteriorWeather then updateConditions() return end
+			if not moduleInteriorWeather then
+				updateConditions()
+				return
+			end
 			if not table.empty(cellData.windoors) then
-				debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
-        windoorVol = volumeController.getVolume{module = moduleName}
-        windoorPitch = volumeController.getPitch(moduleName)
+				debugLog("Found " ..
+				#cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
+				windoorVol = volumeController.getVolume { module = moduleName }
+				windoorPitch = volumeController.getPitch(moduleName)
 				playWindoors(useLast)
 				updateConditions(true)
 				return
-			-- Special case - where the lack of windoors in otherwise eligible 'big' interior would break our state and make it stale
-			-- e.g. Ald-Ruhn Mages Guild -> Vivec Mages Guild -> Foreign Quarter Plaza
+				-- Special case - where the lack of windoors in otherwise eligible 'big' interior would break our state and make it stale
+				-- e.g. Ald-Ruhn Mages Guild -> Vivec Mages Guild -> Foreign Quarter Plaza
 			else
 				runResetter()
 			end
@@ -230,8 +232,8 @@ end
 
 -- Pause interior timer on condition change trigger --
 local function onConditionChanged(e)
-    if interiorTimer then interiorTimer:pause() end
-    cellCheck(e)
+	if interiorTimer then interiorTimer:pause() end
+	cellCheck(e)
 end
 
 -- After waiting/travelling --
@@ -241,25 +243,25 @@ local function waitCheck(e)
 		timer.start {
 			type = timer.game,
 			duration = 0.01,
-			callback = onConditionChanged
+			callback = onConditionChanged,
 		}
 	end)
 end
 
 -- Reset windoors when exiting underwater --
 local function resetWindoors(e)
-    if table.empty(cellData.windoors)
-    or not moduleInteriorWeather
-    or not playInteriorAmbient
-    or not modules.getWindoorPlaying(moduleName) then
-        return
-    end
-    if interiorTimer then interiorTimer:pause() end
-    debugLog("Resetting windoors.")
-    stopWindoors(true)
-    windoorVol = volumeController.getVolume{module = moduleName}
-    windoorPitch = volumeController.getPitch(moduleName)
-    if interiorTimer then interiorTimer:reset() end
+	if table.empty(cellData.windoors)
+		or not moduleInteriorWeather
+		or not playInteriorAmbient
+		or not modules.getWindoorPlaying(moduleName) then
+		return
+	end
+	if interiorTimer then interiorTimer:pause() end
+	debugLog("Resetting windoors.")
+	stopWindoors(true)
+	windoorVol = volumeController.getVolume { module = moduleName }
+	windoorPitch = volumeController.getPitch(moduleName)
+	if interiorTimer then interiorTimer:reset() end
 end
 
 -- Check for time changes --
@@ -272,11 +274,11 @@ local function onLoaded()
 	runHourTimer()
 	if moduleInteriorWeather then
 		if not interiorTimer then
-			interiorTimer = timer.start{
+			interiorTimer = timer.start {
 				duration = 1,
 				iterations = -1,
 				callback = playWindoors,
-				type = timer.simulate
+				type = timer.simulate,
 			}
 		end
 		interiorTimer:pause()
@@ -285,13 +287,13 @@ end
 
 -- Fix for sky texture pop-in - believe it or not :| --
 local function transitionStartedWrapper(e)
-	timer.start{
-		duration = 1.5, -- Can be increased if not enough for sky texture pop-in
+	timer.start {
+		duration = 1.5,  -- Can be increased if not enough for sky texture pop-in
 		type = timer.simulate, -- Switched to simulate b/c 0.1 duration is a bit too much if using timer.game along with a low timescale tes3globalVariable. E.g.: With a timescale of 10, a 0.1 timer.game timer will actually kick in AFTER weatherTransitionFinished, which is too late
 		iterations = 1,
 		callback = function()
-            onConditionChanged(e)
-        end
+			onConditionChanged(e)
+		end,
 	}
 end
 

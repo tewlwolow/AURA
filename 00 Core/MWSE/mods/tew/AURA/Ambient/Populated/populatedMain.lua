@@ -30,9 +30,15 @@ local function getPopulatedCell(maxCount, cell)
         if (npc.object.mobile) and (not npc.object.mobile.isDead) then
             count = count + 1
         end
-        if count >= maxCount then debugLog("Enough people in a cell. Count: " .. count) return true end
+        if count >= maxCount then
+            debugLog("Enough people in a cell. Count: " .. count)
+            return true
+        end
     end
-    if count < maxCount then debugLog("Too few people in a cell. Count: " .. count) return false end
+    if count < maxCount then
+        debugLog("Too few people in a cell. Count: " .. count)
+        return false
+    end
 end
 
 -- Get cell type with the aid of statics name matching --
@@ -45,16 +51,21 @@ local function getTypeCell(maxCount, cell)
                 if string.startswith(stat.object.id:lower(), statName) then
                     count = count + 1
                     typeCell = cellType
-                    if count >= maxCount then debugLog("Enough statics. Cell: " .. cell.name .. ", cell type: " .. typeCell) return typeCell end
+                    if count >= maxCount then
+                        debugLog("Enough statics. Cell: " .. cell.name .. ", cell type: " .. typeCell)
+                        return typeCell
+                    end
                 end
             end
         end
     end
-    if count == 0 then debugLog("Too few statics. Count: " .. count) return nil end
+    if count == 0 then
+        debugLog("Too few statics. Count: " .. count)
+        return nil
+    end
 end
 
 local function cellCheck()
-
     -- Gets messy otherwise --
     local mp = tes3.mobilePlayer
     if (not mp) or (mp and (mp.waiting or mp.traveling or mp.sleeping)) then
@@ -153,7 +164,7 @@ local function runResetter()
     timer.start {
         type = timer.game,
         duration = 0.01,
-        callback = cellCheck
+        callback = cellCheck,
     }
 end
 
@@ -163,7 +174,7 @@ local function waitCheck(e)
         timer.start {
             type = timer.game,
             duration = 0.01,
-            callback = cellCheck
+            callback = cellCheck,
         }
     end)
 end

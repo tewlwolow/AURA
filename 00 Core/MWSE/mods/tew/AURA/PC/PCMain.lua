@@ -16,7 +16,6 @@ local function init()
         mwse.log(string.format("[AURA %s] %s taunts.lua.", version, messages.loadingFile))
         dofile("Data Files\\MWSE\\mods\\tew\\AURA\\PC\\taunts.lua")
     end
-
 end
 
 init()

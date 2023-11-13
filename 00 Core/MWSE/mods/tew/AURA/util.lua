@@ -2,8 +2,8 @@ local util = {}
 
 function util.metadataMissing()
 	local errorMessage = "Error! AURA.toml file is missing. Please install."
-	tes3.messageBox{
-		message = errorMessage
+	tes3.messageBox {
+		message = errorMessage,
 	}
 	error(errorMessage)
 end

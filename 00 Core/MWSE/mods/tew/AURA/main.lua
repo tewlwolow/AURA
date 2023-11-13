@@ -14,13 +14,12 @@ local function warning(e)
 end
 
 local function init()
-
     local version, modName
 
     local util = require("tew.AURA.util")
     if not (metadata) then
-		util.metadataMissing()
-	else
+        util.metadataMissing()
+    else
         version = metadata.package.version
         modName = metadata.package.name
     end

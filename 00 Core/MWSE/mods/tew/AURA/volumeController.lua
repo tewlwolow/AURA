@@ -35,11 +35,11 @@ function this.getModuleSoundConfig(moduleName)
     local interior = cell and cell.isInterior and "interior"
 
     return (exterior and soundConfig[exterior])
-    or (interior and soundConfig[interior])
-    or (soundConfig[interiorType] and soundConfig[interiorType][weather])
-    or (rainType and soundConfig[rainType] and soundConfig[rainType][weather])
-    or (soundConfig[weather])
-    or {}
+        or (interior and soundConfig[interior])
+        or (soundConfig[interiorType] and soundConfig[interiorType][weather])
+        or (rainType and soundConfig[rainType] and soundConfig[rainType][weather])
+        or (soundConfig[weather])
+        or {}
 end
 
 function this.getPitch(moduleName)
@@ -53,12 +53,14 @@ function this.getPitch(moduleName)
 end
 
 function this.getVolume(options)
-
     local volume = MAX
     local moduleName = options.module
     local mData = moduleData[moduleName]
 
-    if not mData then debugLog("No module passed, returning max volume.") return volume end
+    if not mData then
+        debugLog("No module passed, returning max volume.")
+        return volume
+    end
 
     local config = options.config or mwse.loadConfig("AURA", defaults)
     local trackVolume = options.trackVolume
@@ -83,9 +85,9 @@ function this.getVolume(options)
 
     if cellData.cell then
         if cellData.cell.isInterior
-        and (moduleName == "interiorWeather")
-        and (interiorType == "sma")
-        and common.isOpenPlaza(cellData.cell) then
+            and (moduleName == "interiorWeather")
+            and (interiorType == "sma")
+            and common.isOpenPlaza(cellData.cell) then
             if isEligibleWeather and (weather == 6 or weather == 7) then
                 volume = 0
             else
@@ -123,7 +125,8 @@ function this.adjustVolume(options)
     local moduleName = options.module
     local mData = moduleData[moduleName]
     local adjustAllWindoors = modules.getWindoorPlaying(moduleName) and not options.track and not options.reference
-    local adjustAllExteriorDoors = modules.getExteriorDoorPlaying(moduleName) and not options.track and not options.reference
+    local adjustAllExteriorDoors = modules.getExteriorDoorPlaying(moduleName) and not options.track and
+    not options.reference
     local isTrackUnattached = options.track and not options.reference
 
     local targetTrack = options.track or (mData and mData.new)
@@ -133,15 +136,16 @@ function this.adjustVolume(options)
     local config = options.config
 
     local function adjust(track, ref)
-        local attached = (track and ref) and tes3.getSoundPlaying{sound = track, reference = ref}
+        local attached = (track and ref) and tes3.getSoundPlaying { sound = track, reference = ref }
         local unattached = (track and not ref) and track:isPlaying()
         if not (attached or unattached) then return end
 
-        local volume = targetVolume or this.getVolume{module = moduleName, config = config}
+        local volume = targetVolume or this.getVolume { module = moduleName, config = config }
         local msgPrefix = string.format("Adjusting volume %s", inOrOut):gsub("%s+$", "")
-        debugLog(string.format("%s for module %s: %s -> %s | %.3f", msgPrefix, moduleName, track.id, ref or "(unattached)", volume))
+        debugLog(string.format("%s for module %s: %s -> %s | %.3f", msgPrefix, moduleName, track.id,
+            ref or "(unattached)", volume))
         if attached then
-            tes3.adjustSoundVolume{
+            tes3.adjustSoundVolume {
                 sound = track,
                 reference = ref,
                 volume = volume,
@@ -204,11 +208,13 @@ function this.printConfigVolumes()
     for configKey, volumeTable in pairs(config.volumes) do
         if configKey == "modules" then
             for moduleName, moduleVol in pairs(volumeTable) do
-                debugLog(string.format("[%s] vol: %s, big: %s, sma: %s, und: %s", moduleName, moduleVol.volume, moduleVol.big, moduleVol.sma, moduleVol.und))
+                debugLog(string.format("[%s] vol: %s, big: %s, sma: %s, und: %s", moduleName, moduleVol.volume,
+                    moduleVol.big, moduleVol.sma, moduleVol.und))
             end
         elseif configKey == "rain" then
             for weatherName, weatherData in pairs(volumeTable) do
-                debugLog(string.format("[%s] light: %s, medium: %s, heavy: %s", weatherName, weatherData.light, weatherData.medium, weatherData.heavy))
+                debugLog(string.format("[%s] light: %s, medium: %s, heavy: %s", weatherName, weatherData.light,
+                    weatherData.medium, weatherData.heavy))
             end
         else
             for volumeTableKey, volumeTableValue in pairs(volumeTable) do

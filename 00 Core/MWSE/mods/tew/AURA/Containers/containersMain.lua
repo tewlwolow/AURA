@@ -11,7 +11,7 @@ local function buildContainerSounds()
     debugLog("|---------------------- Creating container sound objects. ----------------------|\n")
 
     for containerName, data in pairs(containersData) do
-        local soundOpen = tes3.createObject{
+        local soundOpen = tes3.createObject {
             id = "tew_" .. containerName .. "_o",
             objectType = tes3.objectType.sound,
             filename = data.open,
@@ -19,7 +19,7 @@ local function buildContainerSounds()
         data.openSoundObj = soundOpen
         debugLog("Adding container open file: " .. soundOpen.id)
 
-        local soundClose = tes3.createObject{
+        local soundClose = tes3.createObject {
             id = "tew_" .. containerName .. "_c",
             objectType = tes3.objectType.sound,
             filename = data.close,

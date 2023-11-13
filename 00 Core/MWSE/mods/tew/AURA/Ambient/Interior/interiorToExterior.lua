@@ -12,7 +12,7 @@ local exteriorTimer, cellLast
 local function getEligibleCellType(cellType, actorCount)
     if cellType then
         if (data.names[cellType] or data.tavernNames[cellType])
-        and (actorCount) and (actorCount < 2) then
+            and (actorCount) and (actorCount < 2) then
             --debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
             return nil
         end
@@ -30,7 +30,7 @@ local function cellCheck()
     if not cell then return end
 
     if (cell.isInterior)
-    or (cellLast and cellLast.isInterior and cell.isOrBehavesAsExterior) then
+        or (cellLast and cellLast.isInterior and cell.isOrBehavesAsExterior) then
         table.clear(cellData.exteriorDoors)
     end
 
@@ -75,12 +75,12 @@ local function cellCheck()
 end
 
 local function playExteriorDoors()
-	if table.empty(cellData.exteriorDoors) then return end
-	debugLog("Updating exterior doors.")
-	local playerPos = tes3.player.position:copy()
-	for _, door in pairs(cellData.exteriorDoors) do
-		if door ~= nil and door.destination.cell
-        and playerPos:distance(door.position:copy()) < 800 then
+    if table.empty(cellData.exteriorDoors) then return end
+    debugLog("Updating exterior doors.")
+    local playerPos = tes3.player.position:copy()
+    for _, door in pairs(cellData.exteriorDoors) do
+        if door ~= nil and door.destination.cell
+            and playerPos:distance(door.position:copy()) < 800 then
             local tempData = door.tempData.tew and door.tempData.tew.AURA and door.tempData.tew.AURA.IE
             if not tempData then goto continue end
             local doorTrack = common.getTrackPlaying(tempData.track, door)
@@ -96,31 +96,33 @@ local function playExteriorDoors()
             local isEligible = getEligibleCellType(interiorType, actorCount)
             local cellId = door.destination.cell.id:lower()
             if isEligible and not doorTrack then
-                debugLog(string.format("Door destination is eligible, adding sound. | cellId: %s | actorCount: %s", cellId, actorCount))
+                debugLog(string.format("Door destination is eligible, adding sound. | cellId: %s | actorCount: %s",
+                    cellId, actorCount))
                 -- Get new track every time we approach a door, for variety
                 -- Unless we want to trade variety for ultra-realism
                 -- Naaa, using the same track is boooorin'
-                local track = sounds.getTrack{
+                local track = sounds.getTrack {
                     module = moduleName,
                     type = interiorType,
                 }
-                sounds.playImmediate{
+                sounds.playImmediate {
                     module = moduleName,
                     track = track,
                     reference = door,
                 }
                 door.tempData.tew.AURA.IE.track = track
             elseif not isEligible and doorTrack then
-                debugLog(string.format("Door destination is not eligible, removing sound. | cellId: %s | actorCount: %s", cellId, actorCount))
-                sounds.removeImmediate{
+                debugLog(string.format("Door destination is not eligible, removing sound. | cellId: %s | actorCount: %s",
+                    cellId, actorCount))
+                sounds.removeImmediate {
                     module = moduleName,
                     track = doorTrack,
                     reference = door,
                 }
             end
-		end
+        end
         :: continue ::
-	end
+    end
 end
 
 local function runResetter()
@@ -132,11 +134,11 @@ end
 local function onLoaded()
     runResetter()
     if not exteriorTimer then
-        exteriorTimer = timer.start{
+        exteriorTimer = timer.start {
             duration = 1,
             iterations = -1,
             callback = playExteriorDoors,
-            type = timer.simulate
+            type = timer.simulate,
         }
     end
     exteriorTimer:pause()

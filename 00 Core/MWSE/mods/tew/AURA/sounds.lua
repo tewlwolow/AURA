@@ -21,7 +21,7 @@ local MIN = 0
 -- Resolve options and return the randomised track per conditions given --
 function this.getTrack(options)
 	--debugLog("Parsing passed options.")
-    local moduleName = options.module
+	local moduleName = options.module
 
 	if not moduleName then debugLog("No module detected. Returning.") end
 
@@ -53,14 +53,14 @@ function this.getTrack(options)
 		end
 	elseif moduleName == "interior" then
 		debugLog("Got interior module.")
-        debugLog("Got interior " .. options.type .. " type.")
-        local IsoundTable = soundData.interior
-        table = IsoundTable[options.type] or IsoundTable["tav"][options.type]
-    elseif moduleName == "interiorToExterior" then
+		debugLog("Got interior " .. options.type .. " type.")
+		local IsoundTable = soundData.interior
+		table = IsoundTable[options.type] or IsoundTable["tav"][options.type]
+	elseif moduleName == "interiorToExterior" then
 		debugLog("Got interiorToExterior module.")
-        debugLog("Got interior " .. options.type .. " type.")
-        local IEsoundTable = soundData.interiorToExterior
-        table = IEsoundTable[options.type] or IEsoundTable["tav"][options.type]
+		debugLog("Got interior " .. options.type .. " type.")
+		local IEsoundTable = soundData.interiorToExterior
+		table = IEsoundTable[options.type] or IEsoundTable["tav"][options.type]
 	elseif moduleName == "interiorWeather" then
 		debugLog("Got interior weather module. Weather: " .. options.weather)
 		debugLog("Got interior type: " .. options.type)
@@ -84,10 +84,10 @@ function this.getTrack(options)
 			table = soundData.cold
 		end
 	elseif moduleName == "rainOnStatics" or moduleName == "shelterRain" then
-        local weather = options.weather or modules.getEligibleWeather(moduleName)
-        return weather and cellData.rainType[weather] and soundData.interiorWeather["ten"][weather]
-    elseif moduleName == "shelterWind" then
-        return tes3.getSound("tew_tentwind")
+		local weather = options.weather or modules.getEligibleWeather(moduleName)
+		return weather and cellData.rainType[weather] and soundData.interiorWeather["ten"][weather]
+	elseif moduleName == "shelterWind" then
+		return tes3.getSound("tew_tentwind")
 	end
 
 	-- Can happen on fresh load etc. --
@@ -109,42 +109,42 @@ function this.getTrack(options)
 end
 
 function this.isStopping(moduleName, ref)
-    local oldTrack = moduleData[moduleName].old
-    local newTrack = moduleData[moduleName].new
-    return oldTrack
-    and (fader.isRunning{module = moduleName, track = oldTrack, reference = ref, fadeType = "out"}
-    or fader.isRunning{module = moduleName, track = newTrack, reference = ref, fadeType = "out"})
-    and not (fader.isRunning{module = moduleName, track = newTrack, reference = ref, fadeType = "in"}
-    or fader.isRunning{module = moduleName, track = oldTrack, reference = ref, fadeType = "in"})
+	local oldTrack = moduleData[moduleName].old
+	local newTrack = moduleData[moduleName].new
+	return oldTrack
+		and (fader.isRunning { module = moduleName, track = oldTrack, reference = ref, fadeType = "out" }
+			or fader.isRunning { module = moduleName, track = newTrack, reference = ref, fadeType = "out" })
+		and not (fader.isRunning { module = moduleName, track = newTrack, reference = ref, fadeType = "in" }
+			or fader.isRunning { module = moduleName, track = oldTrack, reference = ref, fadeType = "in" })
 end
 
 -- Sometimes we need to just remove the sounds without fading --
 -- If fade is in progress for the given track and ref, we'll cancel the fade first --
 function this.removeImmediate(options)
-
 	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 
 	-- Remove old file if playing --
 	local oldTrack = common.getTrackPlaying(moduleData[options.module].old, ref)
 	if oldTrack then
-		debugLog(string.format("[%s] Immediately removing old track %s -> %s.", options.module, oldTrack.id, tostring(ref)))
+		debugLog(string.format("[%s] Immediately removing old track %s -> %s.", options.module, oldTrack.id,
+			tostring(ref)))
 		fader.cancel(options.module, oldTrack, ref)
-		tes3.removeSound{sound = oldTrack, reference = ref}
+		tes3.removeSound { sound = oldTrack, reference = ref }
 	end
 
 	-- Remove the new file as well --
 	local newTrack = common.getTrackPlaying(moduleData[options.module].new, ref)
 	if newTrack then
-		debugLog(string.format("[%s] Immediately removing new track %s -> %s.", options.module, newTrack.id, tostring(ref)))
+		debugLog(string.format("[%s] Immediately removing new track %s -> %s.", options.module, newTrack.id,
+			tostring(ref)))
 		fader.cancel(options.module, newTrack, ref)
-		tes3.removeSound{sound = newTrack, reference = ref}
+		tes3.removeSound { sound = newTrack, reference = ref }
 	end
 end
 
 -- Remove the sound for a given module, but with fade out --
 function this.remove(options)
-
-    local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
+	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 
 	local oldTrack = common.getTrackPlaying(moduleData[options.module].old, ref)
 	local newTrack = common.getTrackPlaying(moduleData[options.module].new, ref)
@@ -153,19 +153,19 @@ function this.remove(options)
 
 	if oldTrack then
 		oldTrackOpts = table.copy(options)
-        oldTrackOpts.fadeType = "out"
+		oldTrackOpts.fadeType = "out"
 		oldTrackOpts.reference = ref
 		oldTrackOpts.track = oldTrack
-        oldTrackOpts.removeTrack = true
+		oldTrackOpts.removeTrack = true
 		fader.fade(oldTrackOpts)
 	end
 
 	if newTrack then
 		newTrackOpts = table.copy(options)
-        newTrackOpts.fadeType = "out"
-        newTrackOpts.reference = ref
+		newTrackOpts.fadeType = "out"
+		newTrackOpts.reference = ref
 		newTrackOpts.track = newTrack
-        newTrackOpts.removeTrack = true
+		newTrackOpts.removeTrack = true
 		fader.fade(newTrackOpts)
 	end
 end
@@ -174,16 +174,16 @@ end
 -- This function doesn't remove sounds on its own. It's the module's
 -- decision to remove sounds before immediately playing anything else.
 function this.playImmediate(options)
-    local moduleName = options.module
+	local moduleName = options.module
 	local ref = options.newRef or options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 	local track = options.last and moduleData[moduleName].new or options.track or this.getTrack(options)
 
 	if track then
-		if not tes3.getSoundPlaying{sound = track, reference = ref} then
-            local volume = math.clamp(math.round(options.volume or getVolume{module = moduleName}, 2), MIN, MAX)
-            local pitch = options.pitch or volumeController.getPitch(moduleName)
+		if not tes3.getSoundPlaying { sound = track, reference = ref } then
+			local volume = math.clamp(math.round(options.volume or getVolume { module = moduleName }, 2), MIN, MAX)
+			local pitch = options.pitch or volumeController.getPitch(moduleName)
 			debugLog(string.format("[%s] Playing with volume %s: %s -> %s", moduleName, volume, track.id, tostring(ref)))
-			tes3.playSound{
+			tes3.playSound {
 				sound = track,
 				reference = ref,
 				volume = volume,
@@ -191,19 +191,18 @@ function this.playImmediate(options)
 				loop = true,
 			}
 			moduleData[moduleName].lastVolume = volume
-            moduleData[moduleName].old = moduleData[moduleName].new
-            moduleData[moduleName].new = track
-            moduleData[moduleName].newRef = ref
-            return true
+			moduleData[moduleName].old = moduleData[moduleName].new
+			moduleData[moduleName].new = track
+			moduleData[moduleName].newRef = ref
+			return true
 		end
 	end
-    return false
+	return false
 end
 
 -- Supporting kwargs here
 -- Main entry point, resolves all data received and decides what to do next --
 function this.play(options)
-
 	-- Get the last track so that we're not randomising each time we change int/ext cells within same conditions --
 	-- Checking here explicitly for a boolean because we might as well get a table from timer calls
 	if options.last == true and moduleData[options.module].new then
@@ -213,14 +212,17 @@ function this.play(options)
 		-- Get the new track, if nothing is returned then bugger off (shouldn't really happen at all, but oh well) --
 		newTrack = options.newTrack or this.getTrack(options)
 		newRef = options.newRef or options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
-		if not newTrack then debugLog("No track selected. Returning.") return end
+		if not newTrack then
+			debugLog("No track selected. Returning.")
+			return
+		end
 
 		-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --
 		oldRef = options.oldRef or options.reference
 		oldTrack = common.getTrackPlaying(options.oldTrack or moduleData[options.module].old, oldRef)
 
-        -- Remove old track by default when crossfading, unless instructed otherwise --
-        removeTrack = (options.removeTrack == nil) and true or options.removeTrack
+		-- Remove old track by default when crossfading, unless instructed otherwise --
+		removeTrack = (options.removeTrack == nil) and true or options.removeTrack
 
 		-- Move the queue forward --
 		moduleData[options.module].old = moduleData[options.module].new
@@ -228,28 +230,28 @@ function this.play(options)
 		moduleData[options.module].newRef = newRef
 
 		if oldTrack then
-            fadeOutOpts = table.copy(options)
-            fadeOutOpts.fadeType = "out"
+			fadeOutOpts = table.copy(options)
+			fadeOutOpts.fadeType = "out"
 			fadeOutOpts.track = oldTrack
 			fadeOutOpts.reference = oldRef
-            fadeOutOpts.removeTrack = removeTrack
-            fader.fade(fadeOutOpts)
+			fadeOutOpts.removeTrack = removeTrack
+			fader.fade(fadeOutOpts)
 		end
 		if newTrack then
-            if this.playImmediate{
-                module = options.module,
-                reference = newRef,
-                track = newTrack,
-                volume = MIN,
-                pitch = options.pitch,
-            } then
-                fadeInOpts = table.copy(options)
-                fadeInOpts.fadeType = "in"
-                fadeInOpts.track = newTrack
-                fadeInOpts.reference = newRef
-                fadeInOpts.volume = fadeInOpts.volume or getVolume{module = fadeInOpts.module}
-                fader.fade(fadeInOpts)
-            end
+			if this.playImmediate {
+					module = options.module,
+					reference = newRef,
+					track = newTrack,
+					volume = MIN,
+					pitch = options.pitch,
+				} then
+				fadeInOpts = table.copy(options)
+				fadeInOpts.fadeType = "in"
+				fadeInOpts.track = newTrack
+				fadeInOpts.reference = newRef
+				fadeInOpts.volume = fadeInOpts.volume or getVolume { module = fadeInOpts.module }
+				fader.fade(fadeInOpts)
+			end
 		end
 	end
 end

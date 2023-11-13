@@ -76,7 +76,7 @@ return {
         idPatterns = {
             "chest",
             "de_m_01_v_potion_", -- wooden chest
-            "dem_01_v_potion_", -- wooden chest
+            "dem_01_v_potion_",  -- wooden chest
             "stolen_goods",
             "_cyrimp_dngruin_ch",
             "_dngdir_ch",
@@ -431,8 +431,8 @@ return {
         volume = 0.8,
         idPatterns = {
             "_furnr_cls1", -- nighttable
-            "_furnp_dw2", -- endtable
-            "_furnp_st1", -- sidetable
+            "_furnp_dw2",  -- endtable
+            "_furnp_st1",  -- sidetable
             "table",
         },
     },

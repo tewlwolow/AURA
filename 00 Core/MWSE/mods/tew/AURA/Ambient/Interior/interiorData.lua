@@ -35,11 +35,11 @@ this.statics = {
         "t_cyr_caveww",
         "t_glb_cave",
         "t_mw_cave",
-        "t_sky_cave"
+        "t_sky_cave",
     },
     ["dae"] = {
         "in_dae",
-        "t_dae_dngruin"
+        "t_dae_dngruin",
     },
     ["dwe"] = {
         "in_dwrv_",

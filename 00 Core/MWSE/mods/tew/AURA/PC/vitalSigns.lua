@@ -111,7 +111,7 @@ local function playFatigue()
         fatigueTimer = timer.start { type = timer.real, duration = math.random(10, 20), iterations = -1, callback = function()
             tes3.say {
                 volume = 0.9 * vsVol,
-                soundPath = "Vo\\tew\\A\\PC\\" .. genderFatigue, reference = player
+                soundPath = "Vo\\tew\\A\\PC\\" .. genderFatigue, reference = player,
             }
         end }
     else
@@ -135,9 +135,7 @@ end
 
 -- Centralised vitals resolver --
 local function playVitals()
-
     if PChealth then
-
         local health = player.health.normalized
 
         if health < 0.33 then
@@ -151,7 +149,6 @@ local function playVitals()
     end
 
     if PCfatigue then
-
         if isPlayerUnderWater() == true then
             if fatigueTimer then
                 fatigueTimer:pause()
@@ -173,7 +170,6 @@ local function playVitals()
     end
 
     if PCmagicka then
-
         local magicka = player.magicka.normalized
 
         if magicka < 0.33 then
@@ -210,7 +206,6 @@ local function playVitals()
             blightFlag = 0
         end
     end
-
 end
 
 -- For underwater stuff --

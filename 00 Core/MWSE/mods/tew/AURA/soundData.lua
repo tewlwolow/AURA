@@ -12,7 +12,7 @@ this.populated = {
 	["dwe"] = {},
 	["imp"] = {},
 	["nor"] = {},
-	["n"] = {}
+	["n"] = {},
 }
 
 this.interior = {
@@ -35,7 +35,7 @@ this.interior = {
 		["imp"] = {},
 		["dar"] = {},
 		["nor"] = {},
-	}
+	},
 }
 
 this.interiorToExterior = {
@@ -58,7 +58,7 @@ this.interiorToExterior = {
 		["imp"] = {},
 		["dar"] = {},
 		["nor"] = {},
-	}
+	},
 }
 
 this.interiorWeather = {
@@ -67,53 +67,53 @@ this.interiorWeather = {
 		[5] = nil,
 		[6] = nil,
 		[7] = nil,
-		[9] = nil
+		[9] = nil,
 	},
 	["sma"] = {
 		[4] = nil,
 		[5] = nil,
 		[6] = nil,
 		[7] = nil,
-		[9] = nil
+		[9] = nil,
 	},
 	["ten"] = {
 		[4] = nil,
 		[5] = nil,
 		[6] = nil,
 		[7] = nil,
-		[9] = nil
-	}
+		[9] = nil,
+	},
 }
 
 this.rainLoops = {
-    ["Rain"] = {
-        ["light"] = nil,
-        ["medium"] = nil,
-        ["heavy"] = nil
-    },
-    ["Thunderstorm"] = {
-        ["light"] = nil,
-        ["medium"] = nil,
-        ["heavy"] = nil
-    }
+	["Rain"] = {
+		["light"] = nil,
+		["medium"] = nil,
+		["heavy"] = nil,
+	},
+	["Thunderstorm"] = {
+		["light"] = nil,
+		["medium"] = nil,
+		["heavy"] = nil,
+	},
 }
 
 this.interiorRainLoops = {
-    ["big"] = {
-        ["light"] = nil,
-        ["medium"] = nil,
-        ["heavy"] = nil
-    },
-    ["sma"] = {
-        ["light"] = nil,
-        ["medium"] = nil,
-        ["heavy"] = nil
-    },
-    ["ten"] = {
-        ["light"] = nil,
-        ["medium"] = nil,
-        ["heavy"] = nil
-    }
+	["big"] = {
+		["light"] = nil,
+		["medium"] = nil,
+		["heavy"] = nil,
+	},
+	["sma"] = {
+		["light"] = nil,
+		["medium"] = nil,
+		["heavy"] = nil,
+	},
+	["ten"] = {
+		["light"] = nil,
+		["medium"] = nil,
+		["heavy"] = nil,
+	},
 }
 
 this.thunders = {}

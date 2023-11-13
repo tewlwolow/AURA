@@ -14,7 +14,7 @@ this.raceTaunts = {
 			["High Elf"] = "Atk_AF006.mp3",
 			["Dark Elf"] = "Atk_AF007.mp3",
 			["Breton"] = "Atk_AF008.mp3",
-			["Wood Elf"] = "Atk_AF009.mp3"
+			["Wood Elf"] = "Atk_AF009.mp3",
 		},
 		["m"] = {
 			["Redguard"] = "Atk_AM001.mp3",
@@ -25,8 +25,8 @@ this.raceTaunts = {
 			["High Elf"] = "Atk_AM006.mp3",
 			["Dark Elf"] = "Atk_AM007.mp3",
 			["Breton"] = "Atk_AM008.mp3",
-			["Wood Elf"] = "Atk_AM009.mp3"
-		}
+			["Wood Elf"] = "Atk_AM009.mp3",
+		},
 	},
 	["h"] = {
 		["f"] = {
@@ -37,11 +37,11 @@ this.raceTaunts = {
 			["Imperial"] = "Atk_HF006.mp3",
 			["Dark Elf"] = "Atk_HF008.mp3",
 			["Breton"] = "Atk_HF001.mp3",
-			["Wood Elf"] = "Atk_HF009.mp3"
+			["Wood Elf"] = "Atk_HF009.mp3",
 		},
 		["m"] = {
-			["Nord"] = "Atk_HM004.mp3"
-		}
+			["Nord"] = "Atk_HM004.mp3",
+		},
 	},
 	["k"] = {
 		["f"] = {
@@ -59,8 +59,8 @@ this.raceTaunts = {
 			["Nord"] = "Atk_KM004.mp3",
 			["Dark Elf"] = "Atk_KM008.mp3",
 			["Wood Elf"] = "Atk_KM010.mp3",
-		}
-	}
+		},
+	},
 }
 
 this.NPCtaunts = {

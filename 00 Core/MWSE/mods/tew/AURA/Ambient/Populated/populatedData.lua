@@ -2,11 +2,11 @@ local this = {}
 
 this.statics = {
     ["ash"] = {
-        "ex_ashl_"
+        "ex_ashl_",
     },
     ["dae"] = {
         "ex_dae_",
-        "t_dae_"
+        "t_dae_",
     },
     ["dar"] = {
         "mal_balmora_",
@@ -18,11 +18,11 @@ this.statics = {
         "ex_velothi",
         "ex_vivec",
         "t_de_set",
-        "ex_hla"
+        "ex_hla",
     },
     ["dwe"] = {
         "ex_dwrv_",
-        "t_dwe_dngruin_x_"
+        "t_dwe_dngruin_x_",
     },
     ["imp"] = {
         "ex_common_",
@@ -33,7 +33,7 @@ this.statics = {
         "ex_nord_",
         "ex_s_",
         "t_rga_setreach",
-        "t_nor_set"
+        "t_nor_set",
     },
 }
 

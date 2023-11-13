@@ -88,6 +88,6 @@ this.regions = {
     ["West Weald Region"] = "lus",
     ["White Plains Region"] = "sno",
     ["Wuurthal Dale Region"] = "sno",
-    ["Ysheim Region"] = "sno"
+    ["Ysheim Region"] = "sno",
 }
 return this

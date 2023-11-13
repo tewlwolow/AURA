@@ -199,7 +199,8 @@ end
 function this.play(options)
 
 	-- Get the last track so that we're not randomising each time we change int/ext cells within same conditions --
-	if options.last and moduleData[options.module].new then
+	-- Checking here explicitly for a boolean because we might as well get a table from timer calls
+	if options.last == true and moduleData[options.module].new then
 		this.playImmediate(options)
 	else
 		local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts, removeTrack

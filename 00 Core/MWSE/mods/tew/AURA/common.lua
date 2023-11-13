@@ -127,10 +127,7 @@ function this.getWindoors(cell)
 	local windoors = {}
 	for door in cell:iterateReferences(tes3.objectType.door) do
 		if door.destination then
-			if (door.destination.cell.isOrBehavesAsExterior) and
-					(not string.find(cell.name:lower(), "plaza") and
-						(not string.find(cell.name:lower(), "vivec") and
-							(not string.find(cell.name:lower(), "arena pit")))) then
+			if (door.destination.cell.isOrBehavesAsExterior) and not (this.isOpenPlaza(cell)) then
 				table.insert(windoors, door)
 			end
 		end
@@ -148,6 +145,11 @@ function this.getWindoors(cell)
 				end
 			end
 		end
+
+		-- Let's sort to ensure we scan the closest one first for the useLast flag further down the line
+		local playerPos = tes3.player.position:copy()
+		table.sort(windoors, function(a, b) return playerPos:distance(a.position:copy()) < playerPos:distance(b.position:copy()) end)
+
 		return windoors
 	end
 end

@@ -26,7 +26,15 @@ local debugLog = common.debugLog
 
 local blockedWeathers = moduleData[moduleName].blockedWeathers
 
+-- Reset stuff on load to not pollute our logic --
+local function runResetter()
+	climateLast, weatherLast, timeLast = nil, nil, nil
+	climateNow, weatherNow, timeNow = nil, nil, nil
+end
+
 local function updateConditions(resetTimerFlag)
+	debugLog("Updating conditions.")
+
 	if resetTimerFlag
 	and interiorTimer
 	and cell.isInterior
@@ -57,12 +65,15 @@ local function playWindoors(useLast)
 	local playerPos = tes3.player.position:copy()
 	local playLast
 	for i, windoor in ipairs(cellData.windoors) do
+
+        -- Get the first closest windoor and set the proper flag, the rest will follow
+        if i == 1 then
+			playLast = useLast
+		else
+			playLast = true
+		end
+
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
-			if i == 1 then
-				playLast = useLast
-			else
-				playLast = true
-			end
             sounds.play{
                 module = moduleName,
                 climate = climateNow,
@@ -132,11 +143,7 @@ local function cellCheck(e)
 	end
 
 	-- Checking climate --
-	for kRegion, vClimate in pairs(climates.regions) do
-		if kRegion == region then
-			climateNow = vClimate
-		end
-	end
+	climateNow = climates.regions[region]
 
 	if not climateNow then
 		debugLog("Blacklisted region - no climate detected. Returning.")
@@ -146,13 +153,13 @@ local function cellCheck(e)
 
 	-- Checking time --
 	local gameHour = tes3.worldController.hour.value
-	if (gameHour >= WtC.sunriseHour - 1.5) and (gameHour < WtC.sunriseHour + 1.5) then
+	if (gameHour >= WtC.sunriseHour - 3) and (gameHour < WtC.sunriseHour + 3) then
 		timeNow = "sr"
-	elseif (gameHour >= WtC.sunriseHour + 1.5) and (gameHour < WtC.sunsetHour - 1.5) then
+	elseif (gameHour >= WtC.sunriseHour + 3) and (gameHour < WtC.sunsetHour - 3) then
 		timeNow = "d"
-	elseif (gameHour >= WtC.sunsetHour - 1.5) and (gameHour < WtC.sunsetHour + 1.5) then
+	elseif (gameHour >= WtC.sunsetHour - 3) and (gameHour < WtC.sunsetHour + 3) then
 		timeNow = "ss"
-	elseif (gameHour >= WtC.sunsetHour + 1.5) or (gameHour < WtC.sunriseHour - 1.5) then
+	elseif (gameHour >= WtC.sunsetHour + 3) or (gameHour < WtC.sunriseHour - 3) then
 		timeNow = "n"
 	end
 	debugLog("Time: " .. timeNow)
@@ -192,8 +199,7 @@ local function cellCheck(e)
 		end
 		if common.getCellType(cell, common.cellTypesSmall) == true
 		or common.getCellType(cell, common.cellTypesTent) == true then
-			debugLog("Found small interior cell.")
-			debugLog("Playing regular weather track. useLast: " .. tostring(useLast))
+			debugLog("Found small interior cell. useLast: " .. tostring(useLast))
 			sounds.play{
 				module = moduleName,
 				climate = climateNow,
@@ -204,12 +210,16 @@ local function cellCheck(e)
 			debugLog("Found big interior cell.")
 			if not moduleInteriorWeather then updateConditions() return end
 			if not table.empty(cellData.windoors) then
-				debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
-                windoorVol = volumeController.getVolume{module = moduleName}
-                windoorPitch = volumeController.getPitch(moduleName)
+				debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
+        windoorVol = volumeController.getVolume{module = moduleName}
+        windoorPitch = volumeController.getPitch(moduleName)
 				playWindoors(useLast)
 				updateConditions(true)
 				return
+			-- Special case - where the lack of windoors in otherwise eligible 'big' interior would break our state and make it stale
+			-- e.g. Ald-Ruhn Mages Guild -> Vivec Mages Guild -> Foreign Quarter Plaza
+			else
+				runResetter()
 			end
 		end
 	end
@@ -250,12 +260,6 @@ local function resetWindoors(e)
     windoorVol = volumeController.getVolume{module = moduleName}
     windoorPitch = volumeController.getPitch(moduleName)
     if interiorTimer then interiorTimer:reset() end
-end
-
--- Reset stuff on load to not pollute our logic --
-local function runResetter()
-	climateLast, weatherLast, timeLast = nil, nil, nil
-	climateNow, weatherNow, timeNow = nil, nil, nil
 end
 
 -- Check for time changes --

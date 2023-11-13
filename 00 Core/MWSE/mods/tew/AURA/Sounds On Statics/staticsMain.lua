@@ -350,6 +350,7 @@ local function proximityCheck(ref)
     local refPos = ref.position:copy()
     local objId = ref.object.id:lower()
     local isShelter = common.getMatch(shelterStatics, objId)
+    local playerRef = tes3.player
 
     ------------------------ Shelter stuff --------------------------
     if (not currentShelter.ref)

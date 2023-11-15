@@ -41,6 +41,7 @@ return {
     rainSounds = true,
     thunderSounds = true,
     thunderSoundsDelay = true,
+    floraSounds = true,
     volumes = {
         modules = {
             ["outdoor"] = { volume = 50, big = 0.25, sma = 0.2, und = 0.4 },

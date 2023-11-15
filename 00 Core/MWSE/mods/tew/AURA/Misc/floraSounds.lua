@@ -1,3 +1,8 @@
+local common = require("tew.AURA.common")
+local soundData = require("tew.AURA.soundData")
+
+local debugLog = common.debugLog
+
 local ids = {
     "flora_ash_grass",
     "flora_bc_fern",
@@ -79,6 +84,8 @@ local function playFlora()
     --local config = mwse.loadConfig("AURA", defaults)
     --local volume = config.volumes.misc.floraSounds
     local sound = table.choice(soundData.flora)
+    if not sound then return end
+
     tes3.playSound{
         sound = sound,
         reference = hitResult.reference,

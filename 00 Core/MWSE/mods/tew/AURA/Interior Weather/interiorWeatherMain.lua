@@ -6,12 +6,10 @@ local modules = require("tew.AURA.modules")
 local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
 local soundData = require("tew.AURA.soundData")
-local volumeController = require("tew.AURA.volumeController")
 
 local moduleName = "interiorWeather"
 
 local transitionScalarThreshold = 0.65
-local windoorVol, windoorPitch = 0, 0
 local sound
 
 local interiorTimer, scalarTimer, transitionScalarLast
@@ -92,14 +90,13 @@ local function playWindoors()
 	if table.empty(cellData.windoors) then return end
 	debugLog("Updating interior doors and windows.")
 	local playerPos = tes3.player.position:copy()
-	for i, windoor in ipairs(cellData.windoors) do
-		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
+	for _, windoor in ipairs(cellData.windoors) do
+		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
+		and not common.getTrackPlaying(sound, windoor) then
 			sounds.play {
 				module = moduleName,
 				newTrack = sound,
 				newRef = windoor,
-				volume = windoorVol,
-				pitch = windoorPitch,
 			}
 		end
 	end
@@ -237,9 +234,6 @@ local function cellCheck(e)
 	else
 		if not table.empty(cellData.windoors) then
 			debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
-			windoorVol = volumeController.getVolume { module = moduleName }
-			windoorPitch = volumeController.getPitch(moduleName)
-			playWindoors()
 			interiorTimer:reset()
 			thunRef = cellData.windoors[math.random(1, #cellData.windoors)]
 		end
@@ -330,8 +324,6 @@ local function resetWindoors(e)
 	if interiorTimer then interiorTimer:pause() end
 	debugLog("Resetting windoors.")
 	stopWindoors(true)
-	windoorVol = volumeController.getVolume { module = moduleName }
-	windoorPitch = volumeController.getPitch(moduleName)
 	if interiorTimer then interiorTimer:reset() end
 end
 
@@ -340,7 +332,6 @@ local function runResetter()
 	cell, cellLast, thunRef, thunder, interiorTimer, scalarTimer, thunderTimer, thunderTime, interiorType, weather, weatherLast, sound =
 	nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 	transitionScalarLast = nil
-	windoorVol, windoorPitch = 0, 0
 end
 
 event.register("cellChanged", onCellChanged, { priority = -165 })

@@ -127,7 +127,9 @@ function this.getWindoors(cell)
 	local windoors = {}
 	for door in cell:iterateReferences(tes3.objectType.door) do
 		if door.destination then
-			if (door.destination.cell.isOrBehavesAsExterior) and not (this.isOpenPlaza(cell)) then
+			if (door.destination.cell.isOrBehavesAsExterior)
+			and not (this.isOpenPlaza(cell))
+			and door.tempData then
 				table.insert(windoors, door)
 			end
 		end
@@ -139,7 +141,7 @@ function this.getWindoors(cell)
 		for stat in cell:iterateReferences(tes3.objectType.static) do
 			if (not string.find(cell.name:lower(), "plaza")) then
 				for _, window in pairs(this.windows) do
-					if string.find(stat.object.id:lower(), window) then
+					if string.find(stat.object.id:lower(), window) and stat.tempData then
 						table.insert(windoors, stat)
 					end
 				end

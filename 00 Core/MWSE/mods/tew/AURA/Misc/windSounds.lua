@@ -5,7 +5,6 @@ local defaults = require("tew.AURA.defaults")
 local modules = require("tew.AURA.modules")
 local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
-local volumeController = require("tew.AURA.volumeController")
 local moduleName = "wind"
 local playInteriorWind = config.playInteriorWind
 local windType, cell
@@ -245,8 +244,6 @@ local function resetWindoors(e)
     if interiorTimer then interiorTimer:pause() end
     debugLog("Resetting windoors.")
     stopWindoors(true)
-    windoorVol = volumeController.getVolume{module = moduleName}
-    windoorPitch = volumeController.getPitch(moduleName)
     if interiorTimer then interiorTimer:reset() end
 end
 

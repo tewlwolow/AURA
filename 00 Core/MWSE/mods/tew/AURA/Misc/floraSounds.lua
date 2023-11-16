@@ -50,7 +50,7 @@ local function playFlora()
 
     -- If we just played a sound, don't play anymore if we're in the same spot
     if lastPlayerPos then
-        if playerPos:copy():distance(lastPlayerPos) > 200 then
+        if playerPos:copy():distance(lastPlayerPos) > 150 then
             lastPlayerPos = nil
         else
             return
@@ -87,12 +87,13 @@ local function playFlora()
 
     local config = mwse.loadConfig("AURA", defaults)
     local volume = config.volumes.misc.floraVol / 100
+    local pitch = math.random(80, 130) / 100
 
     tes3.playSound{
         sound = sound,
         reference = hitResult.reference,
         volume = volume,
-        pitch = 1,
+        pitch = pitch,
         loop = false,
     }
     debugLog('Played ' .. sound.id)

@@ -429,6 +429,18 @@ pageMisc:createSlider {
 	jump = 5,
 	variable = registerVariable("thunderVolMax", config.volumes.misc),
 }
+pageMisc:createYesNoButton {
+	label = messages.floraSounds,
+	variable = registerVariable("floraSounds"),
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.floraVol, messages.default, defaults.volumes.misc.floraVol, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 10,
+	variable = registerVariable("floraVol", config.volumes.misc),
+}
 
 template:saveOnClose(configPath, config)
 mwse.mcm.register(template)

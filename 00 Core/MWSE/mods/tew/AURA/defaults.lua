@@ -77,6 +77,7 @@ return {
             tVol = 75,
             thunderVolMin = 70,
             thunderVolMax = 100,
+            floraVol = 80,
         },
     },
     playInteriorWind = true,

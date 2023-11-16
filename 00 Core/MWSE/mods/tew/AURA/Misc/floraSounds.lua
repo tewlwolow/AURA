@@ -81,19 +81,19 @@ local function playFlora()
         return
     end
 
-    --local config = mwse.loadConfig("AURA", defaults)
-    --local volume = config.volumes.misc.floraSounds
+    local config = mwse.loadConfig("AURA", defaults)
+    local volume = config.volumes.misc.floraVol / 100
     local sound = table.choice(soundData.flora)
     if not sound then return end
 
     tes3.playSound{
         sound = sound,
         reference = hitResult.reference,
-        volume = 0.8,
+        volume = volume,
         pitch = 1,
         loop = false,
     }
-    mwse.log('played ' .. sound.id)
+    debugLog('Played ' .. sound.id)
     playingBlocked = true
     lastPlayerPos = playerPos:copy()
     timer.start{

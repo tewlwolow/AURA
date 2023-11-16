@@ -82,10 +82,11 @@ local function playFlora()
         return
     end
 
-    local config = mwse.loadConfig("AURA", defaults)
-    local volume = config.volumes.misc.floraVol / 100
     local sound = table.choice(soundData.flora)
     if not sound then return end
+
+    local config = mwse.loadConfig("AURA", defaults)
+    local volume = config.volumes.misc.floraVol / 100
 
     tes3.playSound{
         sound = sound,

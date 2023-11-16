@@ -105,4 +105,16 @@ local function playFlora()
         callback = function() playingBlocked = false end,
     }
 end
-event.register(tes3.event.simulate, playFlora)
+
+local function runResetter()
+    event.unregister(tes3.event.simulate, playFlora)
+    playingBlocked = false
+    lastPlayerPos = nil
+end
+
+local function onLoaded()
+    runResetter()
+    event.register(tes3.event.simulate, playFlora)
+end
+event.register(tes3.event.load, runResetter)
+event.register(tes3.event.loaded, onLoaded)

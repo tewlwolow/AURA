@@ -1,4 +1,5 @@
 local common = require("tew.AURA.common")
+local defaults = require("tew.AURA.defaults")
 local soundData = require("tew.AURA.soundData")
 
 local debugLog = common.debugLog

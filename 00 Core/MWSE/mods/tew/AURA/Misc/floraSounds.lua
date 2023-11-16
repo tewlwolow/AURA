@@ -39,11 +39,11 @@ local ids = {
     "flora_willow_flower",
 }
 
-local playingBlocked = false
 local lastPlayerPos
+
 local function playFlora()
 
-    if (playingBlocked) or (not tes3.mobilePlayer) then return end
+    if not tes3.mobilePlayer then return end
 
     local player = tes3.mobilePlayer.reference
     local playerPos = player.position
@@ -96,19 +96,11 @@ local function playFlora()
         loop = false,
     }
     debugLog('Played ' .. sound.id)
-    playingBlocked = true
     lastPlayerPos = playerPos:copy()
-    timer.start{
-        type = timer.simulate,
-        iterations = 1,
-        duration = 2,
-        callback = function() playingBlocked = false end,
-    }
 end
 
 local function runResetter()
     event.unregister(tes3.event.simulate, playFlora)
-    playingBlocked = false
     lastPlayerPos = nil
 end
 
@@ -116,5 +108,6 @@ local function onLoaded()
     runResetter()
     event.register(tes3.event.simulate, playFlora)
 end
+
 event.register(tes3.event.load, runResetter)
 event.register(tes3.event.loaded, onLoaded)

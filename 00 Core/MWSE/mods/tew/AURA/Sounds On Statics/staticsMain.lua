@@ -239,6 +239,16 @@ local function playRopeBridge(ref)
     end
 end
 
+local function playPhotodragons(ref)
+    local moduleName = "photodragons"
+    local sound = tes3.getSound("tew_photodragons")
+
+    if sound and not playing(sound, ref) then
+        debugLog(string.format("[%s] Adding sound %s for -> %s", moduleName, sound.id, tostring(ref)))
+        playImmediate(moduleName, sound, ref)
+    end
+end
+
 
 
 
@@ -393,6 +403,12 @@ local function proximityCheck(ref)
         and common.getMatch(bridgeStatics, objId)
         and playerPos:distance(refPos) < 800 then
         playRopeBridge(ref)
+    end
+    --------------------------- Insects -----------------------------
+    if modules.isActive("photodragons")
+        and common.getMatch(staticsData.modules["photodragons"].ids, objId)
+        and playerPos:distance(refPos) < 700 then
+        playPhotodragons(ref)
     end
     -----------------------------------------------------------------
     --                            etc                              --

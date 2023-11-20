@@ -325,6 +325,14 @@ this.data = {
         newRef = nil,
         lastVolume = nil,
     },
+    ["photodragons"] = {
+        active = config.playPhotodragons,
+        old = nil,
+        new = nil,
+        oldRef = nil,
+        newRef = nil,
+        lastVolume = nil,
+    },
 }
 
 function this.getCurrentlyPlaying(moduleName)

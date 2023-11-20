@@ -81,6 +81,13 @@ this.modules = {
         },
         ["ignore"] = {},
     },
+    ["photodragons"] = {
+        ["ids"] = {
+            "photodragons",
+        },
+        ["blocked"] = {},
+        ["ignore"] = {},
+    },
 }
 
 return this

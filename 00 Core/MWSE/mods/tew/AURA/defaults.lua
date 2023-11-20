@@ -54,6 +54,7 @@ return {
             ["shelterWind"] = { volume = 100, big = 1, sma = 1, und = 0 },
             ["shelterWeather"] = { volume = 100, big = 1, sma = 1, und = 0 },
             ["ropeBridge"] = { volume = 100, big = 1, sma = 1, und = 0 },
+            ["photodragons"] = { volume = 100, big = 1, sma = 1, und = 0 },
         },
         rain = {
             ["Rain"] = { light = 100, medium = 100, heavy = 100 },
@@ -84,6 +85,7 @@ return {
     playWindInsideShelter = true,
     shelterWeather = true,
     playRopeBridge = true,
+    playPhotodragons = true,
     underwaterRain = true,
     language = "tew.AURA.i18n.en",
 }

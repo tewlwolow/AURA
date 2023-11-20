@@ -99,6 +99,7 @@ this.messages = {
 	shelterWeather =
 	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
 	ropeBridge = "Activer les grincements sur les ponts de singe à l'extérieur ?",
+	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Bitter Coast ?",
 
 	enableInteriorToExterior =
 	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",

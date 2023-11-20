@@ -84,6 +84,7 @@ this.messages = {
 	shelterWeather =
 	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
 	ropeBridge = "Enable creaking sounds on rope bridges outside?",
+	photodragons = "Enable appropriate flying insect sounds to dragonfly swarms commonly found around the Bitter Coast area?",
 
 	enableInteriorToExterior =
 	"Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",

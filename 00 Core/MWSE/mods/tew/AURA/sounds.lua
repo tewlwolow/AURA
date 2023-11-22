@@ -200,9 +200,39 @@ function this.playImmediate(options)
 	return false
 end
 
+local queue = {}
+local function cancelModuleTimer(moduleName)
+	local moduleTimer = queue[moduleName]
+	if moduleTimer then moduleTimer:cancel() end
+end
+
+local function addToQueue(options)
+	local moduleName = options.module
+	cancelModuleTimer(moduleName)
+	queue[moduleName] = timer.start {
+		callback = function()
+			this.play(options)
+		end,
+		type = timer.real,
+		iterations = 1,
+		duration = 2,
+	}
+end
+
 -- Supporting kwargs here
 -- Main entry point, resolves all data received and decides what to do next --
 function this.play(options)
+	-- Blocking additional fade/crossfade requests until ongoing fades for this module are finished --
+	-- If multiple play requests arrive in this time, only the last request will pass through --
+	-- Should cover edge case where module becomes stale (no tracks playing) if changing cells too fast during crossfades --
+	if not options.noQueue then
+		if fader.isRunning{module = options.module} then
+			debugLog(string.format("[%s] Fader is running. Trying later.", options.module))
+			addToQueue(options)
+			return
+		end
+		cancelModuleTimer(options.module)
+	end
 	-- Get the last track so that we're not randomising each time we change int/ext cells within same conditions --
 	-- Checking here explicitly for a boolean because we might as well get a table from timer calls
 	if options.last == true and moduleData[options.module].new then
@@ -218,7 +248,7 @@ function this.play(options)
 		end
 
 		-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --
-		oldRef = options.oldRef or options.reference
+		oldRef = options.oldRef or moduleData[options.module].oldRef or options.reference
 		oldTrack = common.getTrackPlaying(options.oldTrack or moduleData[options.module].old, oldRef)
 
 		-- Remove old track by default when crossfading, unless instructed otherwise --

@@ -72,6 +72,7 @@ local function playWindoors()
 				module = moduleName,
 				newTrack = track,
 				newRef = windoor,
+				noQueue = true,
 			}
 		end
 	end
@@ -166,7 +167,6 @@ local function cellCheck(e)
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then
 		debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-		if not useLast then sounds.remove { module = moduleName } end
 		sounds.play {
 			module = moduleName,
 			climate = climateNow,

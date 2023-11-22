@@ -161,6 +161,7 @@ function this.fade(options)
             common.setRemove(this.inProgress[fadeType], fadeInProgress)
             if mData then
                 mData.old = track
+                mData.oldRef = ref
                 mData.lastVolume = currentVolume
                 debugLog(string.format("[%s] lastVolume is now: %s", moduleName, currentVolume))
             end

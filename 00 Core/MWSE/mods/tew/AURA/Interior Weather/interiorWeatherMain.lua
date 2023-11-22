@@ -97,6 +97,7 @@ local function playWindoors()
 				module = moduleName,
 				newTrack = sound,
 				newRef = windoor,
+				noQueue = true,
 			}
 		end
 	end

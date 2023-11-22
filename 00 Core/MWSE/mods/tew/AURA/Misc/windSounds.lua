@@ -67,6 +67,7 @@ local function playWindoors()
                 module = moduleName,
                 newTrack = track,
                 newRef = windoor,
+                noQueue = true,
             }
         end
     end
@@ -147,7 +148,6 @@ local function windCheck(e)
         if (cell.isOrBehavesAsExterior) then
             -- Using the same track when entering int/ext in same area; time/weather change will randomise it again --
             debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-            if not useLast then sounds.remove { module = moduleName } end
             sounds.play { module = moduleName, type = windType, last = useLast }
         else
             debugLog("Found interior cell.")

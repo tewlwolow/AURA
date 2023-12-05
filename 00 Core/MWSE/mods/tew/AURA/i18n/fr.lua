@@ -98,8 +98,8 @@ this.messages = {
 	shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
 	shelterWeather =
 	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
-	ropeBridge = "Activer les grincements sur les ponts de singe à l'extérieur ?",
-	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Bitter Coast ?",
+	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Côte de la Mélancolie ?",
+	ropeBridge = "Activer des sons appropriés sur les ponts de singe à l'extérieur ?",
 
 	enableInteriorToExterior =
 	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
@@ -165,6 +165,8 @@ this.messages = {
 	thunderSoundsDelay = "Ajouter un petit délai aléatoire avant la diffusion du son du tonnerre ?",
 	thunderVolMin = "Le volume minimum auquel les sons du tonnerre seront joués.",
 	thunderVolMax = "Le volume maximum auquel les sons du tonnerre seront joués.",
+	floraSounds = "Activer les bruissements/sifflements lorsque vous marchez à travers des objets de flore/végétation comme l'herbe et les plantes ?",
+	floraVol = "Changer le % de volume pour les sons de bruissement de la flore.",
 
 }
 

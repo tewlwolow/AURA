@@ -83,8 +83,8 @@ this.messages = {
 	shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
 	shelterWeather =
 	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
-	ropeBridge = "Enable creaking sounds on rope bridges outside?",
 	photodragons = "Enable appropriate flying insect sounds to dragonfly swarms commonly found around the Bitter Coast area?",
+	ropeBridge = "Enable appropriate sounds on rope bridges outside?",
 
 	enableInteriorToExterior =
 	"Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",
@@ -151,6 +151,8 @@ this.messages = {
 	thunderSoundsDelay = "Add a small randomized lead time before the thunder plays?",
 	thunderVolMin = "Minimum volume thunder sounds will play at.",
 	thunderVolMax = "Maximum volume thunder sounds will play at.",
+	floraSounds = "Enable rustling/swishing sounds when walking through flora/vegetation objects like grass and plants?",
+	floraVol = "Changes % volume for flora rustling sounds.",
 }
 
 this.interiorNames = {

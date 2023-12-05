@@ -315,6 +315,13 @@ local function buildStaticsSounds()
 	createSound("tew_tentwind", "tew\\A\\ST\\tentwind.wav")
 	createSound("tew_ropebridge", "tew\\A\\ST\\ropebridge.wav")
 	createSound("tew_photodragons", "tew\\A\\ST\\photodragons.wav")
+	for soundfile in lfs.dir(AURAdir .. "\\ST\\flo") do
+		if string.endswith(soundfile, ".wav") then
+			local objectId = "tew_flora" .. soundfile:gsub(".wav", "")
+			local filename = soundDir .. "\\ST\\flo\\" .. soundfile
+			createSound(objectId, filename, soundData.flora)
+		end
+	end
 end
 
 function this.flushManifestFile()

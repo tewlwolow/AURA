@@ -150,6 +150,8 @@ this.messages = {
 	thunderSoundsDelay = "Add a small randomized lead time before the thunder plays?",
 	thunderVolMin = "Minimum volume thunder sounds will play at.",
 	thunderVolMax = "Maximum volume thunder sounds will play at.",
+	floraSounds = "Enable rustling/swishing sounds when walking through flora/vegetation objects like grass and plants?",
+	floraVol = "Changes % volume for flora rustling sounds.",
 }
 
 this.interiorNames = {

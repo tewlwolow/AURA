@@ -164,6 +164,8 @@ this.messages = {
 	thunderSoundsDelay = "Ajouter un petit délai aléatoire avant la diffusion du son du tonnerre ?",
 	thunderVolMin = "Le volume minimum auquel les sons du tonnerre seront joués.",
 	thunderVolMax = "Le volume maximum auquel les sons du tonnerre seront joués.",
+	floraSounds = "Activer les bruissements/sifflements lorsque vous marchez à travers des objets de flore/végétation comme l'herbe et les plantes ?",
+	floraVol = "Changer le % de volume pour les sons de bruissement de la flore.",
 
 }
 

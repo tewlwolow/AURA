@@ -41,6 +41,7 @@ return {
     rainSounds = true,
     thunderSounds = true,
     thunderSoundsDelay = true,
+    floraSounds = true,
     volumes = {
         modules = {
             ["outdoor"] = { volume = 50, big = 0.25, sma = 0.2, und = 0.4 },
@@ -76,6 +77,7 @@ return {
             tVol = 75,
             thunderVolMin = 70,
             thunderVolMax = 100,
+            floraVol = 80,
         },
     },
     playInteriorWind = true,

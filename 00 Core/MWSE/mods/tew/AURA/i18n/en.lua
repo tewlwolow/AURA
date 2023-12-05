@@ -83,7 +83,7 @@ this.messages = {
 	shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
 	shelterWeather =
 	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
-	ropeBridge = "Enable creaking sounds on rope bridges outside?",
+	ropeBridge = "Enable appropriate sounds on rope bridges outside?",
 
 	enableInteriorToExterior =
 	"Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",

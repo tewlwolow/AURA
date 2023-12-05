@@ -83,6 +83,7 @@ this.messages = {
 	shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
 	shelterWeather =
 	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
+	photodragons = "Enable appropriate flying insect sounds to dragonfly swarms commonly found around the Bitter Coast area?",
 	ropeBridge = "Enable appropriate sounds on rope bridges outside?",
 
 	enableInteriorToExterior =

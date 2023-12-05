@@ -314,6 +314,7 @@ local function buildStaticsSounds()
 	debugLog("|---------------------- Creating statics sound objects. ----------------------|\n")
 	createSound("tew_tentwind", "tew\\A\\ST\\tentwind.wav")
 	createSound("tew_ropebridge", "tew\\A\\ST\\ropebridge.wav")
+	createSound("tew_photodragons", "tew\\A\\ST\\photodragons.wav")
 	for soundfile in lfs.dir(AURAdir .. "\\ST\\flo") do
 		if string.endswith(soundfile, ".wav") then
 			local objectId = "tew_flora" .. soundfile:gsub(".wav", "")

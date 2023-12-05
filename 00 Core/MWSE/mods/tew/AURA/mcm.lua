@@ -164,6 +164,10 @@ pageSS:createYesNoButton {
 	label = string.format("%s", messages.ropeBridge),
 	variable = registerVariable("playRopeBridge"),
 }
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.photodragons),
+	variable = registerVariable("playPhotodragons"),
+}
 
 --[[
 local pagePA = template:createPage { label = messages.PA }

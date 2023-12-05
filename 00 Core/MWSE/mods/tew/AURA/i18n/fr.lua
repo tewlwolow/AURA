@@ -98,6 +98,7 @@ this.messages = {
 	shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
 	shelterWeather =
 	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
+	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Côte de la Mélancolie ?",
 	ropeBridge = "Activer des sons appropriés sur les ponts de singe à l'extérieur ?",
 
 	enableInteriorToExterior =

@@ -92,7 +92,7 @@ local function playWindoors()
 	local playerPos = tes3.player.position:copy()
 	for _, windoor in ipairs(cellData.windoors) do
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
-		and not common.getTrackPlaying(sound, windoor) then
+			and not common.getTrackPlaying(sound, windoor) then
 			sounds.play {
 				module = moduleName,
 				newTrack = sound,
@@ -331,7 +331,7 @@ end
 -- Suck it Java --
 local function runResetter()
 	cell, cellLast, thunRef, thunder, interiorTimer, scalarTimer, thunderTimer, thunderTime, interiorType, weather, weatherLast, sound =
-	nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 	transitionScalarLast = nil
 end
 

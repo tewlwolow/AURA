@@ -5,10 +5,8 @@ local defaults = require("tew.AURA.defaults")
 local modules = require("tew.AURA.modules")
 local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
-local volumeController = require("tew.AURA.volumeController")
 local moduleName = "wind"
 local playInteriorWind = config.playInteriorWind
-local windoorVol, windoorPitch = 0, 0
 local windType, cell
 local windTypeLast, cellLast
 local interiorTimer
@@ -54,32 +52,25 @@ local function stopWindoors(immediateFlag)
 	end
 end
 
--- TODO: don't getVol every time
-local function playWindoors(useLast)
-	if table.empty(cellData.windoors) then return end
-	debugLog("Updating interior doors and windows.")
-	local playerPos = tes3.player.position:copy()
-	local playLast
-	for i, windoor in ipairs(cellData.windoors) do
-
-        -- Get the first closest windoor and set the proper flag, the rest will follow
-        if i == 1 then
-			playLast = useLast
-		else
-			playLast = true
-		end
-
-		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
-            sounds.play{
+local function playWindoors()
+    if table.empty(cellData.windoors) then return end
+    debugLog("Updating interior doors and windows.")
+    local playerPos = tes3.player.position:copy()
+    
+    for _, windoor in ipairs(cellData.windoors) do
+        
+        local track = windoor.tempData.tew.AURA.WIND.track
+        
+        if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
+        and not common.getTrackPlaying(track, windoor) then
+            sounds.play {
                 module = moduleName,
-                type = windType,
-                volume = windoorVol,
-                pitch = windoorPitch,
+                newTrack = track,
                 newRef = windoor,
-                last = playLast,
+                noQueue = true,
             }
-		end
-	end
+        end
+    end
 end
 
 -- Resolve data and play or remove wind sounds --
@@ -157,7 +148,6 @@ local function windCheck(e)
         if (cell.isOrBehavesAsExterior) then
             -- Using the same track when entering int/ext in same area; time/weather change will randomise it again --
             debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-            if not useLast then sounds.remove { module = moduleName } end
             sounds.play { module = moduleName, type = windType, last = useLast }
         else
             debugLog("Found interior cell.")
@@ -182,10 +172,19 @@ local function windCheck(e)
             else
                 debugLog("Found big interior cell.")
                 if not table.empty(cellData.windoors) then
-                    debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
-                    windoorVol = volumeController.getVolume{module = moduleName}
-                    windoorPitch = volumeController.getPitch(moduleName)
-                    playWindoors(useLast)
+                    debugLog("Found " ..
+                    #cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
+                    local windoorTrack = useLast and moduleData[moduleName].new or sounds.getTrack{
+                        module = moduleName,
+                        type = windType,
+                    }
+                    for _, windoor in ipairs(cellData.windoors) do
+                        local tempData = windoor.tempData
+                        if not tempData.tew then tempData.tew = {} end
+                        if not tempData.tew.AURA then tempData.tew.AURA = {} end
+                        if not tempData.tew.AURA.WIND then tempData.tew.AURA.WIND = {} end
+                        tempData.tew.AURA.WIND.track = windoorTrack
+                    end
                     updateConditions(true)
                     return
                 end
@@ -245,8 +244,6 @@ local function resetWindoors(e)
     if interiorTimer then interiorTimer:pause() end
     debugLog("Resetting windoors.")
     stopWindoors(true)
-    windoorVol = volumeController.getVolume{module = moduleName}
-    windoorPitch = volumeController.getPitch(moduleName)
     if interiorTimer then interiorTimer:reset() end
 end
 

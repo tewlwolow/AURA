@@ -6,13 +6,11 @@ local defaults = require("tew.AURA.defaults")
 local modules = require("tew.AURA.modules")
 local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
-local volumeController = require("tew.AURA.volumeController")
 
 local isOpenPlaza = common.isOpenPlaza
 
 local moduleInteriorWeather = config.moduleInteriorWeather
 local playInteriorAmbient = config.playInteriorAmbient
-local windoorVol, windoorPitch = 0, 0
 
 local moduleName = "outdoor"
 
@@ -59,28 +57,22 @@ local function stopWindoors(immediateFlag)
 end
 
 -- Because MW engine will otherwise scrap the sound and not put it up again. Dumb thing --
-local function playWindoors(useLast)
+local function playWindoors()
 	if table.empty(cellData.windoors) then return end
 	debugLog("Updating interior doors and windows.")
 	local playerPos = tes3.player.position:copy()
-	local playLast
-	for i, windoor in ipairs(cellData.windoors) do
-		-- Get the first closest windoor and set the proper flag, the rest will follow
-		if i == 1 then
-			playLast = useLast
-		else
-			playLast = true
-		end
-
-		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800 then
+	
+	for _, windoor in ipairs(cellData.windoors) do
+		
+		local track = windoor.tempData.tew.AURA.OUT.track
+		
+		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
+		and not common.getTrackPlaying(track, windoor) then
 			sounds.play {
 				module = moduleName,
-				climate = climateNow,
-				time = timeNow,
-				volume = windoorVol,
-				pitch = windoorPitch,
+				newTrack = track,
 				newRef = windoor,
-				last = playLast,
+				noQueue = true,
 			}
 		end
 	end
@@ -175,7 +167,6 @@ local function cellCheck(e)
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then
 		debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-		if not useLast then sounds.remove { module = moduleName } end
 		sounds.play {
 			module = moduleName,
 			climate = climateNow,
@@ -213,9 +204,18 @@ local function cellCheck(e)
 			if not table.empty(cellData.windoors) then
 				debugLog("Found " ..
 				#cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
-				windoorVol = volumeController.getVolume { module = moduleName }
-				windoorPitch = volumeController.getPitch(moduleName)
-				playWindoors(useLast)
+				local windoorTrack = useLast and moduleData[moduleName].new or sounds.getTrack{
+					module = moduleName,
+					climate = climateNow,
+					time = timeNow,
+				}
+				for _, windoor in ipairs(cellData.windoors) do
+					local tempData = windoor.tempData
+					if not tempData.tew then tempData.tew = {} end
+					if not tempData.tew.AURA then tempData.tew.AURA = {} end
+					if not tempData.tew.AURA.OUT then tempData.tew.AURA.OUT = {} end
+					tempData.tew.AURA.OUT.track = windoorTrack
+				end
 				updateConditions(true)
 				return
 				-- Special case - where the lack of windoors in otherwise eligible 'big' interior would break our state and make it stale
@@ -259,8 +259,6 @@ local function resetWindoors(e)
 	if interiorTimer then interiorTimer:pause() end
 	debugLog("Resetting windoors.")
 	stopWindoors(true)
-	windoorVol = volumeController.getVolume { module = moduleName }
-	windoorPitch = volumeController.getPitch(moduleName)
 	if interiorTimer then interiorTimer:reset() end
 end
 

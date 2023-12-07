@@ -61,13 +61,12 @@ local function playWindoors()
 	if table.empty(cellData.windoors) then return end
 	debugLog("Updating interior doors and windows.")
 	local playerPos = tes3.player.position:copy()
-	
+
 	for _, windoor in ipairs(cellData.windoors) do
-		
 		local track = windoor.tempData.tew.AURA.OUT.track
-		
+
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
-		and not common.getTrackPlaying(track, windoor) then
+			and not common.getTrackPlaying(track, windoor) then
 			sounds.play {
 				module = moduleName,
 				newTrack = track,
@@ -203,8 +202,8 @@ local function cellCheck(e)
 			end
 			if not table.empty(cellData.windoors) then
 				debugLog("Found " ..
-				#cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
-				local windoorTrack = useLast and moduleData[moduleName].new or sounds.getTrack{
+					#cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
+				local windoorTrack = useLast and moduleData[moduleName].new or sounds.getTrack {
 					module = moduleName,
 					climate = climateNow,
 					time = timeNow,
@@ -283,23 +282,12 @@ local function onLoaded()
 	end
 end
 
--- Fix for sky texture pop-in - believe it or not :| --
-local function transitionStartedWrapper(e)
-	timer.start {
-		duration = 1.5,  -- Can be increased if not enough for sky texture pop-in
-		type = timer.simulate, -- Switched to simulate b/c 0.1 duration is a bit too much if using timer.game along with a low timescale tes3globalVariable. E.g.: With a timescale of 10, a 0.1 timer.game timer will actually kick in AFTER weatherTransitionFinished, which is too late
-		iterations = 1,
-		callback = function()
-			onConditionChanged(e)
-		end,
-	}
-end
 
 WtC = tes3.worldController.weatherController
 event.register("loaded", onLoaded, { priority = -160 })
 event.register("load", runResetter, { priority = -160 })
 event.register("cellChanged", onConditionChanged, { priority = -160 })
-event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -160 })
+event.register("weatherTransitionStarted", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -160 })
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -160 })

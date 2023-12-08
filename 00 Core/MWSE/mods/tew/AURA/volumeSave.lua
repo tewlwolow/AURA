@@ -40,11 +40,8 @@ end
 local function textInputIsActive()
     local inputFocus = getTextInputFocus()
 
-    -- Patch for UI Expansion not releasing text input after leaving menu mode
-    if not tes3ui.menuMode()
-        and inputFocus
-        and inputFocus.widget
-        and inputFocus.widget.element.name == "UIEXP:FiltersearchBlock" then
+    -- Patch for mods that don't release text input after leaving menu mode (UIExp, etc)
+    if not tes3ui.menuMode() and inputFocus then
         tes3ui.acquireTextInput(nil)
         inputFocus = getTextInputFocus()
     end

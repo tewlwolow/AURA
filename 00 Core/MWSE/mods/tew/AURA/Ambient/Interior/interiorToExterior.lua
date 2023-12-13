@@ -11,7 +11,7 @@ local exteriorTimer, cellLast
 
 local function getEligibleCellType(cellType, actorCount)
     if cellType then
-        if (data.names[cellType] or data.tavernNames[cellType])
+        if (cellType ~= "tom") and (data.names[cellType] or data.tavernNames[cellType])
             and (actorCount) and (actorCount < 2) then
             --debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
             return nil

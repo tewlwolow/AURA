@@ -132,6 +132,7 @@ function this.fade(options)
             reference = ref,
             volume = currentVolume,
             inOrOut = fadeType,
+            quiet = not (((iterCount % 10) == 0) or (iterCount == 1) or (iterCount == iters)),
         }
     end
 
@@ -159,12 +160,7 @@ function this.fade(options)
                 end
             end
             common.setRemove(this.inProgress[fadeType], fadeInProgress)
-            if mData then
-                mData.old = track
-                mData.oldRef = ref
-                mData.lastVolume = currentVolume
-                debugLog(string.format("[%s] lastVolume is now: %s", moduleName, currentVolume))
-            end
+            debugLog(string.format("[%s] lastVolume is now: %s", moduleName, currentVolume))
         end,
     }
     common.setInsert(this.inProgress[fadeType], fadeInProgress)

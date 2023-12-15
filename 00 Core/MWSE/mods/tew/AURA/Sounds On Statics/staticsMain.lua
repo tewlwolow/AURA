@@ -32,7 +32,7 @@ local function playing(sound, ref)
     return common.getTrackPlaying(sound, ref)
 end
 local function play(moduleName, sound, ref)
-    sounds.play { module = moduleName, newTrack = sound, newRef = ref }
+    sounds.play { module = moduleName, track = sound, reference = ref }
 end
 local function playImmediate(moduleName, sound, ref)
     sounds.playImmediate { module = moduleName, track = sound, reference = ref }
@@ -109,19 +109,18 @@ local function adjustWeatherVolume()
         return
     end
 
-    local mData = moduleData[moduleName]
     local sheltered = cellData.currentShelter.ref
 
     if (not cellData.isWeatherVolumeDynamic) and (sheltered) then
         local trackVolume = math.round(weatherTrack.volume, 2)
         weatherVolumeDelta = getVolume { module = moduleName, trackVolume = trackVolume }
         if (weatherVolumeDelta == 0) then return end
-        mData.lastVolume = trackVolume
+        moduleData[moduleName].lastVolume = trackVolume
         fadeWeatherTrack("out", weatherTrack)
         cellData.isWeatherVolumeDynamic = true
     elseif (cellData.isWeatherVolumeDynamic) and (not sheltered) and (weatherVolumeDelta > 0) then
         fadeWeatherTrack("in", weatherTrack)
-        local duration = mData.faderConfig["in"].duration
+        local duration = moduleData[moduleName].faderConfig["in"].duration
         timer.start { duration = duration + 0.2, callback = function() cellData.isWeatherVolumeDynamic = false end }
     end
 end

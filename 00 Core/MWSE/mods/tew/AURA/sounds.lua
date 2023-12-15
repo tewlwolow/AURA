@@ -175,7 +175,7 @@ end
 -- decision to remove sounds before immediately playing anything else.
 function this.playImmediate(options)
 	local moduleName = options.module
-	local ref = options.newRef or options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
+	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 	local track = options.last and moduleData[moduleName].new or options.track or this.getTrack(options)
 
 	if track then
@@ -192,6 +192,7 @@ function this.playImmediate(options)
 			}
 			moduleData[moduleName].lastVolume = volume
 			moduleData[moduleName].old = moduleData[moduleName].new
+			moduleData[moduleName].oldRef = moduleData[options.module].newRef
 			moduleData[moduleName].new = track
 			moduleData[moduleName].newRef = ref
 			return true
@@ -240,24 +241,27 @@ function this.play(options)
 	else
 		local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts, removeTrack
 		-- Get the new track, if nothing is returned then bugger off (shouldn't really happen at all, but oh well) --
-		newTrack = options.newTrack or this.getTrack(options)
-		newRef = options.newRef or options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
+		newTrack = options.track or this.getTrack(options)
+		newRef = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 		if not newTrack then
 			debugLog("No track selected. Returning.")
 			return
 		end
 
+		-- Move the queue forward --
+		moduleData[options.module].old = moduleData[options.module].new
+		moduleData[options.module].oldRef = moduleData[options.module].newRef
+
 		-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --
-		oldRef = options.oldRef or moduleData[options.module].oldRef or options.reference
-		oldTrack = common.getTrackPlaying(options.oldTrack or moduleData[options.module].old, oldRef)
+		if not options.noCrossfade then
+			oldRef = moduleData[options.module].oldRef
+			debugLog(string.format("[%s] oldRef: %s", options.module, oldRef))
+			oldTrack = common.getTrackPlaying(moduleData[options.module].old, oldRef)
+			debugLog(string.format("[%s] oldTrack: %s", options.module, oldTrack))
+		end
 
 		-- Remove old track by default when crossfading, unless instructed otherwise --
 		removeTrack = (options.removeTrack == nil) and true or options.removeTrack
-
-		-- Move the queue forward --
-		moduleData[options.module].old = moduleData[options.module].new
-		moduleData[options.module].new = newTrack
-		moduleData[options.module].newRef = newRef
 
 		if oldTrack then
 			fadeOutOpts = table.copy(options)

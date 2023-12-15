@@ -95,9 +95,10 @@ local function playWindoors()
 			and not common.getTrackPlaying(sound, windoor) then
 			sounds.play {
 				module = moduleName,
-				newTrack = sound,
-				newRef = windoor,
+				track = sound,
+				reference = windoor,
 				noQueue = true,
+				noCrossfade = true,
 			}
 		end
 	end

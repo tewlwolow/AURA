@@ -333,6 +333,28 @@ this.data = {
         newRef = nil,
         lastVolume = nil,
     },
+    ["bannerFlap"] = {
+        active = config.playBannerFlap,
+        old = nil,
+        new = nil,
+        oldRef = nil,
+        newRef = nil,
+        lastVolume = nil,
+        soundConfig = {
+            -- 0-4 and 8: light breeze
+            -- 5-7 and 9: strong breeze
+            [0] = {pitch = 0.75},
+            [1] = {pitch = 0.75},
+            [2] = {pitch = 0.73},
+            [3] = {pitch = 0.72},
+            [4] = {pitch = 0.74},
+            [5] = {pitch = 0.85},
+            [6] = {pitch = 0.85},
+            [7] = {pitch = 0.85},
+            [8] = {pitch = 0.75},
+            [9] = {pitch = 0.85},
+        },
+    },
 }
 
 function this.getCurrentlyPlaying(moduleName)

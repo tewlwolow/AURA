@@ -120,6 +120,11 @@ this.thunders = {}
 
 this.flora = {}
 
+this.bannerFlaps = {
+	["light"] = nil,
+	["strong"] = nil,
+}
+
 this.weatherLoops = {} -- Stores vanilla rain, extreme weather and AURA variable rain sound objects
 
 return this

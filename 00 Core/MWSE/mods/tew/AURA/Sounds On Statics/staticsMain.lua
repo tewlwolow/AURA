@@ -270,22 +270,18 @@ local function playBannerFlap(ref)
     -- 2: large breeze
 
     -- Banners/flags that play animation groups change animation state per weather type
-    if ref.attachments then
-        for at in tes3.iterate(ref.attachments) do
-            local anim = at.currentAnimGroups and at.currentAnimGroups[1]
-            if anim then
-                if anim == 0 then
-                    removeRefSound(soundData.bannerFlaps["light"], ref)
-                    removeRefSound(soundData.bannerFlaps["strong"], ref)
-                    return
-                elseif anim == 1 then
-                    removeRefSound(soundData.bannerFlaps["strong"], ref)
-                    breezeType = "light"
-                elseif anim == 2 then
-                    removeRefSound(soundData.bannerFlaps["light"], ref)
-                    breezeType = "strong"
-                end
-            end
+    local anim = tes3.getAnimationGroups{ reference = ref }
+    if anim then
+        if anim == 0 then
+            removeRefSound(soundData.bannerFlaps["light"], ref)
+            removeRefSound(soundData.bannerFlaps["strong"], ref)
+            return
+        elseif anim == 1 then
+            removeRefSound(soundData.bannerFlaps["strong"], ref)
+            breezeType = "light"
+        elseif anim == 2 then
+            removeRefSound(soundData.bannerFlaps["light"], ref)
+            breezeType = "strong"
         end
     end
 

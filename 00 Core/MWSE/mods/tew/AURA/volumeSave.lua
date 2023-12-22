@@ -120,7 +120,7 @@ end
 
 local function doExtremes()
     local cw = tes3.worldController.weatherController.currentWeather
-    if (not this.cell.isInterior) and (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
+    if (this.cell.isOrBehavesAsExterior) and (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
         local menu = tes3ui.findMenu(this.id_menu)
         local track
         if cw.name == "Ashstorm" then
@@ -162,7 +162,7 @@ end
 local function doRain()
     local track, rainType
     local cw = tes3.worldController.weatherController.currentWeather
-    if (not this.cell.isInterior) and cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
+    if (this.cell.isOrBehavesAsExterior) and cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
         track = cw.rainLoopSound
         rainType = cellData.rainType[cw.index]
         if not rainType then return end -- Needs variable rain sounds. TODO: maybe add tooltip
@@ -232,7 +232,7 @@ local function doModules()
         sc.volumeTableDefault = defaults.volumes.modules[moduleName]
         sc.volumeTableCurrent = this.config.volumes.modules[moduleName]
 
-        if this.cell.isInterior
+        if not this.cell.isOrBehavesAsExterior
             and (moduleName ~= "interiorToExterior")
             and (moduleName ~= "interiorWeather")
             and (moduleName ~= "interior") then
@@ -287,11 +287,11 @@ local function updateHeader()
     local cellType
     if (trackList) and (this.entries > 0) and cellData.playerUnderwater then
         hLabel.text = messages.adjustForUnderwater
-    elseif (trackList) and (this.entries > 0) and this.cell.isInterior then
+    elseif (trackList) and (this.entries > 0) and not this.cell.isOrBehavesAsExterior then
         cellType = common.getInteriorType(this.cell):gsub("^sma$", messages.small):gsub("^ten$", messages.small):gsub(
         "^big$", messages.big)
         hLabel.text = string.format("%s (%s)", messages.adjustForInterior, cellType)
-    elseif (trackList) and (this.entries > 0) and not this.cell.isInterior then
+    elseif (trackList) and (this.entries > 0) and this.cell.isOrBehavesAsExterior then
         hLabel.text = messages.adjustForExterior
     else
         hLabel.text = messages.noTracksPlaying

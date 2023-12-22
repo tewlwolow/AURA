@@ -100,12 +100,10 @@ end
 function this.checkCellDiff(cell, cellLast)
 	if (cellLast == nil) then return true end
 
-	if (cell.isInterior) and (cellLast.isOrBehavesAsExterior)
-		or (cell.isOrBehavesAsExterior) and (cellLast.isInterior) then
-		return true
-	end
-
-	return false
+	return (cell.isOrBehavesAsExterior and not cellLast.isOrBehavesAsExterior)
+		or (cellLast.isOrBehavesAsExterior and not cell.isOrBehavesAsExterior)
+		or (cell.isInterior and not cellLast.isInterior)
+		or (cellLast.isInterior and not cell.isInterior)
 end
 
 -- Pass me the cell and cell type array and I'll tell you if it matches --

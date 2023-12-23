@@ -354,11 +354,11 @@ end
 
 local function createWindow()
     local menu = tes3ui.createMenu { id = this.id_menu, dragFrame = true }
-    tes3ui.enterMenuMode(this.id_menu)
 
     menu.text = "AURA"
     menu.width = 430
     menu.height = 600
+
     if this.positionX and this.positionY then
         menu.positionX = this.positionX
         menu.positionY = this.positionY
@@ -375,10 +375,7 @@ local function createWindow()
 
     updateHeader()
 
-    menu.width = 430
-    menu.height = 600
     menu:updateLayout()
-    menu.visible = true
 end
 
 local function redraw()
@@ -414,20 +411,20 @@ function this.toggle(e)
             createWindow()
             if (not tes3ui.menuMode()) then
                 tes3ui.enterMenuMode(this.id_menu)
-                debugLog("Toggle on.")
             end
+            debugLog("Toggle on.")
         else
             this.positionX = menu.positionX
             this.positionY = menu.positionY
             menu:destroy()
             if (tes3ui.menuMode()) then
                 tes3ui.leaveMenuMode()
-                debugLog("Toggle off.")
             end
             if this.config then mwse.saveConfig("AURA", this.config) end
             this.configPrevious = nil
             this.entries = 0
             table.clear(this.adjustedModules)
+            debugLog("Toggle off.")
         end
     end
 end

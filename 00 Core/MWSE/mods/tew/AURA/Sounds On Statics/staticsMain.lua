@@ -269,9 +269,10 @@ local function playBannerFlap(ref)
     -- 1: little breeze
     -- 2: large breeze
 
-    -- Banners/flags that play animation groups change animation state per weather type
+    -- First, see if ref has attached animation
     local anim = tes3.getAnimationGroups{ reference = ref }
     if anim then
+        -- Banners/flags that play animation groups change animation state per weather type
         if anim == 0 then
             removeRefSound(soundData.bannerFlaps["light"], ref)
             removeRefSound(soundData.bannerFlaps["strong"], ref)
@@ -283,11 +284,21 @@ local function playBannerFlap(ref)
             removeRefSound(soundData.bannerFlaps["light"], ref)
             breezeType = "strong"
         end
+    else
+        -- If ref has no attached animation, see if its mesh has an animation controller
+        -- i.e.: the large banners around Vivec cantons don't play animation groups,
+        -- their meshes are animated by default via animation controllers
+        if ref.sceneNode and ref.sceneNode.children then
+            for node in table.traverse(ref.sceneNode.children) do
+                if node:isInstanceOfType(ni.type.NiBSAnimationNode) and node.controller then
+                    breezeType = "light"
+                    break
+                end
+            end
+        end
     end
 
-    -- The large banners around Vivec cantons don't play animation groups,
-    -- they are animated by default regardless of weather type.
-    if not breezeType then breezeType = "light" end
+    if not breezeType then return end
 
     local sound = soundData.bannerFlaps[breezeType]
 

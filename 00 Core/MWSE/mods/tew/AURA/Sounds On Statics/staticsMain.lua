@@ -43,17 +43,24 @@ end
 local function removeImmediate(moduleName)
     sounds.removeImmediate { module = moduleName }
 end
-local function removeRefSound(ref)
-    for _, track in pairs(soundData.interiorRainLoops["ten"]) do
-        if playing(track, ref) then
-            debugLog("Track " .. track.id .. " playing on ref " .. tostring(ref) .. ", now removing it.")
-            tes3.removeSound { sound = track, reference = ref }
-        end
+local function removeRefSound(sound, ref)
+    if playing(sound, ref) then
+        debugLog("Track " .. sound.id .. " playing on ref " .. tostring(ref) .. ", now removing it.")
+        tes3.removeSound { sound = sound, reference = ref }
     end
 end
-local function removeRainOnStatics()
-    for _, ref in ipairs(staticsCache) do
-        removeRefSound(ref)
+local function removeRainOnStatics(maybeRef)
+    local function rem(ref)
+        for _, sound in pairs(soundData.interiorRainLoops["ten"]) do
+            removeRefSound(sound, ref)
+        end
+    end
+    if maybeRef then
+        rem(maybeRef)
+    else
+        for _, ref in ipairs(staticsCache) do
+            rem(ref)
+        end
     end
 end
 ---------------------------------------------------------------------
@@ -248,6 +255,58 @@ local function playPhotodragons(ref)
     end
 end
 
+local function playBannerFlap(ref)
+    local moduleName = "bannerFlap"
+    local breezeType
+
+    if cellData.playerUnderwater then
+        return
+    end
+
+    -- https://mwse.github.io/MWSE/references/animation-groups/
+    -- 0: still
+    -- 1: little breeze
+    -- 2: large breeze
+
+    -- First, see if ref has attached animation
+    local anim = tes3.getAnimationGroups{ reference = ref }
+    if anim then
+        -- Banners/flags that play animation groups change animation state per weather type
+        if anim == 0 then
+            removeRefSound(soundData.bannerFlaps["light"], ref)
+            removeRefSound(soundData.bannerFlaps["strong"], ref)
+            return
+        elseif anim == 1 then
+            removeRefSound(soundData.bannerFlaps["strong"], ref)
+            breezeType = "light"
+        elseif anim == 2 then
+            removeRefSound(soundData.bannerFlaps["light"], ref)
+            breezeType = "strong"
+        end
+    else
+        -- If ref has no attached animation, see if its mesh has an animation controller
+        -- i.e.: the large banners around Vivec cantons don't play animation groups,
+        -- their meshes are animated by default via animation controllers
+        if ref.sceneNode and ref.sceneNode.children then
+            for node in table.traverse(ref.sceneNode.children) do
+                if node:isInstanceOfType(ni.type.NiBSAnimationNode) and node.controller then
+                    breezeType = "light"
+                    break
+                end
+            end
+        end
+    end
+
+    if not breezeType then return end
+
+    local sound = soundData.bannerFlaps[breezeType]
+
+    if sound and not playing(sound, ref) then
+        debugLog(string.format("[%s] Adding sound %s for -> %s", moduleName, sound.id, tostring(ref)))
+        playImmediate(moduleName, sound, ref)
+    end
+end
+
 
 
 
@@ -341,7 +400,7 @@ local function removeFromCache(ref)
     local index = table.find(staticsCache, ref)
     if not index then return end
 
-    removeRefSound(ref)
+    removeRainOnStatics(ref)
     table.remove(staticsCache, index)
 
     if (currentShelter.ref)
@@ -408,6 +467,12 @@ local function proximityCheck(ref)
         and common.getMatch(staticsData.modules["photodragons"].ids, objId)
         and playerPos:distance(refPos) < 700 then
         playPhotodragons(ref)
+    end
+    --------------------------- Banners -----------------------------
+    if modules.isActive("bannerFlap")
+        and common.getMatch(staticsData.modules["bannerFlap"].ids, objId)
+        and playerPos:distance(refPos) < 700 then
+        playBannerFlap(ref)
     end
     -----------------------------------------------------------------
     --                            etc                              --

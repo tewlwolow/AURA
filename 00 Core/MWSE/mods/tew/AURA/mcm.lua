@@ -168,6 +168,10 @@ pageSS:createYesNoButton {
 	label = string.format("%s", messages.photodragons),
 	variable = registerVariable("playPhotodragons"),
 }
+pageSS:createYesNoButton {
+	label = string.format("%s", messages.bannerFlap),
+	variable = registerVariable("playBannerFlap"),
+}
 
 --[[
 local pagePA = template:createPage { label = messages.PA }

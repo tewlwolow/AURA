@@ -88,6 +88,23 @@ this.modules = {
         ["blocked"] = {},
         ["ignore"] = {},
     },
+    ["bannerFlap"] = {
+        ["ids"] = {
+            "banner",
+            "_ban_",
+            "flag",
+        },
+        ["blocked"] = {
+            "bannerpost",
+            "_at_banner",
+            "hanger",
+            "ex_ashl_banner",
+            "flagpole",
+            "flagon",
+            "aaa_refernce_flag",
+        },
+        ["ignore"] = {},
+    },
 }
 
 return this

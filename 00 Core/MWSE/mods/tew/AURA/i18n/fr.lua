@@ -100,6 +100,7 @@ this.messages = {
 	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
 	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Côte de la Mélancolie ?",
 	ropeBridge = "Activer des sons appropriés sur les ponts de singe à l'extérieur ?",
+	bannerFlap = "Activer les sons de battement en fonction du type de temps sur les bannières et les drapeaux à l'extérieur ?",
 
 	enableInteriorToExterior =
 	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",

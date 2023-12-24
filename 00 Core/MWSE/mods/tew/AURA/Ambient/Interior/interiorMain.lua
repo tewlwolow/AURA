@@ -72,7 +72,7 @@ end
 -- See if the cell warrants populated sounds - or whether you killed them all, you bastard --
 local function getEligibleCellType(cellType, actorCount)
     if cellType then
-        if (data.names[cellType] or data.tavernNames[cellType])
+        if (cellType ~= "tom") and (data.names[cellType] or data.tavernNames[cellType])
             and (actorCount) and (actorCount < 2) then
             debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
             return nil
@@ -162,7 +162,7 @@ local function deathCheck(e)
     local modData = tes3.player.data.AURA
     local cellId = cellData.cell and cellData.cell.isInterior and cellData.cell.id:lower()
     local cellType = cellId and modData.visitedInteriorCells[cellId] and modData.visitedInteriorCells[cellId].type
-    if cellType and not data.statics[cellType] and e.reference and e.reference.baseObject.objectType == tes3.objectType.npc then
+    if cellType and not data.statics[cellType] and cellType ~= "tom" and e.reference and e.reference.baseObject.objectType == tes3.objectType.npc then
         debugLog("NPC died in appropriate interior, running cell check.")
         cellCheck()
     end

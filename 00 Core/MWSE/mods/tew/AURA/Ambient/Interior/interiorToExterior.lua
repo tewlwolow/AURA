@@ -29,8 +29,8 @@ local function cellCheck()
     local cell = tes3.getPlayerCell()
     if not cell then return end
 
-    if (cell.isInterior)
-        or (cellLast and cellLast.isInterior and cell.isOrBehavesAsExterior) then
+    if (not cell.isOrBehavesAsExterior)
+        or (cellLast and not cellLast.isOrBehavesAsExterior and cell.isOrBehavesAsExterior) then
         table.clear(cellData.exteriorDoors)
     end
 
@@ -40,7 +40,7 @@ local function cellCheck()
     debugLog("Searching for eligible doors.")
 
     for door in cell:iterateReferences(tes3.objectType.door) do
-        if not (door.destination and door.destination.cell and door.destination.cell.isInterior and door.tempData) then
+        if not (door.destination and door.destination.cell and not door.destination.cell.isOrBehavesAsExterior and door.tempData) then
             goto nextDoor
         end
         local cellId = door.destination.cell.id:lower()

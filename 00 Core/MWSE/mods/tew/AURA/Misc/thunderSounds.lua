@@ -15,7 +15,7 @@ end
 local function onSoundObjectPlay(e)
 
     if not cellData.cell
-    or cellData.cell.isInterior
+    or not cellData.cell.isOrBehavesAsExterior
 	or not e.sound or not isVanillaThunder(e.sound.id) then
         return
     end

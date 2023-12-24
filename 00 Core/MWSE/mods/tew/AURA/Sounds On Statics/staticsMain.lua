@@ -481,7 +481,7 @@ end
 
 
 local function conditionsAreMet()
-    return cellData.cell and not cellData.cell.isInterior
+    return cellData.cell and cellData.cell.isOrBehavesAsExterior
 end
 
 local function tick()

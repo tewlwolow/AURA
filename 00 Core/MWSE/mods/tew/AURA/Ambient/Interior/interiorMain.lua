@@ -108,7 +108,7 @@ local function cellCheck()
             if (door ~= nil) and (door.destination.cell == cell) then
                 local doorTrack = modules.getExteriorDoorTrack(door)
                 if doorTrack then
-                    local doorIntOrExt = door.cell.isInterior and "Interior" or "Exterior"
+                    local doorIntOrExt = door.cell.isOrBehavesAsExterior and "Exterior" or "Interior"
                     debugLog(string.format("%s->Interior transition, using last known door track.", doorIntOrExt))
                     track = tes3.getSound(doorTrack.id:lower():gsub("^ie_", "i_"))
                     break
@@ -160,7 +160,7 @@ end
 -- sounds will be removed and exterior doors won't play anymore.
 local function deathCheck(e)
     local modData = tes3.player.data.AURA
-    local cellId = cellData.cell and cellData.cell.isInterior and cellData.cell.id:lower()
+    local cellId = cellData.cell and not cellData.cell.isOrBehavesAsExterior and cellData.cell.id:lower()
     local cellType = cellId and modData.visitedInteriorCells[cellId] and modData.visitedInteriorCells[cellId].type
     if cellType and not data.statics[cellType] and cellType ~= "tom" and e.reference and e.reference.baseObject.objectType == tes3.objectType.npc then
         debugLog("NPC died in appropriate interior, running cell check.")

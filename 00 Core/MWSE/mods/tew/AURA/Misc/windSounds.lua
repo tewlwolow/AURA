@@ -33,7 +33,7 @@ end
 local function updateConditions(resetTimerFlag)
 	if resetTimerFlag
 	and interiorTimer
-	and cell.isInterior
+	and not cell.isOrBehavesAsExterior
 	and not table.empty(cellData.windoors) then
 		interiorTimer:reset()
 	end

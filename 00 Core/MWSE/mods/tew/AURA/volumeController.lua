@@ -32,7 +32,7 @@ function this.getModuleSoundConfig(moduleName)
     local rainType = cellData.rainType[weather]
     local interiorType = common.getInteriorType(cellData.cell)
     local exterior = cell and cell.isOrBehavesAsExterior and "exterior"
-    local interior = cell and cell.isInterior and "interior"
+    local interior = cell and not cell.isOrBehavesAsExterior and "interior"
 
     return (exterior and soundConfig[exterior])
         or (interior and soundConfig[interior])
@@ -98,7 +98,7 @@ function this.getVolume(options)
             end
         end
 
-        if cellData.cell.isInterior then
+        if not cellData.cell.isOrBehavesAsExterior then
             if (interiorType == "big") then
                 debugLog(string.format("[%s] Applying big interior mult.", moduleName))
                 volume = (config.volumes.modules[moduleName].big * volume) - (windoorsMult * #cellData.windoors)

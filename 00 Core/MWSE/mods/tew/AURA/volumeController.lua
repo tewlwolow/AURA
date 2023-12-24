@@ -134,6 +134,7 @@ function this.adjustVolume(options)
     local targetVolume = options.volume
     local inOrOut = options.inOrOut or ""
     local config = options.config
+    local quiet = options.quiet
 
     local function adjust(track, ref)
         local attached = (track and ref) and tes3.getSoundPlaying { sound = track, reference = ref }
@@ -141,9 +142,11 @@ function this.adjustVolume(options)
         if not (attached or unattached) then return end
 
         local volume = targetVolume or this.getVolume { module = moduleName, config = config }
-        local msgPrefix = string.format("Adjusting volume %s", inOrOut):gsub("%s+$", "")
-        debugLog(string.format("%s for module %s: %s -> %s | %.3f", msgPrefix, moduleName, track.id,
-            ref or "(unattached)", volume))
+        if not quiet then
+            local msgPrefix = string.format("Adjusting volume %s", inOrOut):gsub("%s+$", "")
+            debugLog(string.format("%s for module %s: %s -> %s | %.3f", msgPrefix, moduleName, track.id,
+                ref or "(unattached)", volume))
+        end
         if attached then
             tes3.adjustSoundVolume {
                 sound = track,
@@ -153,7 +156,7 @@ function this.adjustVolume(options)
         elseif unattached then
             this.setVolume(track, volume)
         end
-        if mData then mData.lastVolume = volume end
+        if mData then moduleData[moduleName].lastVolume = volume end
     end
 
     if adjustAllWindoors then

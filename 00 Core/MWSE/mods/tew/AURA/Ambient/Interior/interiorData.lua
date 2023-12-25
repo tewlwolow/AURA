@@ -52,6 +52,12 @@ this.statics = {
     },
 }
 
+-- key: cell.id, value: interior type
+-- empty string means no interior type
+this.overrides = {
+    ["Hla Oad, Fatleg's Drop Off"] = "",
+}
+
 this.names = language.interiorNames
 this.tavernNames = language.tavernNames
 

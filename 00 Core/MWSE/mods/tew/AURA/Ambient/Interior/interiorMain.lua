@@ -71,8 +71,9 @@ end
 
 -- See if the cell warrants populated sounds - or whether you killed them all, you bastard --
 local function getEligibleCellType(cellType, actorCount)
-    if cellType then
-        if (cellType ~= "tom") and (data.names[cellType] or data.tavernNames[cellType])
+    if cellType and cellType ~= "" then
+        if (cellType ~= "tom")
+            and (data.names[cellType] or data.tavernNames[cellType])
             and (actorCount) and (actorCount < 2) then
             debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
             return nil
@@ -122,10 +123,15 @@ local function cellCheck()
         local typeByName = getByName(cell)
         local typeByRace = getByRace(cell)
 
-        local cellType = typeByArchitecture or typeByTavernName or typeByName or typeByRace
-        local isEligible = getEligibleCellType(cellType, actorCount)
+        local cellType = getEligibleCellType(
+            data.overrides[cell.id]
+                or typeByArchitecture
+                or typeByTavernName
+                or typeByName
+                or typeByRace
+            , actorCount)
 
-        if isEligible then
+        if cellType then
             if not modules.getCurrentlyPlaying(moduleName) then
                 debugLog("Found appropriate cell. Playing interior ambient sound for interior type: " .. cellType)
                 sounds.playImmediate {

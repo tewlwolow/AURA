@@ -178,23 +178,22 @@ function this.playImmediate(options)
 	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 	local track = options.last and moduleData[moduleName].new or options.track or this.getTrack(options)
 
-	if track then
-		if not tes3.getSoundPlaying { sound = track, reference = ref } then
-			local volume = math.clamp(math.round(options.volume or getVolume { module = moduleName }, 2), MIN, MAX)
-			local pitch = options.pitch or volumeController.getPitch(moduleName)
-			debugLog(string.format("[%s] Playing with volume %s: %s -> %s", moduleName, volume, track.id, tostring(ref)))
-			tes3.playSound {
-				sound = track,
-				reference = ref,
-				volume = volume,
-				pitch = pitch,
-				loop = true,
-			}
+	if track and ref and not tes3.getSoundPlaying { sound = track, reference = ref } then
+		local volume = math.clamp(math.round(options.volume or getVolume { module = moduleName }, 2), MIN, MAX)
+		local pitch = options.pitch or volumeController.getPitch(moduleName)
+		if tes3.playSound {
+			sound = track,
+			reference = ref,
+			volume = volume,
+			pitch = pitch,
+			loop = true,
+		} then
+			debugLog(string.format("[%s] Successfully played with volume %s: %s -> %s", moduleName, volume, track.id, tostring(ref)))
 			moduleData[moduleName].lastVolume = volume
 			moduleData[moduleName].old = moduleData[moduleName].new
-			moduleData[moduleName].oldRef = moduleData[options.module].newRef
+			moduleData[moduleName].oldRefHandle = moduleData[options.module].newRefHandle
 			moduleData[moduleName].new = track
-			moduleData[moduleName].newRef = ref
+			moduleData[moduleName].newRefHandle = tes3.makeSafeObjectHandle(ref)
 			return true
 		end
 	end
@@ -250,14 +249,17 @@ function this.play(options)
 
 		-- Move the queue forward --
 		moduleData[options.module].old = moduleData[options.module].new
-		moduleData[options.module].oldRef = moduleData[options.module].newRef
+		moduleData[options.module].oldRefHandle = moduleData[options.module].newRefHandle
 
 		-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --
 		if not options.noCrossfade then
-			oldRef = moduleData[options.module].oldRef
-			debugLog(string.format("[%s] oldRef: %s", options.module, oldRef))
-			oldTrack = common.getTrackPlaying(moduleData[options.module].old, oldRef)
-			debugLog(string.format("[%s] oldTrack: %s", options.module, oldTrack))
+			local oldRefHandle = moduleData[options.module].oldRefHandle
+			if oldRefHandle and oldRefHandle:valid() then
+				oldRef = oldRefHandle:getObject()
+				debugLog(string.format("[%s] oldRef: %s", options.module, oldRef))
+				oldTrack = common.getTrackPlaying(moduleData[options.module].old, oldRef)
+				debugLog(string.format("[%s] oldTrack: %s", options.module, oldTrack))
+			end
 		end
 
 		-- Remove old track by default when crossfading, unless instructed otherwise --

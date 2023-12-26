@@ -370,7 +370,7 @@ function this.getCurrentlyPlaying(moduleName)
         end
     end
     if oldRefHandle then
-        local oldRef = newRefHandle:getObject()
+        local oldRef = oldRefHandle:getObject()
         if common.getTrackPlaying(oldTrack, oldRef) then
             return { oldTrack, oldRef }
         end

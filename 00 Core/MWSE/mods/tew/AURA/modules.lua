@@ -358,6 +358,7 @@ this.data = {
 }
 
 function this.getCurrentlyPlaying(moduleName)
+    if not this.data[moduleName] then return end
     local oldTrack = this.data[moduleName].old
     local newTrack = this.data[moduleName].new
     local oldRefHandle = this.data[moduleName].oldRefHandle
@@ -378,6 +379,7 @@ function this.getCurrentlyPlaying(moduleName)
 end
 
 function this.getWindoorPlaying(moduleName)
+    if not this.data[moduleName] then return end
     if not this.data[moduleName].playWindoors
         or not cellData.windoors
         or table.empty(cellData.windoors) then
@@ -406,6 +408,7 @@ function this.getExteriorDoorTrack(ref)
 end
 
 function this.getExteriorDoorPlaying(moduleName)
+    if not this.data[moduleName] then return end
     if not this.data[moduleName].playExteriorDoors
         or not cellData.exteriorDoors
         or table.empty(cellData.exteriorDoors) then
@@ -422,6 +425,7 @@ function this.getExteriorDoorPlaying(moduleName)
 end
 
 function this.getEligibleWeather(moduleName)
+    if not this.data[moduleName] then return end
     local regionObject = common.getRegion()
     local weather = regionObject and regionObject.weather.index
     local blockedWeathers = this.data[moduleName].blockedWeathers
@@ -431,6 +435,7 @@ function this.getEligibleWeather(moduleName)
 end
 
 function this.isActive(moduleName)
+    if not this.data[moduleName] then return end
     return this.data[moduleName].active
 end
 

@@ -9,11 +9,11 @@ local debugLog = common.debugLog
 
 local exteriorTimer, cellLast
 
-local function getEligibleCellType(cellType, actorCount)
-    if cellType then
+local function getEligibleCellType(cellType, NPCCount)
+    if cellType and cellType ~= "" then
         if (cellType ~= "tom") and (data.names[cellType] or data.tavernNames[cellType])
-            and (actorCount) and (actorCount < 2) then
-            --debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
+            and (NPCCount) and (NPCCount < 2) then
+            --debugLog(string.format("Too few people inside for interior type %s: %s", cellType, NPCCount))
             return nil
         end
         return cellType
@@ -35,7 +35,6 @@ local function cellCheck()
     end
 
     local modData = tes3.player.data.AURA
-    if not modData or not modData.visitedInteriorCells then return end
 
     debugLog("Searching for eligible doors.")
 
@@ -44,20 +43,30 @@ local function cellCheck()
             goto nextDoor
         end
         local cellId = door.destination.cell.id:lower()
-        local visitedCellData = modData.visitedInteriorCells[cellId]
-        if (visitedCellData) and (visitedCellData.type) and (visitedCellData.lastVisited) then
-            local now = tes3.getSimulationTimestamp(true)
-            local last = visitedCellData.lastVisited
+        local visitedInteriorCellData = modData and modData.visitedInteriorCells and modData.visitedInteriorCells[cellId]
+        local interiorCellData = visitedInteriorCellData or data.preprocessed[cellId]
 
+        if not interiorCellData then
+            goto nextDoor
+        end
+
+        -- Not checking for NPC count eligibility here because we're doing it on timer check
+        local cellType = getEligibleCellType(data.overrides[cellId] or interiorCellData.cellType)
+        if cellType then
             debugLog("Parsing door destination cell: " .. cellId)
-            debugLog(string.format("Last time visited: %.5f game hours ago.", (now - last)))
-
             if not door.tempData.tew then door.tempData.tew = {} end
             if not door.tempData.tew.AURA then door.tempData.tew.AURA = {} end
             if not door.tempData.tew.AURA.IE then door.tempData.tew.AURA.IE = {} end
-            door.tempData.tew.AURA.IE.interiorType = visitedCellData.type
-            door.tempData.tew.AURA.IE.actorCount = visitedCellData.actorCount
-            door.tempData.tew.AURA.IE.lastVisited = visitedCellData.lastVisited
+
+            if interiorCellData.lastVisited then
+                local now = tes3.getSimulationTimestamp(true)
+                local last = interiorCellData.lastVisited
+                debugLog(string.format("Last time visited: %.5f game hours ago.", (now - last)))
+            end
+
+            door.tempData.tew.AURA.IE.cellType = cellType
+            door.tempData.tew.AURA.IE.NPCCount = interiorCellData.NPCCount
+            door.tempData.tew.AURA.IE.lastVisited = interiorCellData.lastVisited
             if not table.find(cellData.exteriorDoors, door) then
                 table.insert(cellData.exteriorDoors, door)
             end
@@ -86,24 +95,24 @@ local function playExteriorDoors()
             local doorTrack = common.getTrackPlaying(tempData.track, door)
             local now = tes3.getSimulationTimestamp(true)
             local last = tempData.lastVisited
-            local interiorType = tempData.interiorType
-            local actorCount
+            local cellType = tempData.cellType
+            local NPCCount
             if (last) and (now - last) >= 72 then
-                actorCount = tempData.actorCount
+                NPCCount = tempData.NPCCount
             else
-                actorCount = common.getActorCount(door.destination.cell)
+                NPCCount = last and common.getNPCCount(door.destination.cell) or tempData.NPCCount
             end
-            local isEligible = getEligibleCellType(interiorType, actorCount)
+            local isEligible = getEligibleCellType(cellType, NPCCount)
             local cellId = door.destination.cell.id:lower()
             if isEligible and not doorTrack then
-                debugLog(string.format("Door destination is eligible, adding sound. | cellId: %s | actorCount: %s",
-                    cellId, actorCount))
+                debugLog(string.format("Door destination is eligible, adding sound. | cellId: %s | NPCCount: %s",
+                    cellId, NPCCount))
                 -- Get new track every time we approach a door, for variety
                 -- Unless we want to trade variety for ultra-realism
                 -- Naaa, using the same track is boooorin'
                 local track = sounds.getTrack {
                     module = moduleName,
-                    type = interiorType,
+                    type = cellType,
                 }
                 sounds.playImmediate {
                     module = moduleName,
@@ -112,8 +121,8 @@ local function playExteriorDoors()
                 }
                 door.tempData.tew.AURA.IE.track = track
             elseif not isEligible and doorTrack then
-                debugLog(string.format("Door destination is not eligible, removing sound. | cellId: %s | actorCount: %s",
-                    cellId, actorCount))
+                debugLog(string.format("Door destination is not eligible, removing sound. | cellId: %s | NPCCount: %s",
+                    cellId, NPCCount))
                 sounds.removeImmediate {
                     module = moduleName,
                     track = doorTrack,

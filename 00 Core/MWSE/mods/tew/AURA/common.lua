@@ -196,7 +196,7 @@ function this.getInteriorType(cell)
 	end
 end
 
-function this.getActorCount(cell)
+function this.getNPCCount(cell)
     local count = 0
     if not cell then return count end
     for npc in cell:iterateReferences(tes3.objectType.npc) do

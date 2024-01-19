@@ -225,6 +225,7 @@ this.interiorNames = {
 		"Weapon",
 		"Armors",
 		"Blacksmith",
+		"Weaponsmith",
 	},
 	["tra"] = {
 		"marchand",

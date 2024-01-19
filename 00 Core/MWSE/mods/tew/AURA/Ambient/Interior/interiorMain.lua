@@ -70,11 +70,12 @@ local function getByRace(cell)
 end
 
 -- See if the cell warrants populated sounds - or whether you killed them all, you bastard --
-local function getEligibleCellType(cellType, actorCount)
-    if cellType then
-        if (cellType ~= "tom") and (data.names[cellType] or data.tavernNames[cellType])
-            and (actorCount) and (actorCount < 2) then
-            debugLog(string.format("Too few people inside for interior type %s: %s", cellType, actorCount))
+local function getEligibleCellType(cellType, NPCCount)
+    if cellType and cellType ~= "" then
+        if (cellType ~= "tom")
+            and (data.names[cellType] or data.tavernNames[cellType])
+            and (NPCCount) and (NPCCount < 2) then
+            debugLog(string.format("Too few people inside for interior type %s: %s", cellType, NPCCount))
             return nil
         end
         return cellType
@@ -116,16 +117,22 @@ local function cellCheck()
             end
         end
 
-        local actorCount = common.getActorCount(cell)
+        local NPCCount = common.getNPCCount(cell)
         local typeByArchitecture = getByArchitecture(5, cell)
         local typeByTavernName = getByTavernName(cell)
         local typeByName = getByName(cell)
         local typeByRace = getByRace(cell)
 
-        local cellType = typeByArchitecture or typeByTavernName or typeByName or typeByRace
-        local isEligible = getEligibleCellType(cellType, actorCount)
+        local cellId = cell.id:lower()
+        local cellType = getEligibleCellType(
+            data.overrides[cellId]
+                or typeByArchitecture
+                or typeByTavernName
+                or typeByName
+                or typeByRace
+            , NPCCount)
 
-        if isEligible then
+        if cellType then
             if not modules.getCurrentlyPlaying(moduleName) then
                 debugLog("Found appropriate cell. Playing interior ambient sound for interior type: " .. cellType)
                 sounds.playImmediate {
@@ -139,18 +146,19 @@ local function cellCheck()
             sounds.removeImmediate { module = moduleName }
         end
 
-        local cellId = cell.id:lower()
         local modData = tes3.player.data.AURA
 
-        if not modData.visitedInteriorCells[cellId] then
-            debugLog("Adding interior cell as visited: " .. cellId)
-            modData.visitedInteriorCells[cellId] = {}
-        end
+        if modData and modData.visitedInteriorCells then
+            if not modData.visitedInteriorCells[cellId] then
+                debugLog("Adding interior cell as visited: " .. cellId)
+                modData.visitedInteriorCells[cellId] = {}
+            end
 
-        debugLog("Updating interior cell data: " .. cellId)
-        modData.visitedInteriorCells[cellId].type = cellType
-        modData.visitedInteriorCells[cellId].actorCount = actorCount
-        modData.visitedInteriorCells[cellId].lastVisited = tes3.getSimulationTimestamp(true)
+            debugLog("Updating interior cell data: " .. cellId)
+            modData.visitedInteriorCells[cellId].cellType = cellType
+            modData.visitedInteriorCells[cellId].NPCCount = NPCCount
+            modData.visitedInteriorCells[cellId].lastVisited = tes3.getSimulationTimestamp(true)
+        end
     end
     cellLast = cell
 end
@@ -161,8 +169,12 @@ end
 local function deathCheck(e)
     local modData = tes3.player.data.AURA
     local cellId = cellData.cell and not cellData.cell.isOrBehavesAsExterior and cellData.cell.id:lower()
-    local cellType = cellId and modData.visitedInteriorCells[cellId] and modData.visitedInteriorCells[cellId].type
-    if cellType and not data.statics[cellType] and cellType ~= "tom" and e.reference and e.reference.baseObject.objectType == tes3.objectType.npc then
+    local cellType = cellId and modData.visitedInteriorCells[cellId] and modData.visitedInteriorCells[cellId].cellType
+    if getEligibleCellType(cellType)
+        and not data.statics[cellType]
+        and cellType ~= "tom"
+        and e.reference
+        and e.reference.baseObject.objectType == tes3.objectType.npc then
         debugLog("NPC died in appropriate interior, running cell check.")
         cellCheck()
     end

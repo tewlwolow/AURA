@@ -9,8 +9,8 @@ this.data = {
         active = config.moduleAmbientOutdoor,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
@@ -53,8 +53,8 @@ this.data = {
         active = config.moduleAmbientPopulated,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playUnderwater = true,
         blockedWeathers = {
@@ -74,8 +74,8 @@ this.data = {
         active = config.moduleAmbientInterior,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playUnderwater = true,
         soundConfig = {},
@@ -85,8 +85,8 @@ this.data = {
         active = config.moduleAmbientInterior and config.moduleInteriorToExterior,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playExteriorDoors = true,
         playUnderwater = false,
@@ -100,8 +100,8 @@ this.data = {
         active = config.moduleInteriorWeather,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
@@ -141,8 +141,8 @@ this.data = {
         active = config.windSounds,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
@@ -187,8 +187,8 @@ this.data = {
         active = config.playRainOnStatics,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playUnderwater = false,
         blockedWeathers = {
@@ -221,8 +221,8 @@ this.data = {
         active = config.playRainInsideShelter,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playUnderwater = false,
         blockedWeathers = {
@@ -255,8 +255,8 @@ this.data = {
         active = config.playWindInsideShelter,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playUnderwater = false,
         blockedWeathers = {
@@ -287,8 +287,8 @@ this.data = {
         active = config.shelterWeather,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         playUnderwater = false,
         blockedWeathers = {
@@ -321,24 +321,24 @@ this.data = {
         active = config.playRopeBridge,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
     },
     ["photodragons"] = {
         active = config.playPhotodragons,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
     },
     ["bannerFlap"] = {
         active = config.playBannerFlap,
         old = nil,
         new = nil,
-        oldRef = nil,
-        newRef = nil,
+        oldRefHandle = nil,
+        newRefHandle = nil,
         lastVolume = nil,
         soundConfig = {
             -- 0-4 and 8: light breeze
@@ -358,20 +358,28 @@ this.data = {
 }
 
 function this.getCurrentlyPlaying(moduleName)
+    if not this.data[moduleName] then return end
     local oldTrack = this.data[moduleName].old
     local newTrack = this.data[moduleName].new
-    local oldRef = this.data[moduleName].oldRef
-    local newRef = this.data[moduleName].newRef
+    local oldRefHandle = this.data[moduleName].oldRefHandle
+    local newRefHandle = this.data[moduleName].newRefHandle
 
-    if common.getTrackPlaying(newTrack, newRef) then
-        return { newTrack, newRef }
+    if newRefHandle then
+        local newRef = newRefHandle:getObject()
+        if common.getTrackPlaying(newTrack, newRef) then
+            return { newTrack, newRef }
+        end
     end
-    if common.getTrackPlaying(oldTrack, oldRef) then
-        return { oldTrack, oldRef }
+    if oldRefHandle then
+        local oldRef = oldRefHandle:getObject()
+        if common.getTrackPlaying(oldTrack, oldRef) then
+            return { oldTrack, oldRef }
+        end
     end
 end
 
 function this.getWindoorPlaying(moduleName)
+    if not this.data[moduleName] then return end
     if not this.data[moduleName].playWindoors
         or not cellData.windoors
         or table.empty(cellData.windoors) then
@@ -400,6 +408,7 @@ function this.getExteriorDoorTrack(ref)
 end
 
 function this.getExteriorDoorPlaying(moduleName)
+    if not this.data[moduleName] then return end
     if not this.data[moduleName].playExteriorDoors
         or not cellData.exteriorDoors
         or table.empty(cellData.exteriorDoors) then
@@ -416,6 +425,7 @@ function this.getExteriorDoorPlaying(moduleName)
 end
 
 function this.getEligibleWeather(moduleName)
+    if not this.data[moduleName] then return end
     local regionObject = common.getRegion()
     local weather = regionObject and regionObject.weather.index
     local blockedWeathers = this.data[moduleName].blockedWeathers
@@ -425,6 +435,7 @@ function this.getEligibleWeather(moduleName)
 end
 
 function this.isActive(moduleName)
+    if not this.data[moduleName] then return end
     return this.data[moduleName].active
 end
 

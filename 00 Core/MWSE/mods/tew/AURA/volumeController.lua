@@ -129,8 +129,10 @@ function this.adjustVolume(options)
     not options.reference
     local isTrackUnattached = options.track and not options.reference
 
-    local targetTrack = options.track or (mData and mData.new)
-    local targetRef = options.reference or (mData and mData.newRef)
+    local playing = modules.getCurrentlyPlaying(moduleName) or {}
+    local currentTrack, currentRef = table.unpack(playing)
+    local targetTrack = options.track or currentTrack
+    local targetRef = options.reference or currentRef
     local targetVolume = options.volume
     local inOrOut = options.inOrOut or ""
     local config = options.config

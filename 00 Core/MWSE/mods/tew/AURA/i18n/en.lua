@@ -83,7 +83,8 @@ this.messages = {
 	shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
 	shelterWeather =
 	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
-	photodragons = "Enable appropriate flying insect sounds to dragonfly swarms commonly found around the Bitter Coast area?",
+	photodragons =
+	"Enable appropriate flying insect sounds to dragonfly swarms commonly found around the Bitter Coast area?",
 	ropeBridge = "Enable appropriate sounds on rope bridges outside?",
 	bannerFlap = "Enable flapping sounds per weather type on banners and flags outside?",
 
@@ -235,17 +236,24 @@ this.interiorNames = {
 
 this.tavernNames = {
 	["dar"] = {
-		"Rat in the Pot",
-		"House of Earthly Delights",
-		"Elven Nations",
+		"Ald-ruhn, The Rat in the Pot",
+		"Suran, Desele's House of Earthly Delights",
+		"Vivec, Elven Nations Cornerclub",
+		"Gnisis, Madach Tradehouse",
+		"Molag Mar, The Pilgrim's Rest",
+		"Suran, Suran Tradehouse",
+		"Tel Aruhn, Plot and Plaster",
+		"Vivec, No Name Club",
 	},
 	["imp"] = {
 		"Ebonheart, Six Fishes",
-		"Arrille",
+		"Seyda Neen, Arrille's Tradehouse",
+		"Sadrith Mora, Dirty Muriel's Cornerclub",
 	},
 	["nor"] = {
 		"Skaal Village, The Greathall",
 		"Solstheim, Thirsk",
+		"Dagon Fel, The End of the World",
 	},
 }
 

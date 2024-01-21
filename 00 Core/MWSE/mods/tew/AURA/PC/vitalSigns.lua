@@ -26,8 +26,7 @@ local function isPlayerUnderWater()
     return false
 end
 
--- Determine player g-e-n-d-e-r on load --
--- Awfully binary that one! >:-( --
+-- Determine player gender on load --
 local function onLoaded()
     if tes3.player.object.female then
         genderFatigue = "fatigue_f.mp3"

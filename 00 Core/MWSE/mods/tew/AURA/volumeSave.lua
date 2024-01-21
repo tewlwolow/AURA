@@ -286,7 +286,7 @@ local function updateHeader()
         hLabel.text = messages.adjustForUnderwater
     elseif (trackList) and (this.entries > 0) and not this.cell.isOrBehavesAsExterior then
         cellType = common.getInteriorType(this.cell):gsub("^sma$", messages.small):gsub("^ten$", messages.small):gsub(
-        "^big$", messages.big)
+            "^big$", messages.big)
         hLabel.text = string.format("%s (%s)", messages.adjustForInterior, cellType)
     elseif (trackList) and (this.entries > 0) and this.cell.isOrBehavesAsExterior then
         hLabel.text = messages.adjustForExterior
@@ -375,7 +375,10 @@ local function createWindow()
 
     updateHeader()
 
+    menu.width = 430
+    menu.height = 600
     menu:updateLayout()
+    menu.visible = true
 end
 
 local function redraw()

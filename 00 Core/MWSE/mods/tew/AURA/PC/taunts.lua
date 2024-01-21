@@ -66,9 +66,8 @@ local debugLog = common.debugLog
 
 end]]
 
-local function playerCheck()
-    if tes3.worldController.charGenState.value ~= -1 then return end
 
+local function playerCheck()
     playedTaunt = 0
     if tes3.player.object.female then
         playerSex = "f"
@@ -84,7 +83,15 @@ local function playerCheck()
 
     debugLog("Determined player race: " .. playerRace)
     debugLog("Determined player sex: " .. playerSex)
-    event.unregister("cellChanged", playerCheck)
+end
+
+local function onStatReview(e)
+    local element = e.element:findChild("MenuStatReview_Okbutton")
+
+    element:registerAfter("mouseDown", function()
+        playerCheck()
+        event.unregister("uiActivated", onStatReview, { filter = "MenuStatReview" })
+    end)
 end
 
 local function combatCheck(e)
@@ -174,5 +181,6 @@ end
 event.register("cellChanged", playerCheck)
 event.register("loaded", playerCheck)
 event.register("combatStarted", combatCheck)
+event.register("uiActivated", onStatReview, { filter = "MenuStatReview" })
 
 --getArrays()

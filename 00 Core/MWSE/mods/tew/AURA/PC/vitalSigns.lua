@@ -38,6 +38,16 @@ local function onLoaded()
     player = tes3.mobilePlayer
 end
 
+local function onStatReview(e)
+    local element = e.element:findChild("MenuStatReview_Okbutton")
+
+    element:registerAfter("mouseDown", function()
+        onLoaded()
+        event.unregister("uiActivated", onStatReview, { filter = "MenuStatReview" })
+    end)
+end
+
+
 -- Check for disease, which is actually a spell type --
 local function checkDisease(ref)
     local disease
@@ -226,6 +236,7 @@ local function positionCheck()
     end
 end
 
+event.register("uiActivated", onStatReview, { filter = "MenuStatReview" })
 event.register("uiActivated", positionCheck, { filter = "MenuSwimFillBar" })
 event.register("loaded", onLoaded)
 event.register("simulate", playVitals)

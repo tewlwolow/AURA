@@ -35,7 +35,6 @@ local function onLoaded()
         genderFatigue = "fatigue_m.mp3"
         genderDisease = "disease_m.wav"
     end
-    -- ... right? --
     player = tes3.mobilePlayer
 end
 

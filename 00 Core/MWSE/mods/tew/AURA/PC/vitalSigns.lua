@@ -29,10 +29,10 @@ end
 -- Determine player gender on load --
 local function onLoaded()
     if tes3.player.object.female then
-        genderFatigue = "fatigue_f.mp3"
+        genderFatigue = "fatigue_f.wav"
         genderDisease = "disease_f.wav"
     else
-        genderFatigue = "fatigue_m.mp3"
+        genderFatigue = "fatigue_m.wav"
         genderDisease = "disease_m.wav"
     end
     player = tes3.mobilePlayer
@@ -107,10 +107,7 @@ local function playFatigue()
     if fatigueFlag == 1 then return end
     if not fatigueTimer then
         fatigueTimer = timer.start { type = timer.real, duration = math.random(10, 20), iterations = -1, callback = function()
-            tes3.say {
-                volume = 0.9 * vsVol,
-                soundPath = "Vo\\tew\\A\\PC\\" .. genderFatigue, reference = player,
-            }
+            tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderFatigue, volume = 0.9 * vsVol, pitch = math.remap(player.fatigue.normalized, 0.0, 0.33, 1.05, 0.95), reference = player }
         end }
     else
         fatigueTimer:resume()
@@ -147,7 +144,7 @@ local function playVitals()
     end
 
     if PCfatigue then
-        if isPlayerUnderWater() == true then
+        if isPlayerUnderWater() then
             if fatigueTimer then
                 fatigueTimer:pause()
             end

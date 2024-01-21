@@ -13,8 +13,7 @@ wait-until-initialize = false
 [dependencies]
 assets = [
 	"Textures\\tew\\AURA",
-	"Sound\\tew\\A",
-	"Sound\\Vo\\tew\\A",
+	"Sound\\tew\\A"
 ]
 
 [dependencies.mwse]

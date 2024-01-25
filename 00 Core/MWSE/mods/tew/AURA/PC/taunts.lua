@@ -69,17 +69,9 @@ end]]
 
 local function playerCheck()
     playedTaunt = 0
-    if tes3.player.object.female then
-        playerSex = "f"
-    else
-        playerSex = "m"
-    end
 
-    for k, v in pairs(raceNames) do
-        if tes3.player.object.race.id == k then
-            playerRace = v
-        end
-    end
+    playerSex = tes3.player.object.female and "f" or "m"
+    playerRace = raceNames[tes3.player.object.race.id]
 
     debugLog("Determined player race: " .. playerRace)
     debugLog("Determined player sex: " .. playerSex)
@@ -90,24 +82,33 @@ local function onStatReview(e)
 
     element:registerAfter("mouseDown", function()
         playerCheck()
-        event.unregister("uiActivated", onStatReview, { filter = "MenuStatReview" })
     end)
 end
 
+---@param e attackEventData
 local function combatCheck(e)
-    if tes3.worldController.charGenState.value ~= -1 then return end -- We don't know the race or gender yet, so f- off --
+    if (e.reference ~= tes3.player) then
+        return
+    end
+
     if playedTaunt == 1 then
         debugLog("Flag on. Returning.")
         return
     end
 
-    local player = tes3.mobilePlayer
+    if not e.targetMobile then return end
+
+    local playerMobile = tes3.mobilePlayer
+
+    local targetMobile = e.targetMobile
+    local targetRef = e.targetReference
+
     if tes3.mobilePlayer.werewolf then
         local taunt = werewolfSounds[math.random(1, #werewolfSounds)]
         tes3.playSound {
             sound = taunt,
             volume = 0.9 * tVol,
-            reference = player.reference,
+            reference = playerMobile.reference,
         }
         playedTaunt = 1
         debugLog("Played werewolf battle taunt: " .. taunt)
@@ -115,12 +116,9 @@ local function combatCheck(e)
         timer.start { type = timer.real, duration = 7, callback = function()
             playedTaunt = 0
         end }
-    end
-
-    if e.target == player or e.actor == player
-        and playerRace ~= nil
-        and playerSex ~= nil
-        and playedTaunt == 0 then
+    elseif
+        playerRace ~= nil
+        and playerSex ~= nil then
         if tauntChance < math.random() then
             debugLog("Dice roll failed. Returning.")
             return
@@ -128,16 +126,9 @@ local function combatCheck(e)
 
         local taunt
 
-        if e.target.object.objectType ~= tes3.objectType.creature
-            and e.actor.object.objectType ~= tes3.objectType.creature then
-            local foe, foeRace
-            if e.target ~= player then
-                foe = e.target
-            else
-                foe = e.actor
-            end
-            foeRace = foe.object.race.id
-            debugLog("Foe race: " .. foe.object.race.id)
+        if targetRef.object.objectType == tes3.objectType.npc then
+            local foeRace = targetRef.object.race.id
+            debugLog("Foe race: " .. foeRace)
             local raceTaunts = tauntsData.raceTaunts
             if raceTaunts[playerRace]
                 and raceTaunts[playerRace][playerSex]
@@ -158,29 +149,23 @@ local function combatCheck(e)
             debugLog("Creature taunt: " .. taunt)
         end
 
-
         tes3.say {
             volume = 0.9 * tVol,
             soundPath = "Vo\\" .. playerRace .. "\\" .. playerSex .. "\\" .. taunt,
-            reference = player.reference,
+            reference = playerMobile.reference,
         }
 
         playedTaunt = 1
         debugLog("Played battle taunt: " .. taunt)
 
-        timer.start { type = timer.real, duration = 5, callback = function()
+        timer.start { type = timer.real, duration = 6, callback = function()
             playedTaunt = 0
         end }
-    else
-        debugLog("Could not determine battle situation.")
-        debugLog(e.target.object.id)
-        debugLog(e.actor.object.id)
     end
 end
 
-event.register("cellChanged", playerCheck)
 event.register("loaded", playerCheck)
-event.register("combatStarted", combatCheck)
+event.register("attack", combatCheck)
 event.register("uiActivated", onStatReview, { filter = "MenuStatReview" })
 
 --getArrays()

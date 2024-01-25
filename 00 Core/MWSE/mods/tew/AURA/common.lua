@@ -22,7 +22,7 @@ this.thunArray = {
 	"Thunder1",
 	"Thunder2",
 	"Thunder3",
-	"ThunderClap"
+	"ThunderClap",
 }
 
 -- Small types of interiors --
@@ -41,9 +41,9 @@ this.cellTypesTent = {
 	"in_ashl_tent_0",
 	"drs_tnt",
 	"_in_drs_tnt_0",
-	"a1_dat_srt_in_0", -- Sea Rover's Tent
-	"_ser_tent_in", -- On the move - the ashlander tent deluxe remod
-	"t_de_set_i_tent_0", -- Tamriel_Data
+	"a1_dat_srt_in_0",      -- Sea Rover's Tent
+	"_ser_tent_in",         -- On the move - the ashlander tent deluxe remod
+	"t_de_set_i_tent_0",    -- Tamriel_Data
 	"t_orc_setnomad_i_tent_0", -- Tamriel_Data
 	"rpnr_in_ashl_tent_0",
 	"rpnr_t_de_set_i_tent_0",
@@ -60,11 +60,11 @@ this.windows = {
 	"swin",
 	"palacewin",
 	"triwin",
-	"_windowin_"
+	"_windowin_",
 }
 
 local defaultModData = {
-    visitedInteriorCells = {}
+	visitedInteriorCells = {},
 }
 
 --- This function will recursively set all the fields on our
@@ -72,28 +72,28 @@ local defaultModData = {
 ---@param data table
 ---@param t table
 local function initTableValues(data, t)
-    for k, v in pairs(t) do
-        -- If a field already exists - we initialized the data
-        -- table for this character before. Don't do anything.
-        if data[k] == nil then
-            if type(v) ~= "table" then
-                data[k] = v
-            elseif v == {} then
-                data[k] = {}
-            else
-                -- Fill out the sub-tables
-                data[k] = {}
-                initTableValues(data[k], v)
-            end
-        end
-    end
+	for k, v in pairs(t) do
+		-- If a field already exists - we initialized the data
+		-- table for this character before. Don't do anything.
+		if data[k] == nil then
+			if type(v) ~= "table" then
+				data[k] = v
+			elseif v == {} then
+				data[k] = {}
+			else
+				-- Fill out the sub-tables
+				data[k] = {}
+				initTableValues(data[k], v)
+			end
+		end
+	end
 end
 
 function this.initModData()
-    local data = tes3.player.data
-    data.AURA = data.AURA or {}
-    local modData = data.AURA
-    initTableValues(modData, defaultModData)
+	local data = tes3.player.data
+	data.AURA = data.AURA or {}
+	local modData = data.AURA
+	initTableValues(modData, defaultModData)
 end
 
 -- Check if transitioning int/ext or the other way around --
@@ -126,8 +126,8 @@ function this.getWindoors(cell)
 	for door in cell:iterateReferences(tes3.objectType.door) do
 		if door.destination then
 			if (door.destination.cell.isOrBehavesAsExterior)
-			and not (this.isOpenPlaza(cell))
-			and door.tempData then
+				and not (this.isOpenPlaza(cell))
+				and door.tempData then
 				table.insert(windoors, door)
 			end
 		end
@@ -148,7 +148,8 @@ function this.getWindoors(cell)
 
 		-- Let's sort to ensure we scan the closest one first for the useLast flag further down the line
 		local playerPos = tes3.player.position:copy()
-		table.sort(windoors, function(a, b) return playerPos:distance(a.position:copy()) < playerPos:distance(b.position:copy()) end)
+		table.sort(windoors,
+			function(a, b) return playerPos:distance(a.position:copy()) < playerPos:distance(b.position:copy()) end)
 
 		return windoors
 	end
@@ -178,16 +179,16 @@ function this.getMatch(stringArray, str)
 end
 
 function this.isTimerAlive(t)
-    return t and t.state and (t.state < 2) or false
+	return t and t.state and (t.state < 2) or false
 end
 
 function this.cellIsInterior(cell)
-    local c = cell or tes3.getPlayerCell()
+	local c = cell or tes3.getPlayerCell()
 	return (c and not c.isOrBehavesAsExterior)
 end
 
 function this.getInteriorType(cell)
-    if this.getCellType(cell, this.cellTypesSmall) == true then
+	if this.getCellType(cell, this.cellTypesSmall) == true then
 		return "sma"
 	elseif this.getCellType(cell, this.cellTypesTent) == true then
 		return "ten"
@@ -197,19 +198,19 @@ function this.getInteriorType(cell)
 end
 
 function this.getNPCCount(cell)
-    local count = 0
-    if not cell then return count end
-    for npc in cell:iterateReferences(tes3.objectType.npc) do
-        local mobileObject = npc.object.mobile
-        if (mobileObject) and (not mobileObject.isDead) then
-            count = count + 1
-        end
-    end
-    return count
+	local count = 0
+	if not cell then return count end
+	for npc in cell:iterateReferences(tes3.objectType.npc) do
+		local mobileObject = npc.object.mobile
+		if (mobileObject) and (not mobileObject.isDead) then
+			count = count + 1
+		end
+	end
+	return count
 end
 
 function this.getTrackPlaying(track, ref)
-	if track and ref and tes3.getSoundPlaying{sound = track, reference = ref} then
+	if track and ref and tes3.getSoundPlaying { sound = track, reference = ref } then
 		return track
 	end
 end
@@ -218,9 +219,8 @@ end
 -- target ref, or false otherwise. If not given a target ref, returns
 -- whether origin ref is sheltered at all.
 function this.isRefSheltered(options)
-
-    local quiet = options.quiet
-    local originRef = options.originRef or tes3.player
+	local quiet = options.quiet
+	local originRef = options.originRef or tes3.player
 	local targetRef = options.targetRef
 	local ignoreList = options.ignoreList
 	local useModelCoordinates
@@ -228,17 +228,17 @@ function this.isRefSheltered(options)
 	local maxDistance
 	local cell = options.cell
 
-    if this.cellIsInterior(cell) then
-        return true
-    end
+	if this.cellIsInterior(cell) then
+		return true
+	end
 
-    local function log(message)
-        if quiet then return end
-        this.debugLog(message)
-    end
+	local function log(message)
+		if quiet then return end
+		this.debugLog(message)
+	end
 
 	local height = originRef.object.boundingBox
-	and originRef.object.boundingBox.max.z or 0
+		and originRef.object.boundingBox.max.z or 0
 
 	-- It seems that rayTest returns more accurate results for
 	-- tes3.player if using back triangles and better results for
@@ -261,25 +261,25 @@ function this.isRefSheltered(options)
 
 	log("[rayTest] Performing test on origin ref: " .. tostring(originRef))
 
-    local hitResults = tes3.rayTest{
-        position = {
-            originRef.position.x,
-            originRef.position.y,
-            originRef.position.z + (height/2)
-        },
-        direction = {0, 0, 1},
-        findAll = true,
-        maxDistance = maxDistance,
-        ignore = {originRef},
+	local hitResults = tes3.rayTest {
+		position = {
+			originRef.position.x,
+			originRef.position.y,
+			originRef.position.z + (height / 2),
+		},
+		direction = { 0, 0, 1 },
+		findAll = true,
+		maxDistance = maxDistance,
+		ignore = { originRef },
 		useModelCoordinates = useModelCoordinates,
-        useBackTriangles = useBackTriangles,
-    }
-    if hitResults then
+		useBackTriangles = useBackTriangles,
+	}
+	if hitResults then
 		log("[rayTest] Got results.")
-        for _, hit in ipairs(hitResults) do
-            if hit and hit.reference and hit.reference.object then
+		for _, hit in ipairs(hitResults) do
+			if hit and hit.reference and hit.reference.object then
 				if (hit.reference.object.objectType == tes3.objectType.static)
-				or (hit.reference.object.objectType == tes3.objectType.activator) then
+					or (hit.reference.object.objectType == tes3.objectType.activator) then
 					if ignoreList and this.getMatch(ignoreList, hit.reference.object.id:lower()) then
 						log("[rayTest] Ignoring result -> " .. hit.reference.object.id:lower())
 						goto continue
@@ -296,61 +296,61 @@ function this.isRefSheltered(options)
 					log("[rayTest] Ref " .. tostring(originRef) .. " is sheltered by " .. hit.reference.object.id:lower())
 					return true
 				end
-            end
+			end
 			:: continue ::
-        end
-    end
+		end
+	end
 	log("[rayTest] Ref " .. tostring(originRef) .. " is NOT sheltered.")
 	return false
 end
 
 function this.getCurrentWeather()
-    return tes3.worldController.weatherController.currentWeather
+	return tes3.worldController.weatherController.currentWeather
 end
 
 function this.getRainLoopSoundPlaying()
-    local cw = this.getCurrentWeather()
-    if cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
-        return cw.rainLoopSound
-    end
+	local cw = this.getCurrentWeather()
+	if cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
+		return cw.rainLoopSound
+	end
 end
 
 function this.getExtremeWeatherTrackPlaying()
-    local cw = this.getCurrentWeather()
-    local track
-    if (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
-        if cw.name == "Ashstorm" then
-            track = tes3.getSound("Ashstorm")
-        elseif cw.name == "Blight" then
-            track = tes3.getSound("Blight")
-        elseif cw.name == "Blizzard" then
-            track = tes3.getSound("BM Blizzard")
-        end
-        if track and track:isPlaying() then return track end
-    end
+	local cw = this.getCurrentWeather()
+	local track
+	if (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
+		if cw.name == "Ashstorm" then
+			track = tes3.getSound("Ashstorm")
+		elseif cw.name == "Blight" then
+			track = tes3.getSound("Blight")
+		elseif cw.name == "Blizzard" then
+			track = tes3.getSound("BM Blizzard")
+		end
+		if track and track:isPlaying() then return track end
+	end
 end
 
 function this.getWeatherTrack()
-    return this.getRainLoopSoundPlaying() or this.getExtremeWeatherTrackPlaying()
+	return this.getRainLoopSoundPlaying() or this.getExtremeWeatherTrackPlaying()
 end
 
 function this.isOpenPlaza(cell)
-    if not cell then return false end
-    if not cell.behavesAsExterior then
-        return false
-    else
-        if (string.find(cell.name:lower(), "plaza") and string.find(cell.name:lower(), "vivec"))
-        or (string.find(cell.name:lower(), "plaza") and string.find(cell.name:lower(), "molag mar"))
-        or (string.find(cell.name:lower(), "arena pit") and string.find(cell.name:lower(), "vivec")) then
-            return true
-        else
-            return false
-        end
-    end
+	if not cell then return false end
+	if not cell.behavesAsExterior then
+		return false
+	else
+		if (string.find(cell.name:lower(), "plaza") and string.find(cell.name:lower(), "vivec"))
+			or (string.find(cell.name:lower(), "plaza") and string.find(cell.name:lower(), "molag mar"))
+			or (string.find(cell.name:lower(), "arena pit") and string.find(cell.name:lower(), "vivec")) then
+			return true
+		else
+			return false
+		end
+	end
 end
 
 function this.findWholeWords(string, pattern)
-    return string.find(string, "%f[%a]"..pattern.."%f[%A]")
+	return string.find(string, "%f[%a]" .. pattern .. "%f[%A]")
 end
 
 function this.getFallbackRegion()
@@ -362,9 +362,9 @@ function this.getFallbackRegion()
 end
 
 function this.getRegion()
-    local regionObject = tes3.getRegion(true) or this.getFallbackRegion()
-    if not regionObject then this.debugLog("Couldn't fetch region object.") end
-    return regionObject
+	local regionObject = tes3.getRegion { useDoors = true } or this.getFallbackRegion()
+	if not regionObject then this.debugLog("Couldn't fetch region object.") end
+	return regionObject
 end
 
 return this

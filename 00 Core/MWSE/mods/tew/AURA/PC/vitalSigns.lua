@@ -76,7 +76,7 @@ end
 local function playDisease()
     if diseaseFlag == 1 then return end
     if not diseaseTimer then
-        diseaseTimer = timer.start { type = timer.real, duration = math.random(45, 90), iterations = -1, callback = function()
+        diseaseTimer = timer.start { type = timer.simulate, duration = math.random(45, 90), iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderDisease .. math.random(5) .. ".wav", volume = 0.7 * vsVol, reference = player }
         end }
     else
@@ -89,7 +89,7 @@ end
 local function playBlight()
     if blightFlag == 1 then return end
     if not blightTimer then
-        blightTimer = timer.start { type = timer.real, duration = math.random(35, 45), iterations = -1, callback = function()
+        blightTimer = timer.start { type = timer.simulate, duration = math.random(35, 45), iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\blight" .. math.random(5) .. ".wav", volume = 0.9 * vsVol, reference = player }
         end }
     else
@@ -103,7 +103,7 @@ end
 local function playHealth()
     if healthFlag == 1 then return end
     if not healthTimer then
-        healthTimer = timer.start { type = timer.real, duration = math.random(10, 20) / 10, iterations = -1, callback = function()
+        healthTimer = timer.start { type = timer.simulate, duration = math.random(10, 20) / 10, iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\health.wav", volume = 0.7 * vsVol, pitch = math.remap(player.health.normalized, 0.0, 0.33, 1.05, 0.95), reference = player }
         end }
     else
@@ -116,8 +116,8 @@ end
 local function playFatigue()
     if fatigueFlag == 1 then return end
     if not fatigueTimer then
-        fatigueTimer = timer.start { type = timer.real, duration = math.random(10, 20), iterations = -1, callback = function()
-            tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderFatigue .. math.random(5) .. ".wav", volume = vsVol, pitch = math.remap(player.fatigue.normalized, 0.0, 0.33, 1.05, 0.95), reference = player }
+        fatigueTimer = timer.start { type = timer.simulate, duration = math.random(10, 20), iterations = -1, callback = function()
+            tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderFatigue .. math.random(5) .. ".wav", volume = vsVol, pitch = math.random(87, 120) / 100, reference = player }
         end }
     else
         fatigueTimer:resume()
@@ -129,7 +129,7 @@ end
 local function playMagicka()
     if magickaFlag == 1 then return end
     if not magickaTimer then
-        magickaTimer = timer.start { type = timer.real, duration = math.random(12, 25), iterations = -1, callback = function()
+        magickaTimer = timer.start { type = timer.simulate, duration = math.random(12, 25), iterations = -1, callback = function()
             tes3.playSound { soundPath = "tew\\A\\PC\\magicka.wav", volume = 0.6 * vsVol, pitch = math.remap(player.magicka.normalized, 0.0, 0.33, 1.05, 0.95), reference = player }
         end }
     else

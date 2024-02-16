@@ -75,11 +75,12 @@ function this.getVolume(options)
     local interiorType = common.getInteriorType(cellData.cell)
     local windoorsMult = (mData.playWindoors == true) and 0.005 or 0
 
+    debugLog(string.format("[%s] moduleVol: %s | weather: %s | weatherMult: %s", moduleName, moduleVol, weather, weatherMult))
+
     if not isEligibleWeather then
-        debugLog(string.format("[%s] Not an eligible weather: %s", moduleName, weather))
-        volume = 0
+        debugLog(string.format("[%s] Not an eligible weather: %s. Setting volume to %s.", moduleName, weather, MIN))
+        volume = MIN
     else
-        debugLog(string.format("[%s] Weather: %s. Applying weatherMult: %s", moduleName, weather, weatherMult))
         volume = moduleVol * weatherMult
     end
 
@@ -100,20 +101,24 @@ function this.getVolume(options)
 
         if not cellData.cell.isOrBehavesAsExterior then
             if (interiorType == "big") then
-                debugLog(string.format("[%s] Applying big interior mult.", moduleName))
-                volume = (config.volumes.modules[moduleName].big * volume) - (windoorsMult * #cellData.windoors)
+                local bigMult = config.volumes.modules[moduleName].big
+                debugLog(string.format("[%s] Applying big interior mult: %s", moduleName, bigMult))
+                volume = (bigMult * volume) - (windoorsMult * #cellData.windoors)
             elseif (interiorType == "sma") or (interiorType == "ten") then
-                debugLog(string.format("[%s] Applying small interior mult.", moduleName))
-                volume = config.volumes.modules[moduleName].sma * volume
+                local smaMult = config.volumes.modules[moduleName].sma
+                debugLog(string.format("[%s] Applying small interior mult: %s", moduleName, smaMult))
+                volume = smaMult * volume
             end
         end
     else
-        volume = 0
+        debugLog(string.format("[%s] No cell. Setting volume to %s.", moduleName, MIN))
+        volume = MIN
     end
 
     if cellData.playerUnderwater then
-        debugLog(string.format("[%s] Applying underwater nerf.", moduleName))
-        volume = config.volumes.modules[moduleName].und * volume
+        local undMult = config.volumes.modules[moduleName].und
+        debugLog(string.format("[%s] Applying underwater nerf: %s", moduleName, undMult))
+        volume = undMult * volume
     end
 
     volume = math.clamp(math.round(volume, 2), MIN, MAX)
@@ -135,7 +140,6 @@ function this.adjustVolume(options)
     local targetRef = options.reference or currentRef
     local targetVolume = options.volume
     local inOrOut = options.inOrOut or ""
-    local config = options.config
     local quiet = options.quiet
 
     local function adjust(track, ref)
@@ -143,7 +147,7 @@ function this.adjustVolume(options)
         local unattached = (track and not ref) and track:isPlaying()
         if not (attached or unattached) then return end
 
-        local volume = targetVolume or this.getVolume { module = moduleName, config = config }
+        local volume = targetVolume or this.getVolume(options)
         if not quiet then
             local msgPrefix = string.format("Adjusting volume %s", inOrOut):gsub("%s+$", "")
             debugLog(string.format("%s for module %s: %s -> %s | %.3f", msgPrefix, moduleName, track.id,
@@ -164,12 +168,12 @@ function this.adjustVolume(options)
     if adjustAllWindoors then
         debugLog("Adjusting all windoors.")
         for _, windoor in ipairs(cellData.windoors) do
-            if windoor ~= nil then adjust(targetTrack, windoor) end
+            if windoor ~= nil then adjust(modules.getTempDataEntry("track", windoor, moduleName) or targetTrack, windoor) end
         end
     elseif adjustAllExteriorDoors then
         debugLog("Adjusting all exterior doors.")
         for _, door in pairs(cellData.exteriorDoors) do
-            if (door ~= nil) then adjust(modules.getExteriorDoorTrack(door), door) end
+            if (door ~= nil) then adjust(modules.getTempDataEntry("track", door, moduleName) or targetTrack, door) end
         end
     elseif isTrackUnattached then
         adjust(targetTrack)

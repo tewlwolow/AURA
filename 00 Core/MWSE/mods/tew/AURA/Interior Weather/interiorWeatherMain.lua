@@ -67,20 +67,13 @@ local function updateConditions(resetTimerFlag)
 	cellLast = cell
 end
 
-local function playSmall()
-	sounds.play {
-		module = moduleName,
-		weather = weather,
-		type = interiorType,
-	}
-end
-
 local function stopWindoors(immediateFlag)
 	local remove = immediateFlag and sounds.removeImmediate or sounds.remove
 	if not table.empty(cellData.windoors) then
 		for _, windoor in ipairs(cellData.windoors) do
-			if windoor ~= nil then
-				remove { module = moduleName, reference = windoor }
+			local track = modules.getTempDataEntry("track", windoor, moduleName) or moduleData[moduleName].new
+			if windoor ~= nil and common.getTrackPlaying(track, windoor) then
+				remove { module = moduleName, track = track, reference = windoor }
 			end
 		end
 	end
@@ -91,11 +84,12 @@ local function playWindoors()
 	debugLog("Updating interior doors and windows.")
 	local playerPos = tes3.player.position:copy()
 	for _, windoor in ipairs(cellData.windoors) do
+		local windoorTrack = modules.getTempDataEntry("track", windoor, moduleName)
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
-			and not common.getTrackPlaying(sound, windoor) then
+			and not common.getTrackPlaying(windoorTrack, windoor) then
 			sounds.play {
 				module = moduleName,
-				track = sound,
+				track = windoorTrack,
 				reference = windoor,
 				noQueue = true,
 				noCrossfade = true,
@@ -204,7 +198,7 @@ local function cellCheck(e)
 	debugLog("Interior type: " .. interiorType)
 
 	-- Resolve track early since we're going to reuse it when updating windoors --
-	sound = soundData.interiorWeather[interiorType][weather]
+	sound = sounds.getTrack{ module = moduleName, type = interiorType, weather = weather }
 
 	-- Remove sounds from small type of interior if the weather has changed --
 	if weatherLast and (not blockedWeathers[weatherLast]) and (weatherLast ~= weather) then
@@ -228,14 +222,17 @@ local function cellCheck(e)
 		else
 			thunRef = cell
 		end
-		playSmall()
+		sounds.play{ module = moduleName, track = sound, cell = cell }
 	elseif interiorType == "ten" then
 		debugLog("Playing tent interior sounds.")
 		thunRef = cell
-		playSmall()
+		sounds.play{ module = moduleName, track = sound, cell = cell }
 	else
 		if not table.empty(cellData.windoors) then
 			debugLog("Found " .. #cellData.windoors .. " windoor(s). Playing interior loops.")
+			for _, windoor in ipairs(cellData.windoors) do
+				modules.setTempDataEntry("track", sound, windoor, moduleName)
+			end
 			interiorTimer:reset()
 			thunRef = cellData.windoors[math.random(1, #cellData.windoors)]
 		end

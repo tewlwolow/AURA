@@ -30,10 +30,10 @@ local function runResetter()
 	climateNow, weatherNow, timeNow = nil, nil, nil
 end
 
-local function updateConditions(resetTimerFlag)
+local function updateConditions(resetInteriorTimerFlag)
 	debugLog("Updating conditions.")
 
-	if resetTimerFlag
+	if resetInteriorTimerFlag
 		and interiorTimer
 		and not cell.isOrBehavesAsExterior
 		and not table.empty(cellData.windoors) then
@@ -46,11 +46,12 @@ local function updateConditions(resetTimerFlag)
 end
 
 local function stopWindoors(immediateFlag)
-	local remove = immediateFlag and sounds.removeImmediate or sounds.remove
+    local remove = immediateFlag and sounds.removeImmediate or sounds.remove
 	if not table.empty(cellData.windoors) then
 		for _, windoor in ipairs(cellData.windoors) do
-			if windoor ~= nil then
-				remove { module = moduleName, reference = windoor }
+			local track = modules.getTempDataEntry("track", windoor, moduleName) or moduleData[moduleName].new
+			if windoor ~= nil and common.getTrackPlaying(track, windoor) then
+				remove { module = moduleName, track = track, reference = windoor }
 			end
 		end
 	end
@@ -63,7 +64,8 @@ local function playWindoors()
 	local playerPos = tes3.player.position:copy()
 
 	for _, windoor in ipairs(cellData.windoors) do
-		local track = windoor.tempData.tew.AURA.OUT.track
+
+		local track = modules.getTempDataEntry("track", windoor, moduleName)
 
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
 			and not common.getTrackPlaying(track, windoor) then
@@ -162,17 +164,23 @@ local function cellCheck(e)
 		debugLog("Found same cell, same conditions. Returning.")
 		updateConditions(true)
 		return
+	elseif not useLast then
+		debugLog("Different conditions.")
 	end
+
+	local track = sounds.getTrack{
+		module = moduleName,
+		climate = climateNow,
+		time = timeNow,
+		last = useLast,
+	}
+
+	mwse.log(string.format("[!] old: %s | new: %s | useLast: %s | nextTrack: %s", tostring(moduleData[moduleName].old), tostring(moduleData[moduleName].new), tostring(useLast), tostring(track)))
 
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then
 		debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-		sounds.play {
-			module = moduleName,
-			climate = climateNow,
-			time = timeNow,
-			last = useLast,
-		}
+		sounds.play { module = moduleName, track = track, cell = cell }
 		-- Interior cells --
 	elseif cell.isInterior then
 		debugLog("Found interior cell.")
@@ -189,12 +197,7 @@ local function cellCheck(e)
 		if common.getCellType(cell, common.cellTypesSmall) == true
 			or common.getCellType(cell, common.cellTypesTent) == true then
 			debugLog("Found small interior cell. useLast: " .. tostring(useLast))
-			sounds.play {
-				module = moduleName,
-				climate = climateNow,
-				time = timeNow,
-				last = useLast,
-			}
+			sounds.play { module = moduleName, track = track, cell = cell }
 		else
 			debugLog("Found big interior cell.")
 			if not moduleInteriorWeather then
@@ -204,17 +207,8 @@ local function cellCheck(e)
 			if not table.empty(cellData.windoors) then
 				debugLog("Found " ..
 					#cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
-				local windoorTrack = useLast and moduleData[moduleName].new or sounds.getTrack {
-					module = moduleName,
-					climate = climateNow,
-					time = timeNow,
-				}
 				for _, windoor in ipairs(cellData.windoors) do
-					local tempData = windoor.tempData
-					if not tempData.tew then tempData.tew = {} end
-					if not tempData.tew.AURA then tempData.tew.AURA = {} end
-					if not tempData.tew.AURA.OUT then tempData.tew.AURA.OUT = {} end
-					tempData.tew.AURA.OUT.track = windoorTrack
+					modules.setTempDataEntry("track", track, windoor, moduleName)
 				end
 				updateConditions(true)
 				return

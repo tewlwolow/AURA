@@ -107,7 +107,7 @@ local function cellCheck()
         local track
         for _, door in pairs(cellData.exteriorDoors) do
             if (door ~= nil) and (door.destination.cell == cell) then
-                local doorTrack = modules.getExteriorDoorTrack(door)
+                local doorTrack = modules.getTempDataEntry("track", door, "interiorToExterior")
                 if doorTrack then
                     local doorIntOrExt = door.cell.isOrBehavesAsExterior and "Exterior" or "Interior"
                     debugLog(string.format("%s->Interior transition, using last known door track.", doorIntOrExt))

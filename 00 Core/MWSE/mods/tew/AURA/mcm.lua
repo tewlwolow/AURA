@@ -356,6 +356,7 @@ pageMisc:createCategory {
 pageMisc:createYesNoButton {
 	label = string.format("%s %s ", messages.rainSounds, messages.WtS),
 	variable = registerVariable("rainSounds"),
+	restartRequired = true,
 }
 --[[
 pageMisc:createYesNoButton {
@@ -366,11 +367,33 @@ pageMisc:createYesNoButton {
 pageMisc:createYesNoButton {
 	label = string.format("%s %s", messages.windSounds, messages.WtS),
 	variable = registerVariable("windSounds"),
+	restartRequired = true,
 }
 pageOA:createYesNoButton {
 	label = messages.playInteriorWind,
 	variable = registerVariable("playInteriorWind"),
 	restartRequired = true,
+}
+pageMisc:createYesNoButton {
+	label = messages.altitudeWind,
+	variable = registerVariable("altitudeWind"),
+	restartRequired = true,
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.altitudeWindVolMin, messages.default, defaults.volumes.misc.altitudeWindVolMin, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 10,
+	variable = registerVariable("altitudeWindVolMin", config.volumes.misc),
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.altitudeWindVolMax, messages.default, defaults.volumes.misc.altitudeWindVolMax, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 10,
+	variable = registerVariable("altitudeWindVolMax", config.volumes.misc),
 }
 
 --[[

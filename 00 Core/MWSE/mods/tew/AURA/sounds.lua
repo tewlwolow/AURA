@@ -14,6 +14,10 @@ local getVolume = volumeController.getVolume
 -- Logger
 local debugLog = common.debugLog
 
+-- Helper functions
+local isInterior = common.cellIsInterior
+local checkCellDiff = common.checkCellDiff
+
 -- Constants
 local MAX = 1
 local MIN = 0
@@ -24,6 +28,17 @@ function this.getTrack(options)
 	local moduleName = options.module
 
 	if not moduleName then debugLog("No module detected. Returning.") end
+
+	-- There's no escaping useLast :( --
+	local useLast = options.last
+	local nextTrack = moduleData[moduleName].nextTrack
+	local nextTrackTimer = common.isTimerAlive(moduleData[moduleName].nextTrackTimer)
+
+	if useLast and nextTrack and nextTrackTimer then
+		return nextTrack
+	elseif useLast and moduleData[moduleName].new then
+		return moduleData[moduleName].new
+	end
 
 	local table
 
@@ -91,14 +106,14 @@ function this.getTrack(options)
 	end
 
 	-- Can happen on fresh load etc. --
-	if not table then
-		debugLog("No table found. Returning.")
+	if (not table) or (#table == 0) then
+		debugLog("No table found (or empty table). Returning.")
 		return
 	end
 
 	local newTrack = table[math.random(1, #table)]
-	if moduleData[moduleName].old and #table > 1 then
-		while newTrack.id == moduleData[moduleName].old.id do
+	if moduleData[moduleName].new and #table > 1 then
+		while newTrack.id == moduleData[moduleName].new.id do
 			newTrack = table[math.random(1, #table)]
 		end
 	end
@@ -121,53 +136,67 @@ end
 -- Sometimes we need to just remove the sounds without fading --
 -- If fade is in progress for the given track and ref, we'll cancel the fade first --
 function this.removeImmediate(options)
-	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
+	local moduleName = options.module
 
-	-- Remove old file if playing --
-	local oldTrack = common.getTrackPlaying(moduleData[options.module].old, ref)
-	if oldTrack then
-		debugLog(string.format("[%s] Immediately removing old track %s -> %s.", options.module, oldTrack.id,
-			tostring(ref)))
-		fader.cancel(options.module, oldTrack, ref)
-		tes3.removeSound { sound = oldTrack, reference = ref }
+	local function rem(track, ref)
+		fader.cancel(moduleName, track, ref)
+		tes3.removeSound { sound = track, reference = ref }
 	end
 
-	-- Remove the new file as well --
-	local newTrack = common.getTrackPlaying(moduleData[options.module].new, ref)
+	local targetTrack = common.getTrackPlaying(options.track, options.reference)
+	if targetTrack then
+		rem(targetTrack, options.reference)
+		return
+	end
+
+	local newRefHandle = moduleData[options.module].newRefHandle
+	local newRef = newRefHandle and newRefHandle:getObject()
+	local newTrack = common.getTrackPlaying(moduleData[options.module].new, newRef)
 	if newTrack then
-		debugLog(string.format("[%s] Immediately removing new track %s -> %s.", options.module, newTrack.id,
-			tostring(ref)))
-		fader.cancel(options.module, newTrack, ref)
-		tes3.removeSound { sound = newTrack, reference = ref }
+		debugLog(string.format("[%s] Immediately removing new track %s -> %s.", moduleName, newTrack.id,
+		tostring(newRef)))
+		rem(newTrack, newRef)
+	end
+
+	local oldRefHandle = moduleData[options.module].oldRefHandle
+	local oldRef = oldRefHandle and oldRefHandle:getObject()
+	local oldTrack = common.getTrackPlaying(moduleData[options.module].old, oldRef)
+	if oldTrack then
+		debugLog(string.format("[%s] Immediately removing old track %s -> %s.", moduleName, oldTrack.id,
+		tostring(oldRef)))
+		rem(oldTrack, oldRef)
 	end
 end
 
 -- Remove the sound for a given module, but with fade out --
 function this.remove(options)
-	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
+	local moduleName = options.module
+	local targetTrack = common.getTrackPlaying(options.track, options.reference)
+	local oldRefHandle = moduleData[moduleName].oldRefHandle
+	local newRefHandle = moduleData[moduleName].newRefHandle
+	local oldRef = oldRefHandle and oldRefHandle:getObject()
+	local newRef = newRefHandle and newRefHandle:getObject()
+	local oldTrack = common.getTrackPlaying(moduleData[moduleName].old, oldRef)
+	local newTrack = common.getTrackPlaying(moduleData[moduleName].new, newRef)
 
-	local oldTrack = common.getTrackPlaying(moduleData[options.module].old, ref)
-	local newTrack = common.getTrackPlaying(moduleData[options.module].new, ref)
-
-	local oldTrackOpts, newTrackOpts
-
-	if oldTrack then
-		oldTrackOpts = table.copy(options)
-		oldTrackOpts.fadeType = "out"
-		oldTrackOpts.reference = ref
-		oldTrackOpts.track = oldTrack
-		oldTrackOpts.removeTrack = true
-		fader.fade(oldTrackOpts)
+	local function fadeOut(track, ref)
+		fader.cancel(moduleName, track, ref)
+		fader.fade{
+			module = moduleName,
+			fadeType = "out",
+			track = track,
+			reference = ref,
+			removeTrack = true,
+		}
 	end
 
-	if newTrack then
-		newTrackOpts = table.copy(options)
-		newTrackOpts.fadeType = "out"
-		newTrackOpts.reference = ref
-		newTrackOpts.track = newTrack
-		newTrackOpts.removeTrack = true
-		fader.fade(newTrackOpts)
+	if targetTrack then
+		fadeOut(targetTrack, options.reference)
+		return
 	end
+
+	if newTrack then fadeOut(newTrack, newRef) end
+	if (oldTrack) and (oldTrack ~= newTrack) then fadeOut(oldTrack, oldRef) end
 end
 
 -- Sometiems we need to play a sound immediately as well.
@@ -176,7 +205,7 @@ end
 function this.playImmediate(options)
 	local moduleName = options.module
 	local ref = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
-	local track = options.last and moduleData[moduleName].new or options.track or this.getTrack(options)
+	local track = options.track or this.getTrack(options)
 
 	if track and ref and not tes3.getSoundPlaying { sound = track, reference = ref } then
 		local volume = math.clamp(math.round(options.volume or getVolume { module = moduleName }, 2), MIN, MAX)
@@ -191,7 +220,7 @@ function this.playImmediate(options)
 			debugLog(string.format("[%s] Successfully played with volume %s: %s -> %s", moduleName, volume, track.id, tostring(ref)))
 			moduleData[moduleName].lastVolume = volume
 			moduleData[moduleName].old = moduleData[moduleName].new
-			moduleData[moduleName].oldRefHandle = moduleData[options.module].newRefHandle
+			moduleData[moduleName].oldRefHandle = moduleData[moduleName].newRefHandle
 			moduleData[moduleName].new = track
 			moduleData[moduleName].newRefHandle = tes3.makeSafeObjectHandle(ref)
 			return true
@@ -200,95 +229,106 @@ function this.playImmediate(options)
 	return false
 end
 
-local queue = {}
-local function cancelModuleTimer(moduleName)
-	local moduleTimer = queue[moduleName]
-	if moduleTimer then moduleTimer:cancel() end
-end
-
-local function addToQueue(options)
-	local moduleName = options.module
-	cancelModuleTimer(moduleName)
-	queue[moduleName] = timer.start {
-		callback = function()
-			this.play(options)
-		end,
-		type = timer.real,
-		iterations = 1,
-		duration = 2,
-	}
-end
-
 -- Supporting kwargs here
 -- Main entry point, resolves all data received and decides what to do next --
 function this.play(options)
-	-- Blocking additional fade/crossfade requests until ongoing fades for this module are finished --
-	-- If multiple play requests arrive in this time, only the last request will pass through --
-	-- Should cover edge case where module becomes stale (no tracks playing) if changing cells too fast during crossfades --
-	if not options.noQueue then
-		if fader.isRunning{module = options.module} then
-			debugLog(string.format("[%s] Fader is running. Trying later.", options.module))
-			addToQueue(options)
-			return
-		end
-		cancelModuleTimer(options.module)
+	local moduleName = options.module
+	local nextTrack = moduleData[moduleName].nextTrack
+	local nextTrackTimer = moduleData[moduleName].nextTrackTimer
+	local callerCell = options.cell
+
+	local function clearQueue()
+		if nextTrackTimer then nextTrackTimer:cancel() end
+		moduleData[moduleName].nextTrack = nil
 	end
-	-- Get the last track so that we're not randomising each time we change int/ext cells within same conditions --
-	-- Checking here explicitly for a boolean because we might as well get a table from timer calls
-	if options.last == true and moduleData[options.module].new then
-		this.playImmediate(options)
-	else
-		local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts, removeTrack
-		-- Get the new track, if nothing is returned then bugger off (shouldn't really happen at all, but oh well) --
-		newTrack = options.track or this.getTrack(options)
-		newRef = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
-		if not newTrack then
-			debugLog("No track selected. Returning.")
+
+	local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts, removeTrack, trackFading
+	newTrack = options.track or this.getTrack(options)
+	newRef = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
+	if not (newTrack and newRef) then
+		--debugLog(string.format("[!][%s] newTrack: %s | newRef: %s. Returning.", moduleName, newTrack, newRef))
+		clearQueue()
+		return
+	end
+
+	-- Suspending additional fade/crossfade requests until ongoing fades for the caller module are finished --
+	-- If more calls are received while suspended, the previous suspended call will be canceled and the newer one will become suspended --
+	-- The suspended call will also be canceled if a "cellDiff" has occurred since the initial call --
+	-- Should cover edge case where module becomes stale (no tracks playing) if changing cells too fast during crossfades --
+	if not options.noQueue and callerCell then
+		trackFading = fader.isRunning{module = moduleName}
+		if trackFading then
+			if nextTrackTimer then nextTrackTimer:cancel() end
+			debugLog(string.format("[###][%s->%s] Fader is running (%s). Trying later.", moduleName, newTrack, trackFading.id))
+			moduleData[moduleName].nextTrack = newTrack
+			moduleData[moduleName].nextTrackTimer = timer.start {
+				callback = function()
+					local cellNow = tes3.getPlayerCell()
+					if not cellNow then return end
+					debugLog(string.format("[###][%s->%s] cellNow: %s | callerCell: %s", moduleName, newTrack, cellNow, callerCell))
+					local differentCell = callerCell ~= cellNow
+					local intToInt = differentCell and isInterior(callerCell) and isInterior(cellNow)
+					local cellDiff = checkCellDiff(cellNow, callerCell)
+					if cellDiff or intToInt then
+						debugLog(string.format("[###][%s->%s] cellDiff or intToInt. Discarding request.", moduleName, newTrack))
+						return
+					end
+					debugLog(string.format("[###][%s->%s] Retrying.", moduleName, newTrack))
+					this.play(options)
+				end,
+				type = timer.real,
+				iterations = 1,
+				duration = 2,
+			}
 			return
 		end
+	end
 
-		-- Move the queue forward --
-		moduleData[options.module].old = moduleData[options.module].new
-		moduleData[options.module].oldRefHandle = moduleData[options.module].newRefHandle
+	clearQueue()
 
-		-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --
-		if not options.noCrossfade then
-			local oldRefHandle = moduleData[options.module].oldRefHandle
-			if oldRefHandle and oldRefHandle:valid() then
-				oldRef = oldRefHandle:getObject()
-				debugLog(string.format("[%s] oldRef: %s", options.module, oldRef))
-				oldTrack = common.getTrackPlaying(moduleData[options.module].old, oldRef)
-				debugLog(string.format("[%s] oldTrack: %s", options.module, oldTrack))
-			end
+	-- Move the queue forward --
+	moduleData[moduleName].old = moduleData[moduleName].new
+	moduleData[moduleName].oldRefHandle = moduleData[moduleName].newRefHandle
+
+	-- If old track is playing, then we'll first fade it out. Otherwise, we'll just fade in the new track --
+	if not options.noCrossfade then
+		local oldRefHandle = moduleData[moduleName].oldRefHandle
+		if oldRefHandle and oldRefHandle:valid() then
+			oldRef = oldRefHandle:getObject()
+			debugLog(string.format("[%s] oldRef: %s", moduleName, oldRef))
+			oldTrack = common.getTrackPlaying(moduleData[moduleName].old, oldRef)
+			debugLog(string.format("[%s] oldTrack: %s", moduleName, oldTrack))
 		end
+	end
 
-		-- Remove old track by default when crossfading, unless instructed otherwise --
-		removeTrack = (options.removeTrack == nil) and true or options.removeTrack
+	debugLog(string.format("[%s] newRef: %s", moduleName, newRef))
+	debugLog(string.format("[%s] newTrack: %s", moduleName, newTrack))
 
-		if oldTrack then
-			fadeOutOpts = table.copy(options)
-			fadeOutOpts.fadeType = "out"
-			fadeOutOpts.track = oldTrack
-			fadeOutOpts.reference = oldRef
-			fadeOutOpts.removeTrack = removeTrack
-			fader.fade(fadeOutOpts)
-		end
-		if newTrack then
-			if this.playImmediate {
-					module = options.module,
-					reference = newRef,
-					track = newTrack,
-					volume = MIN,
-					pitch = options.pitch,
-				} then
-				fadeInOpts = table.copy(options)
-				fadeInOpts.fadeType = "in"
-				fadeInOpts.track = newTrack
-				fadeInOpts.reference = newRef
-				fadeInOpts.volume = fadeInOpts.volume or getVolume { module = fadeInOpts.module }
-				fader.fade(fadeInOpts)
-			end
-		end
+	-- Remove old track by default when crossfading, unless instructed otherwise --
+	removeTrack = (options.removeTrack == nil) and true or options.removeTrack
+
+	if oldTrack and oldTrack ~= newTrack then
+		fadeOutOpts = table.copy(options)
+		fadeOutOpts.fadeType = "out"
+		fadeOutOpts.track = oldTrack
+		fadeOutOpts.reference = oldRef
+		fadeOutOpts.removeTrack = removeTrack
+		fader.fade(fadeOutOpts)
+	end
+
+	if newTrack and this.playImmediate {
+		module = moduleName,
+		reference = newRef,
+		track = newTrack,
+		volume = MIN,
+		pitch = options.pitch,
+	} then
+		fadeInOpts = table.copy(options)
+		fadeInOpts.fadeType = "in"
+		fadeInOpts.track = newTrack
+		fadeInOpts.reference = newRef
+		fadeInOpts.volume = fadeInOpts.volume or getVolume(fadeInOpts)
+		fader.fade(fadeInOpts)
 	end
 end
 

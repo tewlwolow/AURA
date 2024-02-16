@@ -144,6 +144,9 @@ this.messages = {
 	playInteriorWind =
 	"Enable wind sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",
 	windVol = "Changes % volume for wind sounds.",
+	altitudeWind = "Enable automatic volume scaling of wind sounds based on current altitude? Requires variable wind sounds.",
+	altitudeWindVolMin = "Minimum wind volume at lowest altitude (sea level).",
+	altitudeWindVolMax = "Maximum wind volume at highest altitude.",
 	playSplash = "Enable splash sounds when going underwater and back to surface?",
 	splashVol = "Changes % volume for splash sounds.",
 	playYurtFlap = "Enable sounds for yurts and pelt entrances?",

@@ -1,6 +1,7 @@
 local this = {}
 
 local common = require("tew.AURA.common")
+local defaults = require("tew.AURA.defaults")
 local debugLog = common.debugLog
 local modules = require("tew.AURA.modules")
 local moduleData = modules.data
@@ -31,7 +32,19 @@ function this.fade(options)
     local trackId = track and track.id
     local ref = options.reference
     local removeTrack = options.removeTrack -- Whether to remove the track after fading it out
+    local saveVolume = options.saveVolume -- Save resulting targetVolume to config after fade?
     local isTrackUnattached = not ref
+
+    local function tryLater(options)
+        timer.start {
+            callback = function()
+                this.fade(options)
+            end,
+            type = timer.real,
+            iterations = 1,
+            duration = 2,
+        }
+    end
 
     if not (fadeType and track) then
         debugLog(string.format("[!][%s] Track: %s, fadeType: %s. Returning.", moduleName, tostring(track),
@@ -56,14 +69,7 @@ function this.fade(options)
         } then
         debugLog(string.format("[%s] wants to fade %s %s but fade %s is in progress for this track. Trying later.",
             moduleName, fadeType, trackId, fadeTypeOpposite))
-        timer.start {
-            callback = function()
-                this.fade(options)
-            end,
-            type = timer.real,
-            iterations = 1,
-            duration = 2,
-        }
+        tryLater(options)
         return
     end
 
@@ -140,6 +146,7 @@ function this.fade(options)
         ref and tostring(ref) or "(unattached)"))
 
     fadeInProgress.moduleName = moduleName
+    fadeInProgress.fadeType = fadeType
     fadeInProgress.track = track
     fadeInProgress.ref = ref
     fadeInProgress.iterTimer = timer.start {
@@ -159,8 +166,13 @@ function this.fade(options)
                     debugLog(string.format("[%s] Track %s removed from -> %s.", moduleName, trackId, tostring(ref)))
                 end
             end
+            if saveVolume and mData then
+                local config = mwse.loadConfig("AURA", defaults)
+                config.volumes.modules[moduleName].volume = currentVolume * 100
+                mwse.saveConfig("AURA", config)
+            end
             common.setRemove(this.inProgress[fadeType], fadeInProgress)
-            debugLog(string.format("[%s] lastVolume is now: %s", moduleName, currentVolume))
+            debugLog(string.format("[%s] currentVolume: %s", moduleName, currentVolume))
         end,
     }
     common.setInsert(this.inProgress[fadeType], fadeInProgress)
@@ -178,7 +190,8 @@ function this.isRunning(options)
     local function typeRunning(fadeType)
         for _, fade in ipairs(this.inProgress[fadeType]) do
             if (fade.moduleName == moduleName) and (fade.track == track) and (fade.ref == ref) then
-                return true
+                --return true
+                return fade.track
             end
         end
     end
@@ -187,7 +200,8 @@ function this.isRunning(options)
         for _, fade in ipairs(this.inProgress[fadeType]) do
             if (fade.moduleName == moduleName)
                 and (common.isTimerAlive(fade.iterTimer) or common.isTimerAlive(fade.fadeTimer)) then
-                return true
+                --return true
+                return fade.track
             end
         end
     end
@@ -212,6 +226,7 @@ end
 -- or just in/out for the given track and ref. Does not remove tracks.
 -- Make sure to remove tracks after calling this function if necessary.
 function this.cancel(moduleName, track, ref)
+    local canceled = {}
     for fadeType, data in pairs(this.inProgress) do
         for k, fade in ipairs(data) do
             if (moduleName == fade.moduleName) or (moduleName == "__all") then
@@ -222,14 +237,19 @@ function this.cancel(moduleName, track, ref)
                 end
                 fade.iterTimer:cancel()
                 fade.fadeTimer:cancel()
-                local fadeTrack = fade.track and fade.track.id
-                local fadeRef = fade.ref and tostring(fade.ref) or "(unattached)"
-                debugLog(string.format("[%s] Fade %s canceled for track %s -> %s.", moduleName, fadeType, fadeTrack,
-                    fadeRef))
-                data[k] = nil
+                local trackId = fade.track and fade.track.id
+                local refId = fade.ref and tostring(fade.ref) or "(unattached)"
+                debugLog(string.format("[%s] Fade %s canceled for track %s -> %s.", moduleName, fadeType, trackId,
+                    refId))
+                --data[k] = nil
+                table.insert(canceled, fade)
             end
             :: continue ::
         end
+    end
+    for _, fade in ipairs(canceled) do
+        local fadeType = fade.fadeType
+        common.setRemove(this.inProgress[fadeType], fade)
     end
 end
 

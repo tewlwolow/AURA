@@ -25,6 +25,7 @@ function this.init()
     this.id_trackList = tes3ui.registerID("AURA:MenuAdjustVolume_trackList")
     this.id_trackBlock = tes3ui.registerID("AURA:MenuAdjustVolume_trackBlock")
     this.id_trackInfo = tes3ui.registerID("AURA:MenuAdjustVolume_trackInfo")
+    this.id_slider = tes3ui.registerID("AURA:MenuAdjustVolume_slider")
     this.id_sliderLabel = tes3ui.registerID("AURA:MenuAdjustVolume_sliderLabel")
     this.id_buttonBlock = tes3ui.registerID("AURA:MenuAdjustVolume_buttonBlock")
     this.id_buttonLabel = tes3ui.registerID("AURA:MenuAdjustVolume_buttonLabel")
@@ -78,16 +79,28 @@ local function createSlider(parent, sc)
         max = sc.sliderType.sliderMax,
         step = sc.sliderType.sliderStep,
         jump = sc.sliderType.sliderJump,
+        id = this.id_slider,
     }
     slider.widthProportional = 0.99
     slider.borderTop = 5
     slider.borderBottom = 5
     local sliderLabel = parent:createLabel { id = this.id_sliderLabel, text = "" }
-    sliderLabel.text = string.format(sc.sliderType.labelFmt, current / sc.sliderType.sliderMult, messages.default,
+
+    -- Before adjustment
+    local currentValue = current / sc.sliderType.sliderMult
+    sliderLabel.text = string.format(sc.sliderType.labelFmt, currentValue, messages.default,
         default / sc.sliderType.sliderMult)
+    if sc.sliderTip then
+        sliderLabel.text = sliderLabel.text .. " [?]"
+        sliderLabel:register(tes3.uiEvent.help, function(e)
+            local tooltip = tes3ui.createTooltipMenu()
+            tooltip:createLabel { text = sc.sliderTip }
+        end)
+    end
+
+    -- After adjustment
     slider:register("PartScrollBar_changed", function(e)
-        local sliderValue = slider:getPropertyInt("PartScrollBar_current")
-        local newValue = sliderValue / sc.sliderType.sliderMult
+        local newValue = slider:getPropertyInt("PartScrollBar_current") / sc.sliderType.sliderMult
         sliderLabel.text = string.format(sc.sliderType.labelFmt, newValue, messages.default,
             default / sc.sliderType.sliderMult)
         sc.volumeTableCurrent[sc.key] = newValue
@@ -229,12 +242,24 @@ local function doModules()
         sc.volumeTableDefault = defaults.volumes.modules[moduleName]
         sc.volumeTableCurrent = this.config.volumes.modules[moduleName]
 
+        --local lastVolumePercent = getLastVolumePercent(moduleName)
+        --local altitudeWind = (moduleName == "wind") and (config.altitudeWind)
+        --local altitudeWindVolume = (altitudeWind) and cellData.altitudeWindVolume
+        --local altitudeWindVolumePercent = (altitudeWindVolume) and (altitudeWindVolume * 100)
+
+        local moduleVol = sc.volumeTableCurrent["volume"]
+        local lastVolume = moduleData[moduleName].lastVolume
+        local lastVolumePercent = lastVolume and (math.round(lastVolume, 2) * 100)
+
         if not this.cell.isOrBehavesAsExterior
             and (moduleName ~= "interiorToExterior")
             and (moduleName ~= "interiorWeather")
             and (moduleName ~= "interior") then
             configKey = common.getInteriorType(this.cell):gsub("ten", "sma")
             sc.sliderType = sliderCoefficient
+            local extVol = moduleVol
+            local intVol = lastVolumePercent or moduleVol
+            sc.sliderTip = string.format("Exterior volume: %s%%\nInterior volume: %s%%", extVol, intVol)
         else
             configKey = "volume"
             sc.sliderType = sliderPercent
@@ -244,7 +269,7 @@ local function doModules()
             local info = {}
             for _, door in pairs(cellData.exteriorDoors) do
                 if door ~= nil then
-                    local doorTrack = common.getTrackPlaying(modules.getExteriorDoorTrack(door), door)
+                    local doorTrack = common.getTrackPlaying(modules.getTempDataEntry("track", door, moduleName), door)
                     if doorTrack then
                         table.insert(info, string.format("%s: %s", doorTrack.id, door.destination.cell.name))
                     end
@@ -256,6 +281,16 @@ local function doModules()
                 local tip = table.concat(info, "\n")
                 tooltip:createLabel { text = tip }
             end)
+        end
+
+        if (moduleName == "wind") and (config.altitudeWind) and (this.cell.isOrBehavesAsExterior) then
+            trackInfo.text = string.format("%s: %s\n%s: %s%% [?]", moduleName, track.id, messages.adjustingAuto, lastVolumePercent)
+            trackInfo:register(tes3.uiEvent.help, function(e)
+                local tooltip = tes3ui.createTooltipMenu()
+                local tip = string.format("Altitude: %s", math.round(cellData.altitude or 0, 1))
+                tooltip:createLabel { text = tip }
+            end)
+            goto nextModule
         end
 
         if cellData.playerUnderwater then

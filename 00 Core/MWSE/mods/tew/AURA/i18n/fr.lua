@@ -157,6 +157,9 @@ this.messages = {
 	playInteriorWind =
 	"Activer les sons de vent en intérieur ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
 	windVol = "Changer le % volume des sons de vent.",
+	altitudeWind = "Activer le réglage automatique du volume des sons du vent en fonction de l'altitude actuelle ? Nécessite des sons de vent variables.",
+	altitudeWindVolMin = "Le volume de vent minimum à l'altitude la plus basse (niveau de la mer).",
+	altitudeWindVolMax = "Le volume de vent maximum à l'altitude la plus élevée.",
 	playSplash = "Activer les sons d'éclaboussures en entrant et sortant de l'eau ?",
 	splashVol = "Changer le % de volume des sons d'éclaboussures.",
 	playYurtFlap = "Activer les sons des portes de yourte ou en peau d'ours ?",

@@ -182,6 +182,8 @@ local function windCheck(e)
             last = useLast,
         }
 
+        debugLog(string.format("[#] old: %s | new: %s | useLast: %s | nextTrack: %s", moduleData[moduleName].old, moduleData[moduleName].new, useLast, track))
+
         if (config.altitudeWind) then
             updateAltitudeStats()
             debugLog("altitudeWindVolume: " .. tostring(cellData.altitudeWindVolume))

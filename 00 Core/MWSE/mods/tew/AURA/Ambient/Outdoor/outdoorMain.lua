@@ -175,7 +175,7 @@ local function cellCheck(e)
 		last = useLast,
 	}
 
-	mwse.log(string.format("[!] old: %s | new: %s | useLast: %s | nextTrack: %s", tostring(moduleData[moduleName].old), tostring(moduleData[moduleName].new), tostring(useLast), tostring(track)))
+	debugLog(string.format("[#] old: %s | new: %s | useLast: %s | nextTrack: %s", moduleData[moduleName].old, moduleData[moduleName].new, useLast, track))
 
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then

@@ -123,14 +123,17 @@ function this.getTrack(options)
 	return newTrack
 end
 
-function this.isStopping(moduleName, ref)
-	local oldTrack = moduleData[moduleName].old
-	local newTrack = moduleData[moduleName].new
+function this.isStopping(moduleName)
+	local old = modules.getCurrentlyPlaying(moduleName, "old") or {}
+	local new = modules.getCurrentlyPlaying(moduleName, "new") or {}
+	local oldTrack, oldRef = table.unpack(old)
+	local newTrack, newRef = table.unpack(new)
+
 	return oldTrack
-		and (fader.isRunning { module = moduleName, track = oldTrack, reference = ref, fadeType = "out" }
-			or fader.isRunning { module = moduleName, track = newTrack, reference = ref, fadeType = "out" })
-		and not (fader.isRunning { module = moduleName, track = newTrack, reference = ref, fadeType = "in" }
-			or fader.isRunning { module = moduleName, track = oldTrack, reference = ref, fadeType = "in" })
+		and (fader.isRunning { module = moduleName, track = oldTrack, reference = oldRef, fadeType = "out", removeTrack = true }
+			or fader.isRunning { module = moduleName, track = newTrack, reference = newRef, fadeType = "out", removeTrack = true })
+		and not (fader.isRunning { module = moduleName, track = newTrack, reference = newRef, fadeType = "in" }
+			or fader.isRunning { module = moduleName, track = oldTrack, reference = oldRef, fadeType = "in" })
 end
 
 -- Sometimes we need to just remove the sounds without fading --

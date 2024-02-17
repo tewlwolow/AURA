@@ -428,23 +428,19 @@ function this.unsetTempDataEntry(entry, ref, moduleName)
     end
 end
 
-function this.getCurrentlyPlaying(moduleName)
+function this.getCurrentlyPlaying(moduleName, newOrOld)
     if not this.data[moduleName] then return end
     local oldTrack = this.data[moduleName].old
     local newTrack = this.data[moduleName].new
     local oldRefHandle = this.data[moduleName].oldRefHandle
     local newRefHandle = this.data[moduleName].newRefHandle
+    local track = (newOrOld == "old") and oldTrack or newTrack
+    local refHandle = (newOrOld == "old") and oldRefHandle or newRefHandle
 
-    if newRefHandle then
-        local newRef = newRefHandle:getObject()
-        if common.getTrackPlaying(newTrack, newRef) then
-            return { newTrack, newRef }
-        end
-    end
-    if oldRefHandle then
-        local oldRef = oldRefHandle:getObject()
-        if common.getTrackPlaying(oldTrack, oldRef) then
-            return { oldTrack, oldRef }
+    if refHandle then
+        local ref = refHandle:getObject()
+        if common.getTrackPlaying(track, ref) then
+            return { track, ref }
         end
     end
 end

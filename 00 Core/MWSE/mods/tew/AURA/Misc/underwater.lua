@@ -56,9 +56,9 @@ end
 -- Modules will handle that individually.
 local function underwaterResetModules()
     for moduleName, data in pairs(moduleData) do
-        if data.playUnderwater and tes3.mobilePlayer
-        and common.getTrackPlaying(moduleData[moduleName].new, tes3.mobilePlayer.reference)
-        and not sounds.isStopping(moduleName, tes3.mobilePlayer.reference)
+        if data.playUnderwater
+        and modules.getCurrentlyPlaying(moduleName)
+        and not sounds.isStopping(moduleName)
         then
             debugLog("Resetting sounds for module " .. moduleName)
             sounds.removeImmediate { module = moduleName }

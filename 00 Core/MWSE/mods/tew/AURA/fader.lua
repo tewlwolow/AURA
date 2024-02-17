@@ -149,6 +149,7 @@ function this.fade(options)
     fadeInProgress.fadeType = fadeType
     fadeInProgress.track = track
     fadeInProgress.ref = ref
+    fadeInProgress.removeTrack = removeTrack
     fadeInProgress.iterTimer = timer.start {
         iterations = iters,
         duration = TICK,
@@ -190,9 +191,11 @@ function this.isRunning(options)
     local function typeRunning(fadeType)
         for _, fade in ipairs(this.inProgress[fadeType]) do
             if (fade.moduleName == moduleName) and (fade.track == track) and (fade.ref == ref) then
+                if (options.removeTrack) and (not fade.removeTrack) then goto continue end
                 --return true
                 return fade.track
             end
+            :: continue ::
         end
     end
 
@@ -241,7 +244,6 @@ function this.cancel(moduleName, track, ref)
                 local refId = fade.ref and tostring(fade.ref) or "(unattached)"
                 debugLog(string.format("[%s] Fade %s canceled for track %s -> %s.", moduleName, fadeType, trackId,
                     refId))
-                --data[k] = nil
                 table.insert(canceled, fade)
             end
             :: continue ::

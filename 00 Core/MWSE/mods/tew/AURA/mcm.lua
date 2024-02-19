@@ -147,30 +147,37 @@ pageIA:createCategory {
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.rainOnStaticsSounds),
 	variable = registerVariable("playRainOnStatics"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.shelterRain),
 	variable = registerVariable("playRainInsideShelter"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.shelterWind),
 	variable = registerVariable("playWindInsideShelter"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.shelterWeather),
 	variable = registerVariable("shelterWeather"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.ropeBridge),
 	variable = registerVariable("playRopeBridge"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.photodragons),
 	variable = registerVariable("playPhotodragons"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.bannerFlap),
 	variable = registerVariable("playBannerFlap"),
+	restartRequired = true,
 }
 
 --[[
@@ -421,6 +428,7 @@ pageMisc:createSlider {
 pageMisc:createYesNoButton {
 	label = messages.playYurtFlap,
 	variable = registerVariable("playYurtFlap"),
+	restartRequired = true,
 }
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.yurtVol, messages.default, defaults.volumes.misc.yurtVol, messages.volume),
@@ -439,6 +447,7 @@ pageMisc:createYesNoButton {
 pageMisc:createYesNoButton {
 	label = messages.thunderSounds,
 	variable = registerVariable("thunderSounds"),
+	restartRequired = true,
 }
 pageMisc:createYesNoButton {
 	label = messages.thunderSoundsDelay,
@@ -463,6 +472,7 @@ pageMisc:createSlider {
 pageMisc:createYesNoButton {
 	label = messages.floraSounds,
 	variable = registerVariable("floraSounds"),
+	restartRequired = true,
 }
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.floraVol, messages.default, defaults.volumes.misc.floraVol, messages.volume),

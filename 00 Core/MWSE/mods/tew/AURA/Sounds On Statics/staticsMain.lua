@@ -120,7 +120,7 @@ local function adjustWeatherVolume()
 
     if (not cellData.isWeatherVolumeDynamic) and (sheltered) then
         local trackVolume = math.round(weatherTrack.volume, 2)
-        weatherVolumeDelta = getVolume { module = moduleName, trackVolume = trackVolume }
+        weatherVolumeDelta = getVolume { module = moduleName, moduleVol = trackVolume }
         if (weatherVolumeDelta == 0) then return end
         moduleData[moduleName].lastVolume = trackVolume
         fadeWeatherTrack("out", weatherTrack)

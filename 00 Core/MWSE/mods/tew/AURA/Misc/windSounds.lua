@@ -184,15 +184,25 @@ local function windCheck(e)
 
         debugLog(string.format("[#] old: %s | new: %s | useLast: %s | nextTrack: %s", moduleData[moduleName].old, moduleData[moduleName].new, useLast, track))
 
+        local saveVolume
+
         if (config.altitudeWind) then
             updateAltitudeStats()
-            debugLog("altitudeWindVolume: " .. tostring(cellData.altitudeWindVolume))
+            local altVol = cellData.altitudeWindVolume
+            local windVol = config.volumes.modules[moduleName].volume / 100
+            debugLog("windVol: " .. windVol)
+            if (altVol) and (altVol ~= windVol) then
+                config.volumes.modules[moduleName].volume = altVol * 100
+                mwse.saveConfig("AURA", config)
+            end
+            saveVolume = true
+            debugLog("altitudeWindVolume: " .. tostring(altVol))
         end
 
         if (cell.isOrBehavesAsExterior) then
             -- Using the same track when entering int/ext in same area; time/weather change will randomise it again --
             debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-            sounds.play { module = moduleName, track = track, cell = cell, saveVolume = config.altitudeWind }
+            sounds.play { module = moduleName, track = track, cell = cell, saveVolume = saveVolume }
         else
             debugLog("Found interior cell.")
             stopWindoors(true)

@@ -63,8 +63,7 @@ function this.getVolume(options)
     end
 
     local config = options.config or mwse.loadConfig("AURA", defaults)
-    local trackVolume = options.trackVolume
-    local moduleVol = trackVolume or config.volumes.modules[moduleName].volume / 100
+    local moduleVol = options.moduleVol or config.volumes.modules[moduleName].volume / 100
     local moduleSoundConfig = this.getModuleSoundConfig(moduleName)
     local weatherMult = moduleSoundConfig.mult or 1
 

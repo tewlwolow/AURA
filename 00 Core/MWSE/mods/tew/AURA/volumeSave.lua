@@ -34,6 +34,11 @@ function this.init()
     volumeController.printConfigVolumes()
 end
 
+local function getLastVolumePercent(moduleName)
+    local lastVolume = moduleData[moduleName].lastVolume
+    return lastVolume and (math.round(lastVolume, 2) * 100)
+end
+
 local function getTextInputFocus()
     return tes3.worldController.menuController.inputController.textInputFocus
 end
@@ -54,63 +59,76 @@ local function textInputIsActive()
 end
 
 local sliderPercent = {
-    labelFmt = "%d%%  (%s = %d%%)",
-    sliderMult = 1,
+    create = mwse.mcm.createSlider,
+    labelFmt = "(" .. messages.default .. ": %d) Current",
     sliderMin = 0,
     sliderMax = 100,
     sliderStep = 1,
     sliderJump = 5,
+    decimalPlaces = 0,
 }
 local sliderCoefficient = {
-    labelFmt = "[%.2f x " .. messages.exteriorVolume .. "]  (%s = %.2fx)",
-    sliderMult = 100,
+    create = mwse.mcm.createDecimalSlider,
+    labelFmt =  "(" .. messages.default .. ": %.2f) Current",
     sliderMin = 0,
-    sliderMax = 60,
-    sliderStep = 1,
-    sliderJump = 5,
+    sliderMax = 0.6,
+    sliderStep = 0.01,
+    sliderJump = 0.05,
+    decimalPlaces = 2,
 }
 
 local function createSlider(parent, sc)
-    local current = sc.volumeTableCurrent[sc.key] * sc.sliderType.sliderMult
-    local default = sc.volumeTableDefault[sc.key] * sc.sliderType.sliderMult
-    local slider = parent:createSlider {
-        current = current,
-        min = sc.sliderType.sliderMin,
-        max = sc.sliderType.sliderMax,
-        step = sc.sliderType.sliderStep,
-        jump = sc.sliderType.sliderJump,
-        id = this.id_slider,
-    }
-    slider.widthProportional = 0.99
-    slider.borderTop = 5
-    slider.borderBottom = 5
-    local sliderLabel = parent:createLabel { id = this.id_sliderLabel, text = "" }
-
-    -- Before adjustment
-    local currentValue = current / sc.sliderType.sliderMult
-    sliderLabel.text = string.format(sc.sliderType.labelFmt, currentValue, messages.default,
-        default / sc.sliderType.sliderMult)
-    if sc.sliderTip then
-        sliderLabel.text = sliderLabel.text .. " [?]"
-        sliderLabel:register(tes3.uiEvent.help, function(e)
+    local trackInfo = parent:findChild(this.id_trackInfo)
+    local trackInfoTextOriginal
+    local function updateInfo()
+        local moduleVol = sc.volumeTableCurrent["volume"]
+        local lastVolumePercent = getLastVolumePercent(sc.moduleName)
+        local extVol = moduleVol
+        local intVol = lastVolumePercent or moduleVol
+        local ev = messages.exteriorVolume
+        local iv = messages.interiorVolume
+        local tip = string.format("%s: %s%%\n%s: %s%%", ev, extVol, iv, intVol)
+        trackInfo.text = trackInfoTextOriginal .. " [?]"
+        trackInfo:register(tes3.uiEvent.help, function(e)
             local tooltip = tes3ui.createTooltipMenu()
-            tooltip:createLabel { text = sc.sliderTip }
+            tooltip:createLabel { text = tip }
         end)
+        parent:getTopLevelMenu():updateLayout()
     end
 
-    -- After adjustment
-    slider:register("PartScrollBar_changed", function(e)
-        local newValue = slider:getPropertyInt("PartScrollBar_current") / sc.sliderType.sliderMult
-        sliderLabel.text = string.format(sc.sliderType.labelFmt, newValue, messages.default,
-            default / sc.sliderType.sliderMult)
-        sc.volumeTableCurrent[sc.key] = newValue
-        if sc.moduleName then
-            adjustVolume { module = sc.moduleName, config = this.config }
-            common.setInsert(this.adjustedModules, sc.moduleName)
-        else
-            setVolume(sc.track, newValue / 100)
-        end
-    end)
+    sc.sliderType.create(
+        parent,
+        {
+            label = string.format(sc.sliderType.labelFmt, sc.volumeTableDefault[sc.key]),
+            min = sc.sliderType.sliderMin,
+            max = sc.sliderType.sliderMax,
+            step = sc.sliderType.sliderStep,
+            jump = sc.sliderType.sliderJump,
+            decimalPlaces = sc.sliderType.decimalPlaces,
+            variable = mwse.mcm.createTableVariable {
+                id = sc.key,
+                table = sc.volumeTableCurrent,
+                defaultSetting = sc.volumeTableDefault[sc.key],
+            },
+            callback = function(self)
+                sc.volumeTableCurrent[sc.key] = self.variable.value
+                if sc.moduleName then
+                    adjustVolume { module = sc.moduleName, config = config }
+                    common.setInsert(this.adjustedModules, sc.moduleName)
+                elseif sc.track then
+                    setVolume(sc.track, self.variable.value / 100)
+                end
+                if trackInfoTextOriginal then
+                    updateInfo()
+                end
+            end,
+        }
+    )
+
+    if sc.showExtIntVol and trackInfo then
+        trackInfoTextOriginal = trackInfo.text
+        updateInfo()
+    end
 end
 
 local function createEntry(id)
@@ -157,7 +175,7 @@ local function doExtremes()
         sc.track = track
         sc.sliderType = sliderPercent
         sc.volumeTableDefault = defaults.volumes.extremeWeather
-        sc.volumeTableCurrent = this.config.volumes.extremeWeather
+        sc.volumeTableCurrent = config.volumes.extremeWeather
         trackInfo.text = string.format("%s: %s", cw.name, track.id)
         if cellData.playerUnderwater and config.underwaterRain then
             trackInfo.text = string.format("%s\n%s: %s%%", trackInfo.text, messages.adjustingAuto,
@@ -196,7 +214,7 @@ local function doRain()
     sc.track = track
     sc.sliderType = sliderPercent
     sc.volumeTableDefault = defaults.volumes.rain[cw.name]
-    sc.volumeTableCurrent = this.config.volumes.rain[cw.name]
+    sc.volumeTableCurrent = config.volumes.rain[cw.name]
 
     trackInfo.text = string.format("%s (%s): %s", cw.name, rainType, track.id)
 
@@ -240,16 +258,9 @@ local function doModules()
         end
 
         sc.volumeTableDefault = defaults.volumes.modules[moduleName]
-        sc.volumeTableCurrent = this.config.volumes.modules[moduleName]
+        sc.volumeTableCurrent = config.volumes.modules[moduleName]
 
-        --local lastVolumePercent = getLastVolumePercent(moduleName)
-        --local altitudeWind = (moduleName == "wind") and (config.altitudeWind)
-        --local altitudeWindVolume = (altitudeWind) and cellData.altitudeWindVolume
-        --local altitudeWindVolumePercent = (altitudeWindVolume) and (altitudeWindVolume * 100)
-
-        local moduleVol = sc.volumeTableCurrent["volume"]
-        local lastVolume = moduleData[moduleName].lastVolume
-        local lastVolumePercent = lastVolume and (math.round(lastVolume, 2) * 100)
+        local lastVolumePercent = getLastVolumePercent(moduleName)
 
         if not this.cell.isOrBehavesAsExterior
             and (moduleName ~= "interiorToExterior")
@@ -257,9 +268,7 @@ local function doModules()
             and (moduleName ~= "interior") then
             configKey = common.getInteriorType(this.cell):gsub("ten", "sma")
             sc.sliderType = sliderCoefficient
-            local extVol = moduleVol
-            local intVol = lastVolumePercent or moduleVol
-            sc.sliderTip = string.format("Exterior volume: %s%%\nInterior volume: %s%%", extVol, intVol)
+            sc.showExtIntVol = true
         else
             configKey = "volume"
             sc.sliderType = sliderPercent
@@ -420,16 +429,15 @@ local function redraw()
     local menu = tes3ui.findMenu(this.id_menu)
     local trackList = menu:findChild(this.id_trackList)
     trackList:destroy()
-    mwse.saveConfig("AURA", this.config)
-    this.config = mwse.loadConfig("AURA", defaults)
-    this.configPrevious = table.deepcopy(this.config)
+    mwse.saveConfig("AURA", config)
+    this.configPrevious = table.deepcopy(config)
     cellData.isWeatherVolumeDynamic = false
-    createBody()
     for _, moduleName in ipairs(this.adjustedModules) do
-        adjustVolume { module = moduleName, config = this.config }
+        adjustVolume { module = moduleName, config = config }
     end
     table.clear(this.adjustedModules)
     volumeController.setConfigVolumes()
+    createBody()
     menu:updateLayout()
 end
 
@@ -444,8 +452,7 @@ function this.toggle(e)
 
         if (not menu) then
             this.cell = cellData.cell
-            this.config = mwse.loadConfig("AURA", defaults)
-            this.configPrevious = table.deepcopy(this.config)
+            this.configPrevious = table.deepcopy(config)
             createWindow()
             if (not tes3ui.menuMode()) then
                 tes3ui.enterMenuMode(this.id_menu)
@@ -458,7 +465,7 @@ function this.toggle(e)
             if (tes3ui.menuMode()) then
                 tes3ui.leaveMenuMode()
             end
-            if this.config then mwse.saveConfig("AURA", this.config) end
+            mwse.saveConfig("AURA", config)
             this.configPrevious = nil
             this.entries = 0
             table.clear(this.adjustedModules)
@@ -469,17 +476,17 @@ end
 
 function this.onUndo(e)
     debugLog("Reverting changes.")
-    this.config.volumes.modules = this.configPrevious.volumes.modules
-    this.config.volumes.rain = this.configPrevious.volumes.rain
-    this.config.volumes.extremeWeather = this.configPrevious.volumes.extremeWeather
+    config.volumes.modules = this.configPrevious.volumes.modules
+    config.volumes.rain = this.configPrevious.volumes.rain
+    config.volumes.extremeWeather = this.configPrevious.volumes.extremeWeather
     redraw()
 end
 
 function this.onRestoreDefaults(e)
     debugLog("Restoring defaults.")
-    this.config.volumes.modules = defaults.volumes.modules
-    this.config.volumes.rain = defaults.volumes.rain
-    this.config.volumes.extremeWeather = defaults.volumes.extremeWeather
+    config.volumes.modules = defaults.volumes.modules
+    config.volumes.rain = defaults.volumes.rain
+    config.volumes.extremeWeather = defaults.volumes.extremeWeather
     redraw()
     tes3.messageBox { message = messages.defaultsRestored }
 end

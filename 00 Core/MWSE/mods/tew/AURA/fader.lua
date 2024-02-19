@@ -1,5 +1,6 @@
 local this = {}
 
+local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
 local defaults = require("tew.AURA.defaults")
 local debugLog = common.debugLog
@@ -168,7 +169,6 @@ function this.fade(options)
                 end
             end
             if saveVolume and mData then
-                local config = mwse.loadConfig("AURA", defaults)
                 config.volumes.modules[moduleName].volume = currentVolume * 100
                 mwse.saveConfig("AURA", config)
             end

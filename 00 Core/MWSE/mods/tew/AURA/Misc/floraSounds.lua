@@ -1,4 +1,5 @@
 local common = require("tew.AURA.common")
+local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
 local soundData = require("tew.AURA.soundData")
 
@@ -134,7 +135,6 @@ local function playFlora()
     local sound = table.choice(soundData.flora)
     if not sound then return end
 
-    local config = mwse.loadConfig("AURA", defaults)
     local volume = config.volumes.misc.floraVol / 100
     local pitch = math.random(80, 130) / 100
 

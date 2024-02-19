@@ -1,4 +1,5 @@
 local common = require("tew.AURA.common")
+local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
 local debugLog = common.debugLog
 local cellData = require("tew.AURA.cellData")
@@ -48,7 +49,6 @@ local function onSoundObjectPlay(e)
     -- Distant_Thunder_00, Distant_Thunder_01, Distant_Thunder_02, Distant_Thunder_03
 
     local delay = math.random(1, 25) / 10 -- Light travels faster than sound
-    local config = mwse.loadConfig("AURA", defaults)
     minVol = config.volumes.misc.thunderVolMin
     maxVol = config.volumes.misc.thunderVolMax
     addDelay = config.thunderSoundsDelay

@@ -141,7 +141,7 @@ pageIA:createYesNoButton {
 }
 
 local pageSS = template:createPage { label = messages.SS }
-pageIA:createCategory {
+pageSS:createCategory {
 	label = string.format("%s\n\n%s:", messages.SSDesc, messages.settings),
 }
 pageSS:createYesNoButton {

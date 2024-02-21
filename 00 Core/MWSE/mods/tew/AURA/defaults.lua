@@ -12,7 +12,7 @@ return {
     modulePC = true,
     playSplash = true,
     playInteriorAmbient = true,
-    playInteriorWeather = true,
+    --playInteriorWeather = true, -- This option isn't used anywhere
     playYurtFlap = true,
     debugLogOn = false,
     volumeSave = { keyCode = tes3.scanCode.v },

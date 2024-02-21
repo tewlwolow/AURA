@@ -35,6 +35,7 @@ this.messages = {
 
 	by = "par",
 	settings = "Paramètres",
+	current = "Actuel",
 	default = "Par défaut",
 	volume = "Volume",
 	toggle = "Changer",
@@ -60,7 +61,10 @@ this.messages = {
 	undo = "Annuler",
 	restoreDefaults = "Réinitialiser",
 	defaultsRestored = "Paramètres par défaut restaurés",
+	track = "Piste",
 	noTracksPlaying = "Aucune piste en cours de lecture",
+	tracksPlaying = "Pistes en cours de lecture",
+	doorDestinationCell = "Cellule de destination de la porte",
 	findOutdoorShelter = "Trouvez un abri extérieur pour régler ce volume. [?]",
 	findOutdoorShelterTooltip =
 	"Les statiques d'abri prises en charge sont: les tentes\nportables (telles que les tentes modulaires Ashfall), les\nsurplombs, les auvents et les remises.",
@@ -72,9 +76,13 @@ this.messages = {
 	small = "petit",
 	exteriorVolume = "Le volume à l'extérieur",
 	interiorVolume = "Le volume à l'intérieur",
+	altitude = "Altitude",
 	underwater = "sous l'eau",
 	adjustingAuto = "Ajustement automatique",
-	currentlyPlayingDoors = "Portes en cours de lecture",
+	module = "Module",
+	configOption = "Option de configuration",
+	mcmTab = "Onglet dans la configuration du mod",
+	description = "Description",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 
@@ -98,13 +106,13 @@ this.messages = {
 	"Activer les sons de pluie atmosphériques lorsque vous êtes à l'abri à l'extérieur ? Les abris pris en charge comprennent des tentes portables (telles que les tentes modulaires Ashfall), des surplombs, des auvents et des hangars. Nécessite des sons variables de la pluie.",
 	shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
 	shelterWeather =
-	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
+	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à sa valeur précédente lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
 	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Côte de la Mélancolie ?",
 	ropeBridge = "Activer des sons appropriés sur les ponts de singe à l'extérieur ?",
 	bannerFlap = "Activer les sons de battement en fonction du type de temps sur les bannières et les drapeaux à l'extérieur ?",
 
 	enableInteriorToExterior =
-	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
+	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant à une cellule intérieure.",
 
 	PA = "Ambiance Population",
 	PADesc = "Joue des sons d'ambiance dans les lieux peuplés commes les villes et les villages.",

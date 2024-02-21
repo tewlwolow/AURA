@@ -21,6 +21,7 @@ this.messages = {
 
 	by = "by",
 	settings = "Settings",
+	current = "Current",
 	default = "Default",
 	volume = "Volume",
 	toggle = "Toggle",
@@ -46,7 +47,10 @@ this.messages = {
 	undo = "Undo",
 	restoreDefaults = "Restore defaults",
 	defaultsRestored = "Defaults restored",
+	track = "Track",
 	noTracksPlaying = "No tracks playing",
+	tracksPlaying = "Tracks playing",
+	doorDestinationCell = "Door destination cell",
 	findOutdoorShelter = "Find outdoor shelter to adjust this volume. [?]",
 	findOutdoorShelterTooltip =
 	"Supported shelter statics are: portable\ntents (such as Ashfall modular tents),\noverhangs, awnings and sheds.",
@@ -58,9 +62,13 @@ this.messages = {
 	small = "small",
 	exteriorVolume = "Exterior volume",
 	interiorVolume = "Interior volume",
+	altitude = "Altitude",
 	underwater = "underwater",
 	adjustingAuto = "Adjusting automatically",
-	currentlyPlayingDoors = "Doors currently playing",
+	module = "Module",
+	configOption = "Config option",
+	mcmTab = "Mod config tab",
+	description = "Description",
 
 	refreshManifest = "Refresh manifest file",
 
@@ -83,14 +91,14 @@ this.messages = {
 	"Enable atmospheric rain sounds while sheltered outside? Supported shelter statics include portable tents (such as Ashfall modular tents), overhangs, awnings and sheds. Requires variable rain sounds.",
 	shelterWind = "Enable atmospheric wind sounds while sheltered inside portable tents?",
 	shelterWeather =
-	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and come back to normal when no longer sheltered. Requires variable rain sounds.",
+	"Enable dynamic weather volume adjustment while sheltered outside? This means weather volume will decrease by a small margin when sheltered, and revert to the previous value when no longer sheltered. Requires variable rain sounds.",
 	photodragons =
 	"Enable appropriate flying insect sounds to dragonfly swarms commonly found around the Bitter Coast area?",
 	ropeBridge = "Enable appropriate sounds on rope bridges outside?",
 	bannerFlap = "Enable flapping sounds per weather type on banners and flags outside?",
 
 	enableInteriorToExterior =
-	"Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors leading to previously visited interior cells.",
+	"Bridge interior ambient sounds to exterior doors/entrances? This means interior-specific loops will play on doors that lead to an interior cell.",
 
 	PA = "Populated Ambient",
 	PADesc = "Plays ambient sounds in populated areas, like towns and villages.",
@@ -140,7 +148,6 @@ this.messages = {
 	misc = "Misc",
 	miscDesc = "Plays various miscellaneous sounds.",
 	rainSounds = "Enable variable rain sounds per max particles?",
-	--rainOnStaticsSounds = "Enable rain sounds on leather/fur/canvas statics outside? Requires variable rain sounds.",
 	windSounds = "Enable variable wind sounds per clouds speed?",
 	playInteriorWind =
 	"Enable wind sounds in interiors? This means the last exterior loop will play on each door and window leading to an exterior.",

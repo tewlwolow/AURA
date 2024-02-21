@@ -581,8 +581,8 @@ local function createWindow()
     local menu = tes3ui.createMenu { id = this.id_menu, dragFrame = true }
 
     menu.text = "AURA"
-    menu.width = 430
-    menu.height = 600
+    menu.width = config.volumeSave.width
+    menu.height = config.volumeSave.height
 
     if this.positionX and this.positionY then
         menu.positionX = this.positionX
@@ -600,8 +600,8 @@ local function createWindow()
 
     updateHeader()
 
-    menu.width = 430
-    menu.height = 600
+    menu.width = config.volumeSave.width
+    menu.height = config.volumeSave.height
     menu:updateLayout()
     menu.visible = true
 end
@@ -642,6 +642,8 @@ function this.toggle(e)
         else
             this.positionX = menu.positionX
             this.positionY = menu.positionY
+            config.volumeSave.width = menu.width
+            config.volumeSave.height = menu.height
             menu:destroy()
             if (tes3ui.menuMode()) then
                 tes3ui.leaveMenuMode()

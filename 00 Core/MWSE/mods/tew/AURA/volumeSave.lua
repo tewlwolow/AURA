@@ -181,7 +181,7 @@ local function textInputIsActive()
 end
 
 local sliderPercent = {
-    create = mwse.mcm.createPercentageSlider,
+    create = mwse.mcm.createSlider,
     labelFmt = "%%  (" .. messages.default .. ": %s%%)",
     sliderMin = 0,
     sliderMax = 100,

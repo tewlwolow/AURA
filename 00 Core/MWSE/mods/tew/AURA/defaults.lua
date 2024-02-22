@@ -45,12 +45,12 @@ return {
     floraSounds = true,
     volumes = {
         modules = {
-            ["outdoor"] = { volume = 50, big = 0.25, sma = 0.2, und = 0.4 },
+            ["outdoor"] = { volume = 50, big = 0.25, sma = 0.2, und = 0.2 },
             ["populated"] = { volume = 50, big = 1, sma = 1, und = 0.3 },
             ["interior"] = { volume = 60, big = 1, sma = 1, und = 0.5 },
             ["interiorWeather"] = { volume = 75, big = 1, sma = 1, und = 0.3 },
             ["interiorToExterior"] = { volume = 45, big = 1, sma = 1, und = 0 },
-            ["wind"] = { volume = 55, big = 0.4, sma = 0.4, und = 0.1 },
+            ["wind"] = { volume = 55, big = 0.4, sma = 0.4, und = 0.3 },
             ["rainOnStatics"] = { volume = 100, big = 1, sma = 1, und = 0 },
             ["shelterRain"] = { volume = 100, big = 1, sma = 1, und = 0 },
             ["shelterWind"] = { volume = 100, big = 1, sma = 1, und = 0 },

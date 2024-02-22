@@ -58,12 +58,12 @@ local function updateAltitudeStats()
 end
 
 local function updateConditions(resetInteriorTimerFlag)
-	if resetInteriorTimerFlag
-	and interiorTimer
-	and not cell.isOrBehavesAsExterior
-	and not table.empty(cellData.windoors) then
-		interiorTimer:reset()
-	end
+    if resetInteriorTimerFlag
+    and interiorTimer
+    and not cell.isOrBehavesAsExterior
+    and not table.empty(cellData.windoors) then
+        interiorTimer:reset()
+    end
     altitudeWindTimer:reset()
     windTypeLast = windType
     cellLast = cell
@@ -116,11 +116,11 @@ local function windCheck(e)
     -- Cell resolution --
     cell = tes3.getPlayerCell()
     if (not cell) then
-		debugLog("No cell detected. Returning.")
+        debugLog("No cell detected. Returning.")
         sounds.remove { module = moduleName }
-		return
-	end
-	debugLog("Cell: " .. cell.editorName)
+        return
+    end
+    debugLog("Cell: " .. cell.editorName)
 
     -- Weather resolution --
     local regionObject = tes3.getRegion(true)
@@ -170,9 +170,9 @@ local function windCheck(e)
         return
     end
     if common.checkCellDiff(cell, cellLast) then
-		debugLog("Cell type changed. Removing module sounds.")
-		sounds.removeImmediate { module = moduleName }
-	end
+        debugLog("Cell type changed. Removing module sounds.")
+        sounds.removeImmediate { module = moduleName }
+    end
 
     if (windTypeLast ~= windType) or (cell ~= cellLast) then
 
@@ -284,26 +284,26 @@ end
 -- Run hour timer, start and pause interiorTimer on loaded --
 local function onLoaded()
     runHourTimer()
-	if playInteriorWind then
-		if not interiorTimer then
-			interiorTimer = timer.start{
-				duration = 1,
-				iterations = -1,
-				callback = playWindoors,
-				type = timer.simulate
-			}
-		end
-		interiorTimer:pause()
-	end
+    if playInteriorWind then
+        if not interiorTimer then
+            interiorTimer = timer.start{
+                duration = 1,
+                iterations = -1,
+                callback = playWindoors,
+                type = timer.simulate
+            }
+        end
+        interiorTimer:pause()
+    end
     if config.altitudeWind then
         cellData.altitudeWindVolume = nil
         cellData.altitude = nil
         if not altitudeWindTimer then
             altitudeWindTimer = timer.start{
                 duration = 1,
-				iterations = -1,
-				callback = altitudeCheck,
-				type = timer.simulate
+                iterations = -1,
+                callback = altitudeCheck,
+                type = timer.simulate
             }
         end
         altitudeWindTimer:pause()
@@ -355,6 +355,7 @@ event.register("weatherChangedImmediate", onConditionChanged, { priority = -100 
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -100 })
 event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -100 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -100 })
+event.register("AURA:enteredUnderwater", resetWindoors, { priority = -100 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -100 })
 event.register("loaded", onLoaded, { priority = -160 })
 event.register("load", runResetter)

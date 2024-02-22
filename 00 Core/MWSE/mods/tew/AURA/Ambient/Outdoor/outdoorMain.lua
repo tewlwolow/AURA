@@ -286,6 +286,7 @@ event.register("weatherTransitionStarted", onConditionChanged, { priority = -160
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -160 })
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -160 })
+event.register("AURA:enteredUnderwater", resetWindoors, { priority = -160 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -160 })
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -5 })
 debugLog("Outdoor Ambient Sounds module initialised.")

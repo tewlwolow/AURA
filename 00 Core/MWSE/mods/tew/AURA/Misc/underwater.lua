@@ -16,9 +16,9 @@ local playerHeight
 local originalVolumes = {}
 
 local function setVolume(track, volume)
-	local rounded = math.round(volume, 2)
-	debugLog(string.format("Setting volume for track %s to %s", track.id, rounded))
-	track.volume = rounded
+    local rounded = math.round(volume, 2)
+    debugLog(string.format("Setting volume for track %s to %s", track.id, rounded))
+    track.volume = rounded
 end
 
 local function storeOriginalVolumes()
@@ -26,7 +26,7 @@ local function storeOriginalVolumes()
     table.clear(originalVolumes)
     for _, sound in pairs(soundData.weatherLoops) do
         originalVolumes[sound.id] = sound.volume
-	end
+    end
 end
 
 -- Only modify volumes for actively playing `rainLoopSound`, or for weather
@@ -38,7 +38,7 @@ local function modifyWeatherVolume()
     local mp = tes3.mobilePlayer
     for _, sound in pairs(soundData.weatherLoops) do
         local originalVol = originalVolumes[sound.id]
-		if sound:isPlaying() then
+        if sound:isPlaying() then
             if (cw and cw.rainLoopSound and cw.rainLoopSound == sound)
             or (cw and (cw.index == 6 or cw.index == 7 or cw.index == 9))
             or (mp and tes3.getSoundPlaying{sound = sound, reference = mp.reference}) then
@@ -47,36 +47,37 @@ local function modifyWeatherVolume()
                     setVolume(sound, volume)
                 end
             end
-		end
-	end
+        end
+    end
 end
 
 -- Only reset tracks that play attached to the player reference.
 -- Don't want to reset tracks attached to windoors, rainyStatics etc.
--- Modules will handle that individually.
+-- Modules shall handle that individually.
 local function underwaterResetModules()
     for moduleName, data in pairs(moduleData) do
-        if data.playUnderwater
-        and modules.getCurrentlyPlaying(moduleName)
-        and not sounds.isStopping(moduleName)
-        then
-            debugLog("Resetting sounds for module " .. moduleName)
-            sounds.removeImmediate { module = moduleName }
-            sounds.playImmediate { module = moduleName, last = true }
+        if tes3.mobilePlayer and data.playUnderwater and not sounds.isStopping(moduleName) then
+            local playing = modules.getCurrentlyPlaying(moduleName) or {}
+            local _, ref = table.unpack(playing)
+            if (ref) and (ref == tes3.mobilePlayer.reference) then
+                debugLog("Resetting sounds for module " .. moduleName)
+                sounds.removeImmediate { module = moduleName }
+                sounds.playImmediate { module = moduleName, last = true }
+            end
         end
     end
 end
 
 local splashVol = config.volumes.misc.splashVol / 100
 local function underwaterCheck(e)
-	if not (tes3.player and tes3.mobilePlayer) then return end
+    if not (tes3.player and tes3.mobilePlayer) then return end
     waterLevel = tes3.player.cell.waterLevel or 0
     playerPosZ = tes3.player.position.z or 0
     playerHeight = tes3.player.object.boundingBox and tes3.player.object.boundingBox.max.z or 0
-	if (not cellData.playerUnderwater) and tes3.mobilePlayer.isSwimming and (playerPosZ + playerHeight < waterLevel) then
+    if (not cellData.playerUnderwater) and tes3.mobilePlayer.isSwimming and (playerPosZ + playerHeight < waterLevel) then
+        debugLog("Player underwater.")
         cellData.playerUnderwater = true
         event.trigger("AURA:enteredUnderwater")
-        debugLog("Player underwater.")
         if config.playSplash then
             tes3.playSound { sound = "splash_lrg", volume = 0.5 * splashVol, pitch = 0.6 }
         end
@@ -88,8 +89,8 @@ local function underwaterCheck(e)
             debugLog("Started underwater volume scaling.")
         end
     elseif cellData.playerUnderwater and ((not tes3.mobilePlayer.isSwimming) or (playerPosZ + playerHeight >= waterLevel)) then
-        cellData.playerUnderwater = false
         debugLog("Player above water level.")
+        cellData.playerUnderwater = false
         if config.playSplash then
             tes3.playSound { sound = "splash_sml", volume = 0.6 * splashVol, pitch = 0.7 }
         end

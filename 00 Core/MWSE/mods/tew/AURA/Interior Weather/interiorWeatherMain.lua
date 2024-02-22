@@ -316,8 +316,7 @@ end
 -- volume scaling and this might cause some volume jumps if one of those
 -- loops happens to be playing on our windoors. Reset volumes to be safe.
 local function resetWindoors(e)
-	if table.empty(cellData.windoors)
-		or not modules.getWindoorPlaying(moduleName) then
+	if not modules.getWindoorPlaying(moduleName) then
 		return
 	end
 	if interiorTimer then interiorTimer:pause() end
@@ -338,6 +337,7 @@ event.register("weatherTransitionFinished", onConditionChanged, { priority = -16
 --event.register("weatherTransitionStarted", onConditionChanged, { priority = -165 }) -- As per MWSE documentation, weather will not start transitioning in interiors, and since we only work with interiors in this module, we can do away with this event
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -165 })
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -165 })
+event.register("AURA:enteredUnderwater", resetWindoors, { priority = -165 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -165 })
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -15 })
 event.register("load", runResetter)

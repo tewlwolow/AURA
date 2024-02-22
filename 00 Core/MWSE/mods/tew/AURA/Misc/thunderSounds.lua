@@ -17,7 +17,7 @@ local function onSoundObjectPlay(e)
 
     if not cellData.cell
     or not cellData.cell.isOrBehavesAsExterior
-	or not e.sound or not isVanillaThunder(e.sound.id) then
+    or not e.sound or not isVanillaThunder(e.sound.id) then
         return
     end
 
@@ -62,14 +62,14 @@ local function onSoundObjectPlay(e)
     local volume = math.random(lower, upper) / 100
     local pitch = math.random(65, 130) / 100
 
-	timer.start{
-		duration = addDelay and delay or 0.001,
-		type = timer.simulate,
-		callback = function()
+    timer.start{
+        duration = addDelay and delay or 0.001,
+        type = timer.simulate,
+        callback = function()
             debugLog(string.format("Playing thunder: %s | vol: %s | pitch: %s", thunder.id, volume, pitch))
             thunder:play{volume = volume, pitch = pitch}
         end,
-	}
+    }
 
     lastPlayedThunder = thunder
 

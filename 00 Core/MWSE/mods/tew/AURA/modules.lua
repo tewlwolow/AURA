@@ -503,37 +503,37 @@ function this.isActive(moduleName)
 end
 
 local function clearModuleData()
-	debugLog("Clearing module data.")
-	for moduleName, data in pairs(this.data) do
-		data.new = nil
-		data.old = nil
-		data.newRefHandle = nil
-		data.oldRefHandle = nil
-		--data.lastVolume = nil -- should we?
+    debugLog("Clearing module data.")
+    for moduleName, data in pairs(this.data) do
+        data.new = nil
+        data.old = nil
+        data.newRefHandle = nil
+        data.oldRefHandle = nil
+        --data.lastVolume = nil -- should we?
         if data.nextTrackTimer then
             data.nextTrackTimer:cancel()
         end
         data.nextTrackTimer = nil
         data.nextTrack = nil
-	end
+    end
 end
 event.register(tes3.event.loaded, clearModuleData)
 
 local function removeAll()
     debugLog("Removing module sounds.")
-	for moduleName, data in pairs(this.data) do
-		local playing = this.getCurrentlyPlaying(moduleName)
-		while playing do
-			local track, ref = table.unpack(playing)
-			tes3.removeSound { sound = track, reference = ref }
-			playing = this.getCurrentlyPlaying(moduleName)
-		end
+    for moduleName, data in pairs(this.data) do
+        local playing = this.getCurrentlyPlaying(moduleName)
+        while playing do
+            local track, ref = table.unpack(playing)
+            tes3.removeSound { sound = track, reference = ref }
+            playing = this.getCurrentlyPlaying(moduleName)
+        end
         if data.nextTrackTimer then
             data.nextTrackTimer:cancel()
         end
         data.nextTrackTimer = nil
         data.nextTrack = nil
-	end
+    end
 end
 event.register(tes3.event.load, removeAll, { priority = -5 })
 

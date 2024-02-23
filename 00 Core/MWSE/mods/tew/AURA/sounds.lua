@@ -148,25 +148,20 @@ function this.removeImmediate(options)
 
 	local targetTrack = common.getTrackPlaying(options.track, options.reference)
 	if targetTrack then
+		debugLog("[%s] Immediately removing track %s -> %s.", moduleName, targetTrack.id, options.reference)
 		rem(targetTrack, options.reference)
 		return
 	end
 
-	local newRefHandle = moduleData[options.module].newRefHandle
-	local newRef = newRefHandle and newRefHandle:getObject()
-	local newTrack = common.getTrackPlaying(moduleData[options.module].new, newRef)
+	local newTrack, newRef = table.unpack(modules.getCurrentlyPlaying(moduleName, "new") or {})
 	if newTrack then
-		debugLog(string.format("[%s] Immediately removing new track %s -> %s.", moduleName, newTrack.id,
-		tostring(newRef)))
+		debugLog("[%s] Immediately removing new track %s -> %s.", moduleName, newTrack.id, newRef)
 		rem(newTrack, newRef)
 	end
 
-	local oldRefHandle = moduleData[options.module].oldRefHandle
-	local oldRef = oldRefHandle and oldRefHandle:getObject()
-	local oldTrack = common.getTrackPlaying(moduleData[options.module].old, oldRef)
+	local oldTrack, oldRef = table.unpack(modules.getCurrentlyPlaying(moduleName, "old") or {})
 	if oldTrack then
-		debugLog(string.format("[%s] Immediately removing old track %s -> %s.", moduleName, oldTrack.id,
-		tostring(oldRef)))
+		debugLog("[%s] Immediately removing old track %s -> %s.", moduleName, oldTrack.id, oldRef)
 		rem(oldTrack, oldRef)
 	end
 end

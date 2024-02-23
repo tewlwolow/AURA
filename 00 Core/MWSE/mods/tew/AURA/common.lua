@@ -6,13 +6,13 @@ local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 
 -- Centralised debug message printer --
-function this.debugLog(message)
+function this.debugLog(message, ...)
 	if debugLogOn then
 		local info = debug.getinfo(2, "Sl")
 		local module = info.short_src:match("^.+\\(.+).lua$")
 		local prepend = ("[%s.%s.%s:%s]:"):format(metadata.package.name, version, module, info.currentline)
 		local aligned = ("%-36s"):format(prepend)
-		mwse.log(aligned .. " -- " .. string.format("%s", message))
+		mwse.log(aligned .. " -- " .. string.format("%s", message), ...)
 	end
 end
 

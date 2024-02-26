@@ -304,19 +304,15 @@ function this.isRefSheltered(options)
 	return false
 end
 
-function this.getCurrentWeather()
-	return tes3.worldController.weatherController.currentWeather
-end
-
 function this.getRainLoopSoundPlaying()
-	local cw = this.getCurrentWeather()
+	local cw = tes3.getCurrentWeather()
 	if cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
 		return cw.rainLoopSound
 	end
 end
 
 function this.getExtremeWeatherTrackPlaying()
-	local cw = this.getCurrentWeather()
+	local cw = tes3.getCurrentWeather()
 	local track
 	if (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
 		if cw.name == "Ashstorm" then
@@ -365,6 +361,15 @@ function this.getRegion()
 	local regionObject = tes3.getRegion { useDoors = true } or this.getFallbackRegion()
 	if not regionObject then this.debugLog("Couldn't fetch region object.") end
 	return regionObject
+end
+
+function this.getWeather(cell)
+	local c = cell or tes3.getPlayerCell()
+	local regionObject = this.getRegion()
+	local cw = tes3.getCurrentWeather()
+	local cwIndex = cw and cw.index
+	local nwIndex = regionObject and regionObject.weather.index
+	return c.isOrBehavesAsExterior and cwIndex or nwIndex
 end
 
 return this

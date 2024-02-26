@@ -99,10 +99,11 @@ function this.getTrack(options)
 			table = soundData.cold
 		end
 	elseif moduleName == "rainOnStatics" or moduleName == "shelterRain" then
-		local weather = options.weather or modules.getEligibleWeather(moduleName)
+		local weather = modules.getEligibleWeather(moduleName)
 		return weather and cellData.rainType[weather] and soundData.interiorWeather["ten"][weather]
 	elseif moduleName == "shelterWind" then
-		return tes3.getSound("tew_tentwind")
+		local weather = modules.getEligibleWeather(moduleName)
+		return weather and tes3.getSound("tew_tentwind")
 	end
 
 	-- Can happen on fresh load etc. --
@@ -146,10 +147,13 @@ function this.removeImmediate(options)
 		tes3.removeSound { sound = track, reference = ref }
 	end
 
-	local targetTrack = common.getTrackPlaying(options.track, options.reference)
-	if targetTrack then
-		debugLog("[%s] Immediately removing track %s -> %s.", moduleName, targetTrack.id, options.reference)
-		rem(targetTrack, options.reference)
+	local targetTrack = options.track
+	local targetRef = options.reference
+	if targetTrack and targetRef then
+		if common.getTrackPlaying(targetTrack, targetRef) then
+			debugLog("[%s] Immediately removing track %s -> %s.", moduleName, targetTrack.id, targetRef)
+			rem(targetTrack, options.reference)
+		end
 		return
 	end
 
@@ -169,7 +173,8 @@ end
 -- Remove the sound for a given module, but with fade out --
 function this.remove(options)
 	local moduleName = options.module
-	local targetTrack = common.getTrackPlaying(options.track, options.reference)
+	local targetTrack = options.track
+	local targetRef = options.reference
 	local oldRefHandle = moduleData[moduleName].oldRefHandle
 	local newRefHandle = moduleData[moduleName].newRefHandle
 	local oldRef = oldRefHandle and oldRefHandle:getObject()
@@ -188,8 +193,10 @@ function this.remove(options)
 		}
 	end
 
-	if targetTrack then
-		fadeOut(targetTrack, options.reference)
+	if targetTrack and targetRef then
+		if common.getTrackPlaying(targetTrack, targetRef) then
+			fadeOut(targetTrack, options.reference)
+		end
 		return
 	end
 
@@ -221,6 +228,9 @@ function this.playImmediate(options)
 			moduleData[moduleName].oldRefHandle = moduleData[moduleName].newRefHandle
 			moduleData[moduleName].new = track
 			moduleData[moduleName].newRefHandle = tes3.makeSafeObjectHandle(ref)
+			if ref ~= tes3.mobilePlayer.reference then
+				modules.setTempDataEntry("track", track, ref, moduleName)
+			end
 			return true
 		end
 	end

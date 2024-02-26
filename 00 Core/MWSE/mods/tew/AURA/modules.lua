@@ -445,6 +445,11 @@ function this.getCurrentlyPlaying(moduleName, newOrOld)
     end
 end
 
+function this.getRefTrackPlaying(ref, moduleName)
+    local track = this.getTempDataEntry("track", ref, moduleName)
+    return common.getTrackPlaying(track, ref)
+end
+
 function this.getWindoorPlaying(moduleName)
     if not this.data[moduleName] then return end
     if not this.data[moduleName].playWindoors
@@ -487,10 +492,10 @@ function this.getExteriorDoorPlaying(moduleName)
     end
 end
 
-function this.getEligibleWeather(moduleName)
-    if not this.data[moduleName] then return end
-    local regionObject = common.getRegion()
-    local weather = regionObject and regionObject.weather.index
+function this.getEligibleWeather(moduleName, weatherIndex)
+    local cell = cellData.cell
+    if not this.data[moduleName] or not cell then return end
+    local weather = weatherIndex or common.getWeather(cell)
     local blockedWeathers = this.data[moduleName].blockedWeathers
     if (weather) and not (blockedWeathers and blockedWeathers[weather]) then
         return weather

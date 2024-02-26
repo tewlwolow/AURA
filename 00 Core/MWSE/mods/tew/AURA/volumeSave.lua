@@ -277,7 +277,7 @@ local function doExtremes()
         local trackInfo = entry:findChild(this.id_trackInfo)
 
         if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
-            trackInfo.text = string.format("%s: %s\n%s: %s%%", cw.name, track.id, messages.adjustingAuto,
+            trackInfo.text = string.format("%s: %s\n%s: %s%% [?]", cw.name, track.id, messages.adjustingAuto,
                 math.round(track.volume, 2) * 100)
             addTooltip(trackInfo, {configOption = "shelterWeather"})
             return

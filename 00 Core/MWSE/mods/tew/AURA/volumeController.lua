@@ -20,25 +20,24 @@ function this.setVolume(track, volume)
 end
 
 function this.getModuleSoundConfig(moduleName)
-    local regionObject = common.getRegion()
     local mData = moduleData[moduleName]
+    local cell = cellData.cell
 
-    if not mData or not regionObject then return {} end
+    if not mData or not cell then return {} end
 
     local soundConfig = mData.soundConfig or {}
 
-    local cell = cellData.cell
-    local weather = regionObject.weather.index
-    local rainType = cellData.rainType[weather]
-    local interiorType = common.getInteriorType(cellData.cell)
+    local weather = modules.getEligibleWeather(moduleName)
+    local rainType = weather and cellData.rainType[weather]
     local exterior = cell and cell.isOrBehavesAsExterior and "exterior"
     local interior = cell and not cell.isOrBehavesAsExterior and "interior"
+    local interiorType = weather and interior and common.getInteriorType(cell)
 
     return (exterior and soundConfig[exterior])
         or (interior and soundConfig[interior])
-        or (soundConfig[interiorType] and soundConfig[interiorType][weather])
+        or (interiorType and soundConfig[interiorType] and soundConfig[interiorType][weather])
         or (rainType and soundConfig[rainType] and soundConfig[rainType][weather])
-        or (soundConfig[weather])
+        or (weather and soundConfig[weather])
         or {}
 end
 
@@ -67,19 +66,17 @@ function this.getVolume(options)
     local moduleSoundConfig = this.getModuleSoundConfig(moduleName)
     local weatherMult = moduleSoundConfig.mult or 1
 
-    local regionObject = common.getRegion()
-    local weather = regionObject and regionObject.weather.index
-    local isEligibleWeather = modules.getEligibleWeather(moduleName)
+    local weather = common.getWeather(cellData.cell)
+    local isEligibleWeather = (modules.getEligibleWeather(moduleName) ~= nil)
 
     local interiorType = common.getInteriorType(cellData.cell)
     local windoorsMult = (mData.playWindoors == true) and 0.005 or 0
 
-    debugLog(string.format("[%s] moduleVol: %s | weather: %s | weatherMult: %s", moduleName, moduleVol, weather, weatherMult))
-
     if not isEligibleWeather then
-        debugLog(string.format("[%s] Not an eligible weather: %s. Setting volume to %s.", moduleName, weather, MIN))
+        debugLog("[%s] Not an eligible weather: %s. Setting volume to %s.", moduleName, weather, MIN)
         volume = MIN
     else
+        debugLog("[%s] moduleVol: %s | weather: %s | weatherMult: %s", moduleName, moduleVol, weather, weatherMult)
         volume = moduleVol * weatherMult
     end
 
@@ -91,7 +88,7 @@ function this.getVolume(options)
             if isEligibleWeather and (weather == 6 or weather == 7) then
                 volume = 0
             else
-                debugLog(string.format("[%s] Applying open plaza volume boost.", moduleName))
+                debugLog("[%s] Applying open plaza volume boost.", moduleName)
                 volume = math.min(volume + 0.2, 1)
                 this.setVolume(tes3.getSound("Rain"), 0)
                 this.setVolume(tes3.getSound("rain heavy"), 0)
@@ -101,27 +98,27 @@ function this.getVolume(options)
         if not cellData.cell.isOrBehavesAsExterior then
             if (interiorType == "big") then
                 local bigMult = config.volumes.modules[moduleName].big
-                debugLog(string.format("[%s] Applying big interior mult: %s", moduleName, bigMult))
+                debugLog("[%s] Applying big interior mult: %s", moduleName, bigMult)
                 volume = (bigMult * volume) - (windoorsMult * #cellData.windoors)
             elseif (interiorType == "sma") or (interiorType == "ten") then
                 local smaMult = config.volumes.modules[moduleName].sma
-                debugLog(string.format("[%s] Applying small interior mult: %s", moduleName, smaMult))
+                debugLog("[%s] Applying small interior mult: %s", moduleName, smaMult)
                 volume = smaMult * volume
             end
         end
     else
-        debugLog(string.format("[%s] No cell. Setting volume to %s.", moduleName, MIN))
+        debugLog("[%s] No cell. Setting volume to %s.", moduleName, MIN)
         volume = MIN
     end
 
     if cellData.playerUnderwater then
         local undMult = config.volumes.modules[moduleName].und
-        debugLog(string.format("[%s] Applying underwater nerf: %s", moduleName, undMult))
+        debugLog("[%s] Applying underwater nerf: %s", moduleName, undMult)
         volume = undMult * volume
     end
 
     volume = math.clamp(math.round(volume, 2), MIN, MAX)
-    debugLog(string.format("Got volume for %s: %s", moduleName, volume))
+    debugLog("Got volume for %s: %s", moduleName, volume)
     return volume
 end
 

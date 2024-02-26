@@ -103,6 +103,15 @@ end
 
 local function adjustWeatherVolume()
     local moduleName = "shelterWeather"
+    local sheltered = cellData.currentShelter.ref
+
+    local transitionScalar = tes3.worldController.weatherController.transitionScalar
+    if transitionScalar and transitionScalar > 0 then
+        if not sheltered then
+            restoreWeatherVolumes()
+        end
+        return
+    end
 
     local moduleActive = modules.isActive(moduleName)
 
@@ -118,13 +127,14 @@ local function adjustWeatherVolume()
         and not cellData.rainType[shelterWeatherNow]
 
     local weatherTrack = common.getWeatherTrack()
+    --[[
     local regionObject = common.getRegion()
     local nextWeather = regionObject and regionObject.weather.index
     local nextWeatherNotEligible = nextWeather and not modules.getEligibleWeather(moduleName, nextWeather)
+    --]]
 
     local ready = moduleActive and weatherTrack
         and shelterWeatherNow
-        and not nextWeatherNotEligible
         and not isNonVariableRain
         and not cellData.playerUnderwater
 
@@ -140,11 +150,9 @@ local function adjustWeatherVolume()
         restoreWeatherVolumes()
     end
 
-    local sheltered = cellData.currentShelter.ref
-
     if (not cellData.isWeatherVolumeDynamic) and (sheltered) then
         local trackVolume = math.round(weatherTrack.volume, 2)
-        weatherVolumeDelta = getVolume { module = moduleName, moduleVol = trackVolume }
+        weatherVolumeDelta = getVolume { module = moduleName, moduleVol = trackVolume, weather = shelterWeatherNow }
         if (weatherVolumeDelta == 0) then
             updateShelterWeatherConditions()
             return

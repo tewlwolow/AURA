@@ -18,6 +18,7 @@ this.data = {
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [5] = true,
             [6] = true,
@@ -64,6 +65,7 @@ this.data = {
         tempDataKey = "POP",
         lastVolume = nil,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [4] = true,
             [5] = true,
@@ -121,6 +123,7 @@ this.data = {
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -165,6 +168,7 @@ this.data = {
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [6] = true,
             [7] = true,
@@ -213,6 +217,7 @@ this.data = {
         tempDataKey = "ROS",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -250,6 +255,7 @@ this.data = {
         tempDataKey = "SHRAIN",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -287,6 +293,7 @@ this.data = {
         tempDataKey = "SHWIND",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -322,6 +329,7 @@ this.data = {
         tempDataKey = "SHWEA",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -374,6 +382,7 @@ this.data = {
         newRefHandle = nil,
         lastVolume = nil,
         tempDataKey = "BF",
+        weatherPreference = "current",
         soundConfig = {
             -- 0-4 and 8: light breeze
             -- 5-7 and 9: strong breeze
@@ -492,10 +501,11 @@ function this.getExteriorDoorPlaying(moduleName)
     end
 end
 
-function this.getEligibleWeather(moduleName, weatherIndex)
+function this.getEligibleWeather(moduleName)
     local cell = cellData.cell
     if not this.data[moduleName] or not cell then return end
-    local weather = weatherIndex or common.getWeather(cell)
+    local pref = this.data[moduleName].weatherPreference
+    local weather = common.getWeather(cell, pref)
     local blockedWeathers = this.data[moduleName].blockedWeathers
     if (weather) and not (blockedWeathers and blockedWeathers[weather]) then
         return weather

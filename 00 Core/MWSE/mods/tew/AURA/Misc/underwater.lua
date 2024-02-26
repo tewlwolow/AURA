@@ -14,6 +14,7 @@ local playerPosZ
 local playerHeight
 
 local originalVolumes = {}
+local modified = {}
 
 local function setVolume(track, volume)
     local rounded = math.round(volume, 2)
@@ -24,6 +25,7 @@ end
 local function storeOriginalVolumes()
     debugLog("Storing current weather volumes.")
     table.clear(originalVolumes)
+    table.clear(modified)
     for _, sound in pairs(soundData.weatherLoops) do
         originalVolumes[sound.id] = sound.volume
     end
@@ -45,8 +47,13 @@ local function modifyWeatherVolume()
                 local volume = math.clamp(originalVol - math.remap(waterLevel - (playerPosZ + playerHeight), 0, 1500, 0, originalVol), 0.0, originalVol)
                 if (math.round(volume, 2) ~= math.round(sound.volume, 2)) then
                     setVolume(sound, volume)
+                    modified[sound.id] = true
                 end
             end
+        elseif modified[sound.id] and originalVolumes[sound.id] then
+            debugLog("Track %s has stopped playing. Restoring its original volume.", sound.id)
+            setVolume(sound, originalVolumes[sound.id])
+            modified[sound.id] = nil
         end
     end
 end

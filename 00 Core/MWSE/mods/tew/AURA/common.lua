@@ -363,13 +363,19 @@ function this.getRegion()
 	return regionObject
 end
 
-function this.getWeather(cell)
+function this.getWeather(cell, currentOrNext)
 	local c = cell or tes3.getPlayerCell()
 	local regionObject = this.getRegion()
 	local cw = tes3.getCurrentWeather()
 	local cwIndex = cw and cw.index
 	local nwIndex = regionObject and regionObject.weather.index
-	return c.isOrBehavesAsExterior and cwIndex or nwIndex
+	if currentOrNext == "current" then
+		return cwIndex or nwIndex
+	elseif currentOrNext == "next" then
+		return nwIndex
+	else
+		return c.isOrBehavesAsExterior and cwIndex or nwIndex
+	end
 end
 
 return this

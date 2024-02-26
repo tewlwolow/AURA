@@ -22,22 +22,22 @@ end
 function this.getModuleSoundConfig(moduleName)
     local mData = moduleData[moduleName]
     local cell = cellData.cell
+    local weather = modules.getEligibleWeather(moduleName)
 
-    if not mData or not cell then return {} end
+    if not mData or not weather or not cell then return {} end
 
     local soundConfig = mData.soundConfig or {}
 
-    local weather = modules.getEligibleWeather(moduleName)
-    local rainType = weather and cellData.rainType[weather]
+    local rainType = cellData.rainType[weather]
     local exterior = cell and cell.isOrBehavesAsExterior and "exterior"
     local interior = cell and not cell.isOrBehavesAsExterior and "interior"
-    local interiorType = weather and interior and common.getInteriorType(cell)
+    local interiorType = interior and common.getInteriorType(cell)
 
     return (exterior and soundConfig[exterior])
         or (interior and soundConfig[interior])
         or (interiorType and soundConfig[interiorType] and soundConfig[interiorType][weather])
         or (rainType and soundConfig[rainType] and soundConfig[rainType][weather])
-        or (weather and soundConfig[weather])
+        or (soundConfig[weather])
         or {}
 end
 
@@ -66,7 +66,7 @@ function this.getVolume(options)
     local moduleSoundConfig = this.getModuleSoundConfig(moduleName)
     local weatherMult = moduleSoundConfig.mult or 1
 
-    local weather = common.getWeather(cellData.cell)
+    local weather = common.getWeather(cellData.cell, mData.weatherPreference)
     local isEligibleWeather = (modules.getEligibleWeather(moduleName) ~= nil)
 
     local interiorType = common.getInteriorType(cellData.cell)

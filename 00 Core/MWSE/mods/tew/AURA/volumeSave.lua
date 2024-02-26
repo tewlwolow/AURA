@@ -556,8 +556,8 @@ local function createBody()
         trackList.widthProportional = 0.99
         trackList.heightProportional = 0.9
     end
-    doExtremes()
-    doRain()
+    --doExtremes()
+    --doRain()
     doModules()
     updateHeader()
 end
@@ -639,7 +639,7 @@ function this.toggle(e)
             if (tes3ui.menuMode()) then
                 tes3ui.leaveMenuMode()
             end
-            mwse.saveConfig("AURA", config)
+            --mwse.saveConfig("AURA", config)
             this.configPrevious = nil
             this.entries = 0
             table.clear(this.adjustedModules)

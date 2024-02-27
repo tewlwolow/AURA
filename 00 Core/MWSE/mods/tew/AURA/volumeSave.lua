@@ -157,8 +157,9 @@ local function updateTooltip(trackInfo, sc)
     local currentVol = lastVolumePercent or baseVol
     local bv = messages.baseVolume
     local cv = messages.currentVolume
+    local ft = messages.formulaTip
 
-    local info = ("%s\n\n%s: %s%%\n%s: %s%%"):format(messages.formulaTip, bv, baseVol, cv, currentVol)
+    local info = ("%s\n\n%s: %s%%\n%s: %s%%"):format(ft, bv, baseVol, cv, currentVol)
     trackInfo:unregister(tes3.uiEvent.help)
     sc.tooltipData.liveUpdateInfo = info
     addTooltip(trackInfo, sc.tooltipData)
@@ -185,61 +186,58 @@ local function textInputIsActive()
 end
 
 local sliderPercent = {
-    create = mwse.mcm.createSlider,
-    labelFmt = "%%  (" .. messages.default .. ": %s%%)",
-    sliderMin = 0,
-    sliderMax = 100,
-    sliderStep = 1,
-    sliderJump = 5,
-    decimalPlaces = 0,
+    labelFmt = messages.current .. ": %s%%  (" .. messages.default .. ": %s%%)",
+    mult = 1,
+    min = 0,
+    max = 100,
+    step = 1,
+    jump = 5,
 }
 local sliderCoefficient = {
-    create = mwse.mcm.createDecimalSlider,
-    labelFmt = " x " .. messages.baseVolume:lower() .. "  (" .. messages.default .. ": %s)",
-    sliderMin = 0,
-    sliderMax = 0.6,
-    sliderStep = 0.01,
-    sliderJump = 0.05,
-    decimalPlaces = 2,
+    labelFmt = messages.current .. ": %s x " .. messages.baseVolume:lower() .. "  (" .. messages.default .. ": %s)",
+    mult = 100,
+    min = 0,
+    max = 60,
+    step = 1,
+    jump = 5,
 }
 
 local function createSlider(parent, sc)
     local trackInfo = parent:findChild(this.id_trackInfo)
 
-    sc.sliderType.create(
-        parent,
-        {
-            label = messages.current,
-            min = sc.sliderType.sliderMin,
-            max = sc.sliderType.sliderMax,
-            step = sc.sliderType.sliderStep,
-            jump = sc.sliderType.sliderJump,
-            decimalPlaces = sc.sliderType.decimalPlaces,
-            variable = mwse.mcm.createTableVariable {
-                id = sc.key,
-                table = sc.volumeTableCurrent,
-                defaultSetting = sc.volumeTableDefault[sc.key],
-            },
-            callback = function(self)
-                sc.volumeTableCurrent[sc.key] = self.variable.value
-                if sc.moduleName then
-                    adjustVolume { module = sc.moduleName, config = config }
-                    common.setInsert(this.adjustedModules, sc.moduleName)
-                elseif sc.track then
-                    setVolume(sc.track, self.variable.value / 100)
-                    local weatherTrackVol = math.round(sc.track.volume, 2)
-                    this.adjustedWeatherTrack = (this.weatherTrackOriginalVolume ~= weatherTrackVol)
-                end
-                if sc.tooltipShowVolumeStates then
-                    updateTooltip(trackInfo, sc)
-                end
-            end,
-            convertToLabelValue = function(_, variableValue)
-                local postfix = (sc.sliderType.labelFmt):format(sc.volumeTableDefault[sc.key])
-                return string.format("%s%s", variableValue, postfix)
-            end,
-        }
-    )
+    local mult = sc.sliderType.mult
+    local current = sc.volumeTableCurrent[sc.key] * mult
+    local default = sc.volumeTableDefault[sc.key]
+    local slider = parent:createSlider {
+        id = this.id_slider,
+        current = current,
+        min = sc.sliderType.min,
+        max = sc.sliderType.max,
+        step = sc.sliderType.step,
+        jump = sc.sliderType.jump,
+    }
+    slider.widthProportional = 0.99
+    slider.borderTop = 5
+    slider.borderBottom = 5
+    local sliderLabel = parent:createLabel { id = this.id_sliderLabel, text = "" }
+    sliderLabel.text = (sc.sliderType.labelFmt):format(current / mult, default)
+
+    slider:register("PartScrollBar_changed", function(e)
+        local newValue = slider:getPropertyInt("PartScrollBar_current") / mult
+        sliderLabel.text = (sc.sliderType.labelFmt):format(newValue, default)
+        sc.volumeTableCurrent[sc.key] = newValue
+        if sc.moduleName then
+            adjustVolume { module = sc.moduleName, config = config }
+            common.setInsert(this.adjustedModules, sc.moduleName)
+        elseif sc.track then
+            setVolume(sc.track, newValue / 100)
+            local weatherTrackVol = math.round(sc.track.volume, 2)
+            this.adjustedWeatherTrack = (this.weatherTrackOriginalVolume ~= weatherTrackVol)
+        end
+        if sc.tooltipShowVolumeStates then
+            updateTooltip(trackInfo, sc)
+        end
+    end)
 end
 
 local function createEntry(id)
@@ -251,6 +249,7 @@ local function createEntry(id)
     trackBlock.flowDirection = tes3.flowDirection.topToBottom
     trackBlock.borderTop = 5
     trackBlock.borderBottom = 20
+    trackBlock.paddingAllSides = 2
     local trackInfo = trackBlock:createLabel { id = this.id_trackInfo, text = "" }
     trackInfo.wrapText = true
     this.entries = this.entries + 1
@@ -277,7 +276,7 @@ local function doExtremes()
         local trackInfo = entry:findChild(this.id_trackInfo)
 
         if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
-            trackInfo.text = string.format("%s: %s\n%s: %s%% [?]", cw.name, track.id, messages.adjustingAuto,
+            trackInfo.text = ("%s: %s\n%s: %s%% [?]"):format(cw.name, track.id, messages.adjustingAuto,
                 math.round(track.volume, 2) * 100)
             addTooltip(trackInfo, {configOption = "shelterWeather"})
             return
@@ -289,10 +288,10 @@ local function doExtremes()
         sc.sliderType = sliderPercent
         sc.volumeTableDefault = defaults.volumes.extremeWeather
         sc.volumeTableCurrent = config.volumes.extremeWeather
-        trackInfo.text = string.format("%s: %s", cw.name, track.id)
+        trackInfo.text = ("%s: %s"):format(cw.name, track.id)
 
         if cellData.playerUnderwater and config.underwaterRain then
-            trackInfo.text = string.format("%s\n%s: %s%% [?]", trackInfo.text, messages.adjustingAuto,
+            trackInfo.text = ("%s\n%s: %s%% [?]"):format(trackInfo.text, messages.adjustingAuto,
                 math.round(track.volume, 2) * 100)
             addTooltip(trackInfo, {configOption = "underwaterRain"})
             return
@@ -320,7 +319,7 @@ local function doRain()
     local trackInfo = entry:findChild(this.id_trackInfo)
 
     if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
-        trackInfo.text = string.format("%s (%s): %s\n%s: %s%% [?]", cw.name, rainType, track.id, messages.adjustingAuto,
+        trackInfo.text = ("%s (%s): %s\n%s: %s%% [?]"):format(cw.name, rainType, track.id, messages.adjustingAuto,
             math.round(track.volume, 2) * 100)
         addTooltip(trackInfo, {configOption = "shelterWeather"})
         return
@@ -332,10 +331,10 @@ local function doRain()
     sc.sliderType = sliderPercent
     sc.volumeTableDefault = defaults.volumes.rain[cw.name]
     sc.volumeTableCurrent = config.volumes.rain[cw.name]
-    trackInfo.text = string.format("%s (%s): %s", cw.name, rainType, track.id)
+    trackInfo.text = ("%s (%s): %s"):format(cw.name, rainType, track.id)
 
     if cellData.playerUnderwater and config.underwaterRain then
-        trackInfo.text = string.format("%s\n%s: %s%% [?]", trackInfo.text, messages.adjustingAuto,
+        trackInfo.text = ("%s\n%s: %s%% [?]"):format(trackInfo.text, messages.adjustingAuto,
             math.round(track.volume, 2) * 100)
         addTooltip(trackInfo, {configOption = "underwaterRain"})
         return
@@ -371,7 +370,7 @@ local function doModules()
             goto nextModule
         end
         if fader.isRunning { module = moduleName } then
-            trackInfo.text = string.format("%s: %s", moduleName, messages.fadeInProgress)
+            trackInfo.text = ("%s: %s"):format(moduleName, messages.fadeInProgress)
             goto nextModule
         end
 
@@ -409,17 +408,17 @@ local function doModules()
                 if door ~= nil then
                     local doorTrack = common.getTrackPlaying(modules.getTempDataEntry("track", door, moduleName), door)
                     if doorTrack then
-                        table.insert(info, string.format("%s: %s", doorTrack.id, door.destination.cell.name))
+                        table.insert(info, ("%s: %s"):format(doorTrack.id, door.destination.cell.name))
                     end
                 end
             end
-            trackInfo.text = string.format("%s: %s: %s", moduleName, messages.tracksPlaying, tostring(#info))
+            trackInfo.text = ("%s: %s: %s"):format(moduleName, messages.tracksPlaying, #info)
             tooltipExtraInfo = ("[%s]: [%s]\n%s"):format(messages.track, messages.doorDestinationCell, table.concat(info, "\n"))
         elseif moduleName == "wind" then
             if isExterior then
                 if config.altitudeWind and not isUnderwater then
                     configOption = "altitudeWind"
-                    trackInfo.text = string.format("%s: %s\n%s: %s%%", moduleName, track.id, messages.adjustingAuto, lastVolumePercent)
+                    trackInfo.text = ("%s: %s\n%s: %s%%"):format(moduleName, track.id, messages.adjustingAuto, lastVolumePercent)
                     tooltipExtraInfo = ("%s: %s"):format(messages.altitude, math.round(cellData.altitude or 0, 1))
                     entryCreateSlider = false
                 else
@@ -467,7 +466,7 @@ local function doModules()
         sc.tooltipData = {configOption = configOption, extraInfo = tooltipExtraInfo}
 
         if not trackInfo.text or trackInfo.text == "" then
-            trackInfo.text = string.format("%s: %s", moduleName, track.id)
+            trackInfo.text = ("%s: %s"):format(moduleName, track.id)
         end
 
         if entryCreateTooltip ~= false then
@@ -497,7 +496,7 @@ local function updateHeader()
     elseif (trackList) and (this.entries > 0) and not this.cell.isOrBehavesAsExterior then
         cellType = common.getInteriorType(this.cell):gsub("^sma$", messages.small):gsub("^ten$", messages.small):gsub(
             "^big$", messages.big)
-        hLabel.text = string.format("%s (%s)", messages.adjustForInterior, cellType)
+        hLabel.text = ("%s (%s)"):format(messages.adjustForInterior, cellType)
     elseif (trackList) and (this.entries > 0) and this.cell.isOrBehavesAsExterior then
         hLabel.text = messages.adjustForExterior
     else
@@ -556,8 +555,8 @@ local function createBody()
         trackList.widthProportional = 0.99
         trackList.heightProportional = 0.9
     end
-    --doExtremes()
-    --doRain()
+    doExtremes()
+    doRain()
     doModules()
     updateHeader()
 end
@@ -639,7 +638,7 @@ function this.toggle(e)
             if (tes3ui.menuMode()) then
                 tes3ui.leaveMenuMode()
             end
-            --mwse.saveConfig("AURA", config)
+            mwse.saveConfig("AURA", config)
             this.configPrevious = nil
             this.entries = 0
             table.clear(this.adjustedModules)

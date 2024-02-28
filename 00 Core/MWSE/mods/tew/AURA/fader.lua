@@ -124,17 +124,22 @@ function this.fade(options)
         -- ### Fail state begin ### --
         if (not track) or (isTrackUnattached and not track:isPlaying()) or (ref and not tes3.getSoundPlaying { sound = track, reference = ref }) then
             debugLog("[%s] %s suddenly not playing on ref %s. Canceling fade %s timers.", moduleName, trackId, ref or "(unattached)", fadeType)
+
             fadeInProgress.iterTimer:cancel()
-            fadeInProgress.fadeTimer:cancel()
-            common.setRemove(this.inProgress[fadeType], fadeInProgress)
 
             -- Set back original volume if track was playing unattached
-            if isTrackUnattached then volumeController.setVolume(tes3.getSound(trackId), trackVolume) end
+            if isTrackUnattached then
+                debugLog("[%s] Restoring original volume for unattached track: %s.", moduleName, trackId)
+                volumeController.setVolume(tes3.getSound(trackId), trackVolume)
+            end
 
             if type(onFail) == "function" then
                 debugLog("[%s] Running fail state hook.", moduleName)
                 onFail()
             end
+
+            fadeInProgress.fadeTimer:cancel()
+            common.setRemove(this.inProgress[fadeType], fadeInProgress)
             return
         end
         -- ### Fail state end ### --

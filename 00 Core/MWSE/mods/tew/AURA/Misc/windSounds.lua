@@ -47,8 +47,13 @@ local function updateAltitudeStats()
     -- FIXME: Weird edge case I can't reproduce: negative z when ext->int when clearly above ground
     -- Occurred at Seyda Neen Lighthouse top entrance with collision off (tcl bug?)
     local altitude = mp.position:copy().z
-    cellData.altitude = altitude
-    if (not altitude) then return end
+    if (not cellData.playerUnderwater)
+    and (altitude < 0)
+    and (cellData.altitude) and (cellData.altitude >= 0) then
+        altitude = cellData.altitude
+    else
+        cellData.altitude = altitude
+    end
     local minVol = config.volumes.misc.altitudeWindVolMin / 100
     local maxVol = config.volumes.misc.altitudeWindVolMax / 100
     local min, max = minVol, maxVol
@@ -253,7 +258,7 @@ local function altitudeCheck()
     local altitude = cellData.altitude
     local newVol = cellData.altitudeWindVolume
 
-    if (altitude) and (newVol) and (newVol ~= lastVol) then
+    if (altitude) and (altitude >= MIN_ALT) and (newVol) and (newVol ~= lastVol) then
         debugLog(string.format("[altitudeWind] altitude: %s | newVol: %s", altitude, newVol))
         local track, ref = table.unpack(playing)
         local delta = math.abs(newVol - lastVol)

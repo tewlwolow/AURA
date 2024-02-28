@@ -73,11 +73,6 @@ local function runResetter()
     cellData.isWeatherVolumeDynamic = false
 end
 
-local function updateShelterWeatherConditions()
-    shelterWeatherLast = shelterWeatherNow
-    shelterWeatherRainTypeLast = shelterWeatherRainTypeNow
-end
-
 local function restoreWeatherVolumes()
     if cellData.isWeatherVolumeDynamic then
         debugLog("[shelterWeather] Restoring original volumes for weather tracks.")
@@ -143,8 +138,6 @@ local function adjustWeatherVolume()
     elseif (cellData.isWeatherVolumeDynamic) and (not sheltered) and (weatherVolumeDelta) then
         fadeWeatherTrack("in", weatherTrack)
     end
-
-    updateShelterWeatherConditions()
 end
 
 local function playRainOnStatic(ref)
@@ -310,6 +303,8 @@ local function playBannerFlap(ref)
             for node in table.traverse(ref.sceneNode.children) do
                 if node:isInstanceOfType(ni.type.NiBSAnimationNode) and node.controller then
                     breezeType = "light"
+                    -- Mark this ref as having an animation controller as not to traverse
+                    -- the scene node every time this function is called
                     modules.setTempDataEntry("ac", true, ref, moduleName)
                     break
                 end

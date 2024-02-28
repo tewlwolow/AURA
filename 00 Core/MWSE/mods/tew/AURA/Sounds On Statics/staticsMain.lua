@@ -388,9 +388,6 @@ local function isRelevantForModule(moduleName, ref)
 end
 
 local function addToCache(ref)
-    -- Resetting the timer on every add to kind of block it
-    -- from running while the cache is being populated.
-    if mainTimer then mainTimer:reset() end
 
     if common.cellIsInterior(ref.cell) or not isSafeRef(ref) then return end
 
@@ -406,19 +403,29 @@ local function addToCache(ref)
     if not relevantModule then return end
 
     if not table.find(staticsCache, ref) then
+        -- Resetting the timer on every cache insert to kind of block it
+        -- from running while the cache is being populated. Placing this
+        -- here and not at the top of the function body should avoid edge
+        -- case where mainTimer is indefinitely being reset if some ref
+        -- somewhere is constantly being (de)activated.
+        if mainTimer then mainTimer:reset() end
+
         table.insert(staticsCache, ref)
         debugLog("Added static " .. tostring(ref) .. " to cache. staticsCache: " .. #staticsCache)
     else
         --debugLog("Already in cache: " .. tostring(ref))
     end
+
+
 end
 
 local function removeFromCache(ref)
-    if mainTimer then mainTimer:reset() end
     if (#staticsCache == 0) then return end
 
     local index = table.find(staticsCache, ref)
     if not index then return end
+
+    if mainTimer then mainTimer:reset() end
 
     removeRainOnStatics(ref)
     table.remove(staticsCache, index)

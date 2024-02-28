@@ -64,6 +64,7 @@ this.messages = {
 	track = "Piste",
 	noTracksPlaying = "Aucune piste en cours de lecture",
 	tracksPlaying = "Pistes en cours de lecture",
+	door = "Porte",
 	doorDestinationCell = "Cellule de destination de la porte",
 	findOutdoorShelter = "Trouvez un abri extérieur pour régler ce volume. [?]",
 	findOutdoorShelterTooltip =

@@ -14,9 +14,7 @@ local debugLog = common.debugLog
 local raining
 local playingBlocked = false
 local rainOnStaticsBlocked = false
-local shelterWeatherLast, shelterWeatherNow
-local shelterWeatherRainTypeLast, shelterWeatherRainTypeNow
-local weatherVolumeDelta = 0
+local weatherVolumeDelta
 local INTERVAL = 0.55
 
 local currentShelter = cellData.currentShelter
@@ -71,7 +69,7 @@ end
 local function runResetter()
     if mainTimer then mainTimer:reset() end
     table.clear(currentShelter)
-    weatherVolumeDelta = 0
+    weatherVolumeDelta = nil
     cellData.isWeatherVolumeDynamic = false
 end
 
@@ -85,25 +83,45 @@ local function restoreWeatherVolumes()
         debugLog("[shelterWeather] Restoring original volumes for weather tracks.")
         fader.cancel("shelterWeather")
         volumeController.setConfigVolumes()
-        weatherVolumeDelta = 0
+        --weatherVolumeDelta = nil
         cellData.isWeatherVolumeDynamic = false
     end
 end
 
 local function fadeWeatherTrack(fadeType, track)
     if not (track and track:isPlaying()) then return end
-    debugLog(("Fading %s weather track: %s"):format(fadeType, track.id))
+    debugLog("Fading %s weather track: %s", fadeType, track.id)
     fader.fade {
         module = "shelterWeather",
         fadeType = fadeType,
         track = track,
         volume = weatherVolumeDelta,
+        onSuccess = function()
+            cellData.isWeatherVolumeDynamic = (fadeType == "out") and true or false
+        end,
+        onFail = function()
+            volumeController.setConfigVolumes()
+            cellData.isWeatherVolumeDynamic = false
+        end,
     }
 end
 
 local function adjustWeatherVolume()
     local moduleName = "shelterWeather"
     local sheltered = cellData.currentShelter.ref
+
+    local moduleActive = modules.isActive(moduleName)
+    local weatherTrack = common.getWeatherTrack()
+    local soundConfig = volumeController.getModuleSoundConfig(moduleName)
+    local delta = soundConfig.mult
+
+    if not moduleActive
+    or not weatherTrack
+    or not delta
+    or cellData.playerUnderwater then
+        restoreWeatherVolumes()
+        return
+    end
 
     local transitionScalar = tes3.worldController.weatherController.transitionScalar
     if transitionScalar and transitionScalar > 0 then
@@ -113,57 +131,17 @@ local function adjustWeatherVolume()
         return
     end
 
-    local moduleActive = modules.isActive(moduleName)
-
-    shelterWeatherNow = modules.getEligibleWeather(moduleName)
-
-    local isRainyWeather = shelterWeatherNow
-        and (shelterWeatherNow == 4 or shelterWeatherNow == 5)
-
-    shelterWeatherRainTypeNow = isRainyWeather
-        and cellData.rainType[shelterWeatherNow]
-
-    local isNonVariableRain = isRainyWeather
-        and not cellData.rainType[shelterWeatherNow]
-
-    local weatherTrack = common.getWeatherTrack()
-    --[[
-    local regionObject = common.getRegion()
-    local nextWeather = regionObject and regionObject.weather.index
-    local nextWeatherNotEligible = nextWeather and not modules.getEligibleWeather(moduleName, nextWeather)
-    --]]
-
-    local ready = moduleActive and weatherTrack
-        and shelterWeatherNow
-        and not isNonVariableRain
-        and not cellData.playerUnderwater
-
-    if not ready then
-        restoreWeatherVolumes()
-        updateShelterWeatherConditions()
-        return
-    end
-
-    if (shelterWeatherLast and (shelterWeatherLast ~= shelterWeatherNow))
-    or (shelterWeatherRainTypeLast and isRainyWeather and (shelterWeatherRainTypeLast ~= shelterWeatherRainTypeNow)) then
-        debugLog("Different conditions.")
+    if (weatherVolumeDelta) and (delta ~= weatherVolumeDelta) then
+        debugLog("[%s] Different conditions.", moduleName)
         restoreWeatherVolumes()
     end
 
     if (not cellData.isWeatherVolumeDynamic) and (sheltered) then
-        local trackVolume = math.round(weatherTrack.volume, 2)
-        weatherVolumeDelta = getVolume { module = moduleName, moduleVol = trackVolume, weather = shelterWeatherNow }
-        if (weatherVolumeDelta == 0) then
-            updateShelterWeatherConditions()
-            return
-        end
-        moduleData[moduleName].lastVolume = trackVolume
+        weatherVolumeDelta = delta
+        moduleData[moduleName].lastVolume = math.round(weatherTrack.volume, 2)
         fadeWeatherTrack("out", weatherTrack)
-        cellData.isWeatherVolumeDynamic = true
-    elseif (cellData.isWeatherVolumeDynamic) and (not sheltered) and (weatherVolumeDelta > 0) then
+    elseif (cellData.isWeatherVolumeDynamic) and (not sheltered) and (weatherVolumeDelta) then
         fadeWeatherTrack("in", weatherTrack)
-        local duration = moduleData[moduleName].faderConfig["in"].duration
-        timer.start { duration = duration + 0.2, callback = function() cellData.isWeatherVolumeDynamic = false end }
     end
 
     updateShelterWeatherConditions()

@@ -14,7 +14,7 @@ local function getEligibleCellType(cellType, NPCCount)
     if cellType and cellType ~= "" then
         if (cellType ~= "tom") and (data.names[cellType] or data.tavernNames[cellType])
             and (NPCCount) and (NPCCount < 2) then
-            --debugLog(string.format("Too few people inside for interior type %s: %s", cellType, NPCCount))
+            --debugLog("Too few people inside for interior type %s: %s", cellType, NPCCount)
             return nil
         end
         return cellType
@@ -54,12 +54,12 @@ local function cellCheck()
         -- Not checking for NPC count eligibility here because we're doing it on timer check
         local cellType = getEligibleCellType(data.overrides[cellId] or interiorCellData.cellType)
         if cellType then
-            debugLog("Parsing door destination cell: " .. cellId)
+            debugLog('Parsing door: "%s" | destination cell: %s', door, cellId)
 
             if interiorCellData.lastVisited then
                 local now = tes3.getSimulationTimestamp(true)
                 local last = interiorCellData.lastVisited
-                debugLog(string.format("Last time visited: %.5f game hours ago.", (now - last)))
+                debugLog("Last time visited: %.5f game hours ago.", (now - last))
             end
 
             modules.setTempDataEntry("cellType", cellType, door, moduleName)
@@ -104,8 +104,8 @@ local function playExteriorDoors()
             local isEligible = getEligibleCellType(cellType, NPCCount)
             local cellId = door.destination.cell.id:lower()
             if isEligible and not doorTrack then
-                debugLog(string.format("Door destination is eligible, adding sound. | cellId: %s | NPCCount: %s",
-                    cellId, NPCCount))
+                debugLog('Door destination is eligible, adding sound. | door: "%s" | cellId: %s | NPCCount: %s',
+                    door, cellId, NPCCount)
                 -- Get new track every time we approach a door, for variety
                 -- Unless we want to trade variety for ultra-realism
                 -- Naaa, using the same track is boooorin'
@@ -120,8 +120,8 @@ local function playExteriorDoors()
                 }
                 modules.setTempDataEntry("track", track, door, moduleName)
             elseif not isEligible and doorTrack then
-                debugLog(string.format("Door destination is not eligible, removing sound. | cellId: %s | NPCCount: %s",
-                    cellId, NPCCount))
+                debugLog('Door destination is not eligible, removing sound. | door: "%s" | cellId: %s | NPCCount: %s',
+                    door, cellId, NPCCount)
                 sounds.removeImmediate {
                     module = moduleName,
                     track = doorTrack,

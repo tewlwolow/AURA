@@ -50,6 +50,7 @@ this.messages = {
 	track = "Track",
 	noTracksPlaying = "No tracks playing",
 	tracksPlaying = "Tracks playing",
+	door = "Door",
 	doorDestinationCell = "Door destination cell",
 	findOutdoorShelter = "Find outdoor shelter to adjust this volume. [?]",
 	findOutdoorShelterTooltip =

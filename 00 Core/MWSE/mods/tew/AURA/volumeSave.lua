@@ -408,12 +408,12 @@ local function doModules()
                 if door ~= nil then
                     local doorTrack = common.getTrackPlaying(modules.getTempDataEntry("track", door, moduleName), door)
                     if doorTrack then
-                        table.insert(info, ("%s: %s"):format(doorTrack.id, door.destination.cell.name))
+                        table.insert(info, ("%s:\t\t%s >> %s"):format(doorTrack.id, door, door.destination.cell.name))
                     end
                 end
             end
             trackInfo.text = ("%s: %s: %s"):format(moduleName, messages.tracksPlaying, #info)
-            tooltipExtraInfo = ("[%s]: [%s]\n%s"):format(messages.track, messages.doorDestinationCell, table.concat(info, "\n"))
+            tooltipExtraInfo = ("[%s]: [%s] >> [%s]\n%s"):format(messages.track, messages.door, messages.doorDestinationCell, table.concat(info, "\n"))
         elseif moduleName == "wind" then
             if isExterior then
                 if config.altitudeWind and not isUnderwater then

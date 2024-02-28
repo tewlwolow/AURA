@@ -222,7 +222,7 @@ function this.playImmediate(options)
 			pitch = pitch,
 			loop = true,
 		} then
-			debugLog(string.format("[%s] Successfully played with volume %s: %s -> %s", moduleName, volume, track.id, tostring(ref)))
+			debugLog("[%s] Successfully played with volume %s: %s -> %s", moduleName, volume, track.id, ref)
 			moduleData[moduleName].lastVolume = volume
 			moduleData[moduleName].old = moduleData[moduleName].new
 			moduleData[moduleName].oldRefHandle = moduleData[moduleName].newRefHandle
@@ -250,11 +250,12 @@ function this.play(options)
 		moduleData[moduleName].nextTrack = nil
 	end
 
-	local oldTrack, newTrack, oldRef, newRef, fadeOutOpts, fadeInOpts, removeTrack, trackFading
+	local oldTrack, newTrack, oldRef, newRef
+
 	newTrack = options.track or this.getTrack(options)
 	newRef = options.reference or tes3.mobilePlayer and tes3.mobilePlayer.reference
 	if not (newTrack and newRef) then
-		--debugLog(string.format("[!][%s] newTrack: %s | newRef: %s. Returning.", moduleName, newTrack, newRef))
+		--debugLog("[!][%s] newTrack: %s | newRef: %s. Returning.", moduleName, newTrack, newRef)
 		clearQueue()
 		return
 	end
@@ -264,24 +265,24 @@ function this.play(options)
 	-- The suspended call will also be canceled if a "cellDiff" has occurred since the initial call --
 	-- Should cover edge case where module becomes stale (no tracks playing) if changing cells too fast during crossfades --
 	if not options.noQueue and callerCell then
-		trackFading = fader.isRunning{module = moduleName}
+		local trackFading = fader.isRunning{module = moduleName}
 		if trackFading then
 			if nextTrackTimer then nextTrackTimer:cancel() end
-			debugLog(string.format("[###][%s->%s] Fader is running (%s). Trying later.", moduleName, newTrack, trackFading.id))
+			debugLog("[###][%s->%s] Fader is running (%s). Trying later.", moduleName, newTrack, trackFading.id)
 			moduleData[moduleName].nextTrack = newTrack
 			moduleData[moduleName].nextTrackTimer = timer.start {
 				callback = function()
 					local cellNow = tes3.getPlayerCell()
 					if not cellNow then return end
-					debugLog(string.format("[###][%s->%s] cellNow: %s | callerCell: %s", moduleName, newTrack, cellNow, callerCell))
+					debugLog("[###][%s->%s] cellNow: %s | callerCell: %s", moduleName, newTrack, cellNow, callerCell)
 					local differentCell = callerCell ~= cellNow
 					local intToInt = differentCell and isInterior(callerCell) and isInterior(cellNow)
 					local cellDiff = checkCellDiff(cellNow, callerCell)
 					if cellDiff or intToInt then
-						debugLog(string.format("[###][%s->%s] cellDiff or intToInt. Discarding request.", moduleName, newTrack))
+						debugLog("[###][%s->%s] cellDiff or intToInt. Discarding request.", moduleName, newTrack)
 						return
 					end
-					debugLog(string.format("[###][%s->%s] Retrying.", moduleName, newTrack))
+					debugLog("[###][%s->%s] Retrying.", moduleName, newTrack)
 					this.play(options)
 				end,
 				type = timer.real,
@@ -303,24 +304,29 @@ function this.play(options)
 		local oldRefHandle = moduleData[moduleName].oldRefHandle
 		if oldRefHandle and oldRefHandle:valid() then
 			oldRef = oldRefHandle:getObject()
-			debugLog(string.format("[%s] oldRef: %s", moduleName, oldRef))
+			debugLog("[%s] oldRef: %s", moduleName, oldRef)
 			oldTrack = common.getTrackPlaying(moduleData[moduleName].old, oldRef)
-			debugLog(string.format("[%s] oldTrack: %s", moduleName, oldTrack))
+			debugLog("[%s] oldTrack: %s", moduleName, oldTrack)
 		end
 	end
 
-	debugLog(string.format("[%s] newRef: %s", moduleName, newRef))
-	debugLog(string.format("[%s] newTrack: %s", moduleName, newTrack))
+	debugLog("[%s] newRef: %s", moduleName, newRef)
+	debugLog("[%s] newTrack: %s", moduleName, newTrack)
 
 	-- Remove old track by default when crossfading, unless instructed otherwise --
-	removeTrack = (options.removeTrack == nil) and true or options.removeTrack
+	local removeTrack = (options.removeTrack == nil) and true or options.removeTrack
+
+	-- Save post-fadeout old track target volume to config ? --
+	-- That will likely be 0, unless custom shenanigans are at play. --
+	local saveVolumeOnCrossfade = options.saveVolumeOnCrossfade
 
 	if oldTrack and oldTrack ~= newTrack then
-		fadeOutOpts = table.copy(options)
+		local fadeOutOpts = table.copy(options)
 		fadeOutOpts.fadeType = "out"
 		fadeOutOpts.track = oldTrack
 		fadeOutOpts.reference = oldRef
 		fadeOutOpts.removeTrack = removeTrack
+		fadeOutOpts.saveVolume = saveVolumeOnCrossfade
 		fader.fade(fadeOutOpts)
 	end
 
@@ -331,7 +337,7 @@ function this.play(options)
 		volume = MIN,
 		pitch = options.pitch,
 	} then
-		fadeInOpts = table.copy(options)
+		local fadeInOpts = table.copy(options)
 		fadeInOpts.fadeType = "in"
 		fadeInOpts.track = newTrack
 		fadeInOpts.reference = newRef

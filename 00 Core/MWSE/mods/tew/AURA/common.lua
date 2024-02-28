@@ -172,7 +172,7 @@ end
 
 function this.getMatch(stringArray, str)
 	for _, pattern in pairs(stringArray) do
-		if string.find(str, pattern) then
+		if string.find(str, pattern, 1, true) then
 			return pattern
 		end
 	end

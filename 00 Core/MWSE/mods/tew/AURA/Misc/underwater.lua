@@ -75,7 +75,6 @@ local function underwaterResetModules()
     end
 end
 
-local splashVol = config.volumes.misc.splashVol / 100
 local function underwaterCheck(e)
     if not (tes3.player and tes3.mobilePlayer) then return end
     waterLevel = tes3.player.cell.waterLevel or 0
@@ -86,7 +85,11 @@ local function underwaterCheck(e)
         cellData.playerUnderwater = true
         event.trigger("AURA:enteredUnderwater")
         if config.playSplash then
-            tes3.playSound { sound = "splash_lrg", volume = 0.5 * splashVol, pitch = 0.6 }
+            tes3.playSound {
+                sound = "splash_lrg",
+                volume = 0.5 * (config.volumes.misc.splashVol / 100),
+                pitch = 0.6
+            }
         end
         underwaterResetModules()
         if config.underwaterRain then
@@ -99,7 +102,11 @@ local function underwaterCheck(e)
         debugLog("Player above water level.")
         cellData.playerUnderwater = false
         if config.playSplash then
-            tes3.playSound { sound = "splash_sml", volume = 0.6 * splashVol, pitch = 0.7 }
+            tes3.playSound {
+                sound = "splash_sml",
+                volume = 0.6 * (config.volumes.misc.splashVol / 100),
+                pitch = 0.7
+            }
         end
         if config.underwaterRain then
             event.unregister(tes3.event.simulate, modifyWeatherVolume)

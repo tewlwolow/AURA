@@ -1,7 +1,6 @@
 local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local config = require("tew.AURA.config")
-local UIvol = config.volumes.misc.UIvol / 100
 local common = require("tew.AURA.common")
 
 local debugLog = common.debugLog
@@ -10,6 +9,7 @@ local debugLog = common.debugLog
 local function onSpellClick(e)
     local element = e.element:findChild("MenuServiceSpells_Spells")
     if not element then return end
+    local UIvol = config.volumes.misc.UIvol / 100
     for _, spellClick in pairs(element.children) do
         if string.find(spellClick.text, "gp") then
             spellClick:registerAfter("mouseDown", function()

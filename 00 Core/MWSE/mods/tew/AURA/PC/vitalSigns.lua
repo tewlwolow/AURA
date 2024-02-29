@@ -5,12 +5,6 @@ local genderFatigue, genderDisease = "", ""
 local player
 
 local config = require("tew.AURA.config")
-local PChealth = config.PChealth
-local PCfatigue = config.PCfatigue
-local PCmagicka = config.PCmagicka
-local PCDisease = config.PCDisease
-local PCBlight = config.PCBlight
-local vsVol = config.volumes.misc.vsVol / 100
 
 -- People don't cough underwater I guess --
 local function isPlayerUnderWater()
@@ -87,7 +81,7 @@ local function playDisease()
         callback = function()
             tes3.playSound {
                 soundPath = "tew\\A\\PC\\" .. genderDisease .. math.random(5) .. ".wav",
-                volume = 0.7 * vsVol,
+                volume = 0.7 * (config.volumes.misc.vsVol / 100),
                 reference = player,
             }
             diseaseFlag = 0
@@ -106,7 +100,7 @@ local function playBlight()
         callback = function()
             tes3.playSound {
                 soundPath = "tew\\A\\PC\\blight" .. math.random(5) .. ".wav",
-                volume = 0.9 * vsVol,
+                volume = 0.9 * (config.volumes.misc.vsVol / 100),
                 reference = player,
             }
             blightFlag = 0
@@ -126,7 +120,7 @@ local function playHealth()
         callback = function()
             tes3.playSound {
                 soundPath = "tew\\A\\PC\\health.wav",
-                volume = 0.7 * vsVol,
+                volume = 0.7 * (config.volumes.misc.vsVol / 100),
                 pitch = math.remap(player.health.normalized, 0.0, 0.33, 1.05, 0.95),
                 reference = player,
             }
@@ -150,7 +144,7 @@ local function playFatigue()
         callback = function()
             tes3.playSound {
                 soundPath = "tew\\A\\PC\\" .. genderFatigue .. math.random(5) .. ".wav",
-                volume = vsVol,
+                volume = config.volumes.misc.vsVol / 100,
                 pitch = math.random(87, 120) / 100,
                 reference = player,
             }
@@ -174,7 +168,7 @@ local function playMagicka()
         callback = function()
             tes3.playSound {
                 soundPath = "tew\\A\\PC\\magicka.wav",
-                volume = 0.6 * vsVol,
+                volume = 0.6 * (config.volumes.misc.vsVol / 100),
                 pitch = math.remap(player.magicka.normalized, 0.0, 0.33, 1.05, 0.95),
                 reference = player,
             }
@@ -186,7 +180,7 @@ end
 
 -- Centralised vitals resolver --
 local function playVitals()
-    if PChealth then
+    if config.PChealth then
         local health = player.health.normalized
 
         if (not player.isDead) and (health ~= 0) and (health < 0.33) then
@@ -197,9 +191,12 @@ local function playVitals()
             end
             healthFlag = 0
         end
+    elseif healthTimer then
+        healthTimer:cancel()
+        healthFlag = 0
     end
 
-    if PCfatigue then
+    if config.PCfatigue then
         if isPlayerUnderWater() then
             if fatigueTimer then
                 fatigueTimer:cancel()
@@ -218,9 +215,12 @@ local function playVitals()
             end
             fatigueFlag = 0
         end
+    elseif fatigueTimer then
+        fatigueTimer:cancel()
+        fatigueFlag = 0
     end
 
-    if PCmagicka then
+    if config.PCmagicka then
         local magicka = player.magicka.normalized
 
         if magicka < 0.33 then
@@ -231,10 +231,13 @@ local function playVitals()
             end
             magickaFlag = 0
         end
+    elseif magickaTimer then
+        magickaTimer:cancel()
+        magickaFlag = 0
     end
 
 
-    if PCDisease then
+    if config.PCDisease then
         local disease = checkDisease(player)
         if disease == "Disease" then
             playDisease()
@@ -244,9 +247,12 @@ local function playVitals()
             end
             diseaseFlag = 0
         end
+    elseif diseaseTimer then
+        diseaseTimer:cancel()
+        diseaseFlag = 0
     end
 
-    if PCBlight then
+    if config.PCBlight then
         local blight = checkBlight(player)
         if blight == "Blight" then
             playBlight()
@@ -256,30 +262,28 @@ local function playVitals()
             end
             blightFlag = 0
         end
+    elseif blightTimer then
+        blightTimer:cancel()
+        blightFlag = 0
     end
 end
 
 -- For underwater stuff --
 local function positionCheck()
-    if PCfatigue then
-        if fatigueTimer then
-            fatigueTimer:cancel()
-        end
-        fatigueFlag = 0
+    if fatigueTimer then
+        fatigueTimer:cancel()
     end
-    if PCDisease then
-        if diseaseTimer then
-            diseaseTimer:cancel()
-        end
-        diseaseFlag = 0
-    end
+    fatigueFlag = 0
 
-    if PCBlight then
-        if blightTimer then
-            blightTimer:cancel()
-        end
-        blightFlag = 0
+    if diseaseTimer then
+        diseaseTimer:cancel()
     end
+    diseaseFlag = 0
+
+    if blightTimer then
+        blightTimer:cancel()
+    end
+    blightFlag = 0
 end
 
 event.register("uiActivated", onStatReview, { filter = "MenuStatReview" })

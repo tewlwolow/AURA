@@ -3,8 +3,6 @@ local playerRace, playerSex
 local serviceVoicesData = require("tew.AURA.Service Voices.serviceVoicesData")
 local raceNames = serviceVoicesData.raceNames
 local tauntsData = require("tew.AURA.PC.tauntsData")
-local tVol = config.volumes.misc.tVol / 100
-local tauntChance = config.tauntChance
 local common = require("tew.AURA.common")
 local playedTaunt = 0
 local werewolfSounds = { "were moan", "were roar", "were scream", "weregrowl", "werehowl" }
@@ -107,7 +105,7 @@ local function combatCheck(e)
         local taunt = werewolfSounds[math.random(1, #werewolfSounds)]
         tes3.playSound {
             sound = taunt,
-            volume = 0.9 * tVol,
+            volume = 0.9 * (config.volumes.misc.tVol / 100),
             reference = playerMobile.reference,
         }
         playedTaunt = 1
@@ -119,7 +117,7 @@ local function combatCheck(e)
     elseif
         playerRace ~= nil
         and playerSex ~= nil then
-        if tauntChance < math.random() then
+        if config.tauntChance < math.random() then
             debugLog("Dice roll failed. Returning.")
             return
         end
@@ -150,7 +148,7 @@ local function combatCheck(e)
         end
 
         tes3.say {
-            volume = 0.9 * tVol,
+            volume = 0.9 * (config.volumes.misc.tVol / 100),
             soundPath = "Vo\\" .. playerRace .. "\\" .. playerSex .. "\\" .. taunt,
             reference = playerMobile.reference,
         }

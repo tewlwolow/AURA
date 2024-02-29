@@ -26,7 +26,12 @@ local function onSoundObjectPlay(e)
 
     local sourceMod = e.sound.sourceMod
     if sourceMod and sourceMod:lower() ~= "morrowind.esm" then
-        debugLog(string.format("Got vanilla thunder from mod: %s. Returning.", sourceMod))
+        debugLog("Got vanilla thunder from mod: %s. Returning.", sourceMod)
+        return
+    end
+
+    if table.empty(soundData.thunders) then
+        debugLog("Sound table is empty. Returning.")
         return
     end
 
@@ -55,7 +60,7 @@ local function onSoundObjectPlay(e)
 
     local thunder, lower, upper = nil, minVol, maxVol
     if lower > upper then lower = maxVol upper = minVol end
-    while (not thunder) or (thunder == lastPlayedThunder) do
+    while (not thunder) or (#soundData.thunders > 1 and thunder == lastPlayedThunder) do
         thunder = table.choice(soundData.thunders)
     end
 
@@ -66,7 +71,7 @@ local function onSoundObjectPlay(e)
         duration = addDelay and delay or 0.001,
         type = timer.simulate,
         callback = function()
-            debugLog(string.format("Playing thunder: %s | vol: %s | pitch: %s", thunder.id, volume, pitch))
+            debugLog("Playing thunder: %s | vol: %s | pitch: %s", thunder.id, volume, pitch)
             thunder:play{volume = volume, pitch = pitch}
         end,
     }

@@ -311,7 +311,7 @@ function this.getRainLoopSoundPlaying()
 	end
 end
 
-function this.getExtremeWeatherTrackPlaying()
+function this.getExtremeWeatherSoundPlaying()
 	local cw = tes3.getCurrentWeather()
 	local track
 	if (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
@@ -327,7 +327,7 @@ function this.getExtremeWeatherTrackPlaying()
 end
 
 function this.getWeatherTrack()
-	return this.getRainLoopSoundPlaying() or this.getExtremeWeatherTrackPlaying()
+	return this.getRainLoopSoundPlaying() or this.getExtremeWeatherSoundPlaying()
 end
 
 function this.isOpenPlaza(cell)

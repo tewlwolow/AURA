@@ -338,21 +338,25 @@ this.data = {
             [8] = true,
         },
         soundConfig = {
+            -- Make sure each mult is an unique value so that
+            -- different conditions are detected properly.
+            -- Keep in mind these values are rounded to 2
+            -- decimal places when passed to the fader.
             ["light"] = {
                 [4] = { mult = 0.01 },
-                [5] = { mult = 0.015 },
+                [5] = { mult = 0.012 },
             },
             ["medium"] = {
-                [4] = { mult = 0.02 },
-                [5] = { mult = 0.025 },
+                [4] = { mult = 0.015 },
+                [5] = { mult = 0.02 },
             },
             ["heavy"] = {
-                [4] = { mult = 0.03 },
+                [4] = { mult = 0.022 },
                 [5] = { mult = 0.03 },
             },
             [6] = { mult = 0.05 },
-            [7] = { mult = 0.05 },
-            [9] = { mult = 0.03 },
+            [7] = { mult = 0.04 },
+            [9] = { mult = 0.029 },
         },
         faderConfig = { ["out"] = { duration = 1.5 }, ["in"] = { duration = 1.5 } },
     },
@@ -550,6 +554,6 @@ local function removeAll()
         data.nextTrack = nil
     end
 end
-event.register(tes3.event.load, removeAll, { priority = -5 })
+event.register(tes3.event.load, removeAll, { priority = -4 })
 
 return this

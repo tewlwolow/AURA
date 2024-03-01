@@ -178,14 +178,26 @@ function this.adjustVolume(options)
     end
 end
 
-function this.setConfigVolumes()
+-- Passing a track.id to this function will set config volume _only_ for
+-- that specific track. Otherwise, all weather loops will be set.
+function this.setConfigVolumes(maybeParam)
     local config = mwse.loadConfig("AURA", defaults)
 
-    debugLog("Setting config weather volumes.")
+    local trackId
+
+    if maybeParam and type(maybeParam) == "string" then
+        trackId = maybeParam
+        debugLog("Setting config volume for track: " .. trackId)
+    else
+        debugLog("Setting config weather volumes.")
+    end
 
     -- Vanilla weather loops
     for _, sound in pairs(soundData.weatherLoops) do
         local id = sound.id:lower()
+
+        if trackId and trackId:lower() ~= id then goto nextVanillaLoop end
+
         if id == "rain" or id == "rain heavy" then
             this.setVolume(sound, config.rainSounds and 0 or sound.volume)
         elseif id == "ashstorm" then
@@ -195,15 +207,25 @@ function this.setConfigVolumes()
         elseif id == "bm blizzard" then
             this.setVolume(sound, config.volumes.extremeWeather["Blizzard"] / 100)
         end
+        :: nextVanillaLoop ::
     end
 
     -- AURA rain loops
     for weatherName, data in pairs(soundData.rainLoops) do
-        for rainType, track in pairs(data) do
-            if track then
-                this.setVolume(track, config.volumes.rain[weatherName][rainType] / 100)
+        for rainType, sound in pairs(data) do
+            if sound then
+                if trackId and trackId ~= sound.id then goto nextAURALoop end
+                this.setVolume(sound, config.volumes.rain[weatherName][rainType] / 100)
             end
+            :: nextAURALoop ::
         end
+    end
+
+    if cellData.volumeModifiedWeatherLoop then
+        if trackId and trackId ~= cellData.volumeModifiedWeatherLoop.id then
+            return
+        end
+        cellData.volumeModifiedWeatherLoop = nil
     end
 end
 

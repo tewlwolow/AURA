@@ -229,10 +229,10 @@ local function createSlider(parent, sc)
         if sc.moduleName then
             adjustVolume { module = sc.moduleName, config = config }
             common.setInsert(this.adjustedModules, sc.moduleName)
-        elseif sc.track then
-            setVolume(sc.track, newValue / 100)
-            local weatherTrackVol = math.round(sc.track.volume, 2)
-            this.adjustedWeatherTrack = (this.weatherTrackOriginalVolume ~= weatherTrackVol)
+        elseif sc.weatherLoop then
+            setVolume(sc.weatherLoop, newValue / 100)
+            local trackVol = math.round(sc.weatherLoop.volume, 2)
+            this.adjustedWeatherLoop = (this.weatherLoopOriginalVolume ~= trackVol) and sc.weatherLoop or nil
         end
         if sc.tooltipShowVolumeStates then
             updateTooltip(trackInfo, sc)
@@ -270,12 +270,12 @@ local function doExtremes()
         end
         if not track:isPlaying() then return end
 
-        this.weatherTrackOriginalVolume = math.round(track.volume, 2)
+        this.weatherLoopOriginalVolume = math.round(track.volume, 2)
 
         local entry = createEntry()
         local trackInfo = entry:findChild(this.id_trackInfo)
 
-        if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
+        if fader.isRunning { module = "shelterWeather" } or cellData.volumeModifiedWeatherLoop then
             trackInfo.text = ("%s: %s\n%s: %s%% [?]"):format(cw.name, track.id, messages.adjustingAuto,
                 math.round(track.volume, 2) * 100)
             addTooltip(trackInfo, {configOption = "shelterWeather"})
@@ -284,7 +284,7 @@ local function doExtremes()
 
         local sc = {}
         sc.key = cw.name
-        sc.track = track
+        sc.weatherLoop = track
         sc.sliderType = sliderPercent
         sc.volumeTableDefault = defaults.volumes.extremeWeather
         sc.volumeTableCurrent = config.volumes.extremeWeather
@@ -312,13 +312,13 @@ local function doRain()
         return
     end
 
-    this.weatherTrackOriginalVolume = math.round(track.volume, 2)
+    this.weatherLoopOriginalVolume = math.round(track.volume, 2)
 
     local menu = tes3ui.findMenu(this.id_menu)
     local entry = createEntry()
     local trackInfo = entry:findChild(this.id_trackInfo)
 
-    if fader.isRunning { module = "shelterWeather" } or cellData.isWeatherVolumeDynamic then
+    if fader.isRunning { module = "shelterWeather" } or cellData.volumeModifiedWeatherLoop then
         trackInfo.text = ("%s (%s): %s\n%s: %s%% [?]"):format(cw.name, rainType, track.id, messages.adjustingAuto,
             math.round(track.volume, 2) * 100)
         addTooltip(trackInfo, {configOption = "shelterWeather"})
@@ -327,7 +327,7 @@ local function doRain()
 
     local sc = {}
     sc.key = rainType
-    sc.track = track
+    sc.weatherLoop = track
     sc.sliderType = sliderPercent
     sc.volumeTableDefault = defaults.volumes.rain[cw.name]
     sc.volumeTableCurrent = config.volumes.rain[cw.name]
@@ -602,10 +602,11 @@ local function redraw(setConfigVolumesFlag)
     table.clear(this.adjustedModules)
     if setConfigVolumesFlag then
         volumeController.setConfigVolumes()
-        cellData.isWeatherVolumeDynamic = false
+    elseif this.adjustedWeatherLoop then
+        volumeController.setConfigVolumes(this.adjustedWeatherLoop.id)
     end
-    this.adjustedWeatherTrack = false
-    this.weatherTrackOriginalVolume = nil
+    this.adjustedWeatherLoop = nil
+    this.weatherLoopOriginalVolume = nil
     createBody()
     menu:updateLayout()
 end
@@ -622,8 +623,8 @@ function this.toggle(e)
         if (not menu) then
             this.cell = cellData.cell
             this.configPrevious = table.deepcopy(config)
-            this.adjustedWeatherTrack = false
-            this.weatherTrackOriginalVolume = nil
+            this.adjustedWeatherLoop = nil
+            this.weatherLoopOriginalVolume = nil
             createWindow()
             if (not tes3ui.menuMode()) then
                 tes3ui.enterMenuMode(this.id_menu)
@@ -652,7 +653,7 @@ function this.onUndo(e)
     config.volumes.modules = this.configPrevious.volumes.modules
     config.volumes.rain = this.configPrevious.volumes.rain
     config.volumes.extremeWeather = this.configPrevious.volumes.extremeWeather
-    redraw(this.adjustedWeatherTrack)
+    redraw()
 end
 
 function this.onRestoreDefaults(e)

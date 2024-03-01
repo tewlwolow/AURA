@@ -126,16 +126,11 @@ function this.fade(options)
             debugLog("[%s] %s suddenly not playing on ref %s. Canceling fade %s timers.", moduleName, trackId, ref or "(unattached)", fadeType)
 
             fadeInProgress.iterTimer:cancel()
-
-            -- Set back original volume if track was playing unattached
-            if isTrackUnattached then
-                debugLog("[%s] Restoring original volume for unattached track: %s.", moduleName, trackId)
-                volumeController.setVolume(tes3.getSound(trackId), trackVolume)
-            end
+            fadeInProgress.currentVolume = currentVolume
 
             if type(onFail) == "function" then
                 debugLog("[%s] Running fail state hook.", moduleName)
-                onFail()
+                onFail(fadeInProgress)
             end
 
             fadeInProgress.fadeTimer:cancel()
@@ -184,9 +179,10 @@ function this.fade(options)
                 config.volumes.modules[moduleName].volume = currentVolume * 100
                 mwse.saveConfig("AURA", config)
             end
+            fadeInProgress.currentVolume = currentVolume
             if type(onSuccess) == "function" then
                 debugLog("[%s] Running success state hook.", moduleName)
-                onSuccess()
+                onSuccess(fadeInProgress)
             end
             common.setRemove(this.inProgress[fadeType], fadeInProgress)
             debugLog("[%s] currentVolume: %s", moduleName, currentVolume)

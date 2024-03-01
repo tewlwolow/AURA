@@ -70,73 +70,75 @@ local function runResetter()
     if mainTimer then mainTimer:reset() end
     table.clear(currentShelter)
     weatherVolumeDelta = nil
-    cellData.isWeatherVolumeDynamic = false
+    cellData.volumeModifiedWeatherLoop = nil
 end
 
-local function restoreWeatherVolumes()
-    if cellData.isWeatherVolumeDynamic then
-        debugLog("[shelterWeather] Restoring original volumes for weather tracks.")
+local function restoreWeatherLoopVolume()
+    if cellData.volumeModifiedWeatherLoop then
+        local trackId = cellData.volumeModifiedWeatherLoop.id
+        debugLog("[shelterWeather] Restoring config volume for weather loop: " .. trackId)
         fader.cancel("shelterWeather")
-        volumeController.setConfigVolumes()
-        --weatherVolumeDelta = nil
-        cellData.isWeatherVolumeDynamic = false
+        volumeController.setConfigVolumes(trackId)
     end
 end
 
-local function fadeWeatherTrack(fadeType, track)
-    if not (track and track:isPlaying()) then return end
-    debugLog("Fading %s weather track: %s", fadeType, track.id)
+local function fadeWeatherLoop(fadeType, weatherLoop)
+    if not (weatherLoop and weatherLoop:isPlaying()) then return end
+    local trackId = weatherLoop.id
+    debugLog("[shelterWeather] Fading %s weather track: %s", fadeType, trackId)
     fader.fade {
         module = "shelterWeather",
         fadeType = fadeType,
-        track = track,
+        track = weatherLoop,
         volume = weatherVolumeDelta,
         onSuccess = function()
-            cellData.isWeatherVolumeDynamic = (fadeType == "out") and true or false
+            cellData.volumeModifiedWeatherLoop = (fadeType == "out") and weatherLoop or nil
         end,
         onFail = function()
-            volumeController.setConfigVolumes()
-            cellData.isWeatherVolumeDynamic = false
+            -- On fail we want to restore config volume regardless of whether
+            -- cellData.volumeModifiedWeatherLoop has been set or not. That's
+            -- why we're not calling restoreWeatherLoopVolume() here.
+            volumeController.setConfigVolumes(trackId)
         end,
     }
 end
 
-local function adjustWeatherVolume()
+local function adjustWeatherLoopVolume()
     local moduleName = "shelterWeather"
     local sheltered = cellData.currentShelter.ref
 
     local moduleActive = modules.isActive(moduleName)
-    local weatherTrack = common.getWeatherTrack()
+    local weatherLoop = common.getWeatherTrack()
     local soundConfig = volumeController.getModuleSoundConfig(moduleName)
     local delta = soundConfig.mult
 
     if not moduleActive
-    or not weatherTrack
+    or not weatherLoop
     or not delta
     or cellData.playerUnderwater then
-        restoreWeatherVolumes()
+        restoreWeatherLoopVolume()
         return
     end
 
     local transitionScalar = tes3.worldController.weatherController.transitionScalar
     if transitionScalar and transitionScalar > 0 then
         if not sheltered then
-            restoreWeatherVolumes()
+            restoreWeatherLoopVolume()
         end
         return
     end
 
     if (weatherVolumeDelta) and (delta ~= weatherVolumeDelta) then
         debugLog("[%s] Different conditions.", moduleName)
-        restoreWeatherVolumes()
+        restoreWeatherLoopVolume()
     end
 
-    if (not cellData.isWeatherVolumeDynamic) and (sheltered) then
+    if (not cellData.volumeModifiedWeatherLoop) and (sheltered) then
         weatherVolumeDelta = delta
-        moduleData[moduleName].lastVolume = math.round(weatherTrack.volume, 2)
-        fadeWeatherTrack("out", weatherTrack)
-    elseif (cellData.isWeatherVolumeDynamic) and (not sheltered) and (weatherVolumeDelta) then
-        fadeWeatherTrack("in", weatherTrack)
+        moduleData[moduleName].lastVolume = math.round(weatherLoop.volume, 2)
+        fadeWeatherLoop("out", weatherLoop)
+    elseif (cellData.volumeModifiedWeatherLoop) and (not sheltered) and (weatherVolumeDelta) then
+        fadeWeatherLoop("in", weatherLoop)
     end
 end
 
@@ -229,10 +231,10 @@ local function playShelterWind()
     local shelter = cellData.currentShelter.ref
     local isValidShelterType = shelter and common.getMatch(supportedShelterTypes, shelter.object.id:lower())
 
-    local weatherTrack = common.getWeatherTrack()
+    local weatherLoopPlaying = (common.getWeatherTrack() ~= nil)
     local sound = sounds.getTrack { module = moduleName }
 
-    local ready = isValidShelterType and weatherTrack and sound
+    local ready = isValidShelterType and weatherLoopPlaying and sound
     if not ready then
         remove(moduleName)
         return
@@ -328,19 +330,19 @@ end
 local function onInsideShelter()
     if config.playRainInsideShelter then playShelterRain() end
     if config.playWindInsideShelter then playShelterWind() end
-    if config.shelterWeather then adjustWeatherVolume() end
+    if config.shelterWeather then adjustWeatherLoopVolume() end
 end
 
 local function onExitedShelter()
     remove("shelterRain")
     remove("shelterWind")
-    adjustWeatherVolume()
+    adjustWeatherLoopVolume()
 end
 
 local function onShelterDeactivated()
     removeImmediate("shelterRain")
     removeImmediate("shelterWind")
-    restoreWeatherVolumes()
+    restoreWeatherLoopVolume()
 end
 
 local function onConditionsNotMet()

@@ -131,14 +131,14 @@ local function cellCheck()
             typeCell ~= "dwe" and
             time == "night" then
             debugLog("Found appropriate cell at night. Playing populated ambient night sound.")
-            sounds.play { module = moduleName, type = "night" }
+            sounds.play { module = moduleName, type = "night", cell = cell }
             timeLast = time
             typeCellLast = typeCell
             weatherLast = weatherNow
             return
         elseif time == "day" then
             debugLog("Found appropriate cell at day. Playing populated ambient day sound.")
-            sounds.play { module = moduleName, type = "day", typeCell = typeCell }
+            sounds.play { module = moduleName, type = "day", typeCell = typeCell, cell = cell }
             timeLast = time
             typeCellLast = typeCell
             weatherLast = weatherNow

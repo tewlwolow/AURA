@@ -5,12 +5,6 @@ local genderFatigue, genderDisease = "", ""
 local player
 
 local config = require("tew.AURA.config")
-local PChealth = config.PChealth
-local PCfatigue = config.PCfatigue
-local PCmagicka = config.PCmagicka
-local PCDisease = config.PCDisease
-local PCBlight = config.PCBlight
-local vsVol = config.volumes.misc.vsVol / 100
 
 -- People don't cough underwater I guess --
 local function isPlayerUnderWater()
@@ -36,6 +30,11 @@ local function onLoaded()
         genderDisease = "disease_m_"
     end
     player = tes3.mobilePlayer
+    healthFlag = 0
+    fatigueFlag = 0
+    magickaFlag = 0
+    diseaseFlag = 0
+    blightFlag = 0
 end
 
 local function onStatReview(e)
@@ -75,26 +74,38 @@ end
 -- Play cough stuff if the player is diseased --
 local function playDisease()
     if diseaseFlag == 1 then return end
-    if not diseaseTimer then
-        diseaseTimer = timer.start { type = timer.simulate, duration = math.random(45, 90), iterations = -1, callback = function()
-            tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderDisease .. math.random(5) .. ".wav", volume = 0.7 * vsVol, reference = player }
-        end }
-    else
-        diseaseTimer:resume()
-    end
+    diseaseTimer = timer.start {
+        type = timer.simulate,
+        duration = math.random(45, 90),
+        iterations = 1,
+        callback = function()
+            tes3.playSound {
+                soundPath = "tew\\A\\PC\\" .. genderDisease .. math.random(5) .. ".wav",
+                volume = 0.7 * (config.volumes.misc.vsVol / 100),
+                reference = player,
+            }
+            diseaseFlag = 0
+        end
+    }
     diseaseFlag = 1
 end
 
 -- Shudder before Ur! --
 local function playBlight()
     if blightFlag == 1 then return end
-    if not blightTimer then
-        blightTimer = timer.start { type = timer.simulate, duration = math.random(35, 45), iterations = -1, callback = function()
-            tes3.playSound { soundPath = "tew\\A\\PC\\blight" .. math.random(5) .. ".wav", volume = 0.9 * vsVol, reference = player }
-        end }
-    else
-        blightTimer:resume()
-    end
+    blightTimer = timer.start {
+        type = timer.simulate,
+        duration = math.random(35, 45),
+        iterations = 1,
+        callback = function()
+            tes3.playSound {
+                soundPath = "tew\\A\\PC\\blight" .. math.random(5) .. ".wav",
+                volume = 0.9 * (config.volumes.misc.vsVol / 100),
+                reference = player,
+            }
+            blightFlag = 0
+        end
+    }
     blightFlag = 1
 end
 
@@ -102,61 +113,93 @@ end
 -- Actually it plays nicely with "starving" effect from Ashfall as well --
 local function playHealth()
     if healthFlag == 1 then return end
-    if not healthTimer then
-        healthTimer = timer.start { type = timer.simulate, duration = math.random(10, 20) / 10, iterations = -1, callback = function()
-            tes3.playSound { soundPath = "tew\\A\\PC\\health.wav", volume = 0.7 * vsVol, pitch = math.remap(player.health.normalized, 0.0, 0.33, 1.05, 0.95), reference = player }
-        end }
-    else
-        healthTimer:resume()
-    end
+    healthTimer = timer.start {
+        type = timer.simulate,
+        duration = math.remap(player.health.normalized, 0.001, 0.33, 0.4, 1.25),
+        iterations = 1,
+        callback = function()
+            tes3.playSound {
+                soundPath = "tew\\A\\PC\\health.wav",
+                volume = 0.7 * (config.volumes.misc.vsVol / 100),
+                pitch = math.remap(player.health.normalized, 0.0, 0.33, 1.05, 0.95),
+                reference = player,
+            }
+            healthFlag = 0
+        end
+    }
     healthFlag = 1
 end
 
 -- Me when standing up for a minute: --
 local function playFatigue()
     if fatigueFlag == 1 then return end
-    if not fatigueTimer then
-        fatigueTimer = timer.start { type = timer.simulate, duration = math.random(10, 20), iterations = -1, callback = function()
-            tes3.playSound { soundPath = "tew\\A\\PC\\" .. genderFatigue .. math.random(5) .. ".wav", volume = vsVol, pitch = math.random(87, 120) / 100, reference = player }
-        end }
-    else
-        fatigueTimer:resume()
-    end
+
+    local lower = math.remap(player.fatigue.normalized, 0.0, 0.33, 10, 15)
+    local upper = math.remap(player.fatigue.normalized, 0.0, 0.33, 20, 25)
+
+    fatigueTimer = timer.start {
+        type = timer.simulate,
+        duration = math.random(lower, upper),
+        iterations = 1,
+        callback = function()
+            tes3.playSound {
+                soundPath = "tew\\A\\PC\\" .. genderFatigue .. math.random(5) .. ".wav",
+                volume = config.volumes.misc.vsVol / 100,
+                pitch = math.random(87, 120) / 100,
+                reference = player,
+            }
+            fatigueFlag = 0
+        end
+    }
     fatigueFlag = 1
 end
 
 -- Weeeeeuuuuiii no casting for ya --
 local function playMagicka()
     if magickaFlag == 1 then return end
-    if not magickaTimer then
-        magickaTimer = timer.start { type = timer.simulate, duration = math.random(12, 25), iterations = -1, callback = function()
-            tes3.playSound { soundPath = "tew\\A\\PC\\magicka.wav", volume = 0.6 * vsVol, pitch = math.remap(player.magicka.normalized, 0.0, 0.33, 1.05, 0.95), reference = player }
-        end }
-    else
-        magickaTimer:resume()
-    end
+
+    local lower = math.remap(player.magicka.normalized, 0.0, 0.33, 15, 20)
+    local upper = math.remap(player.magicka.normalized, 0.0, 0.33, 25, 35)
+
+    magickaTimer = timer.start {
+        type = timer.simulate,
+        duration = math.random(lower, upper),
+        iterations = 1,
+        callback = function()
+            tes3.playSound {
+                soundPath = "tew\\A\\PC\\magicka.wav",
+                volume = 0.6 * (config.volumes.misc.vsVol / 100),
+                pitch = math.remap(player.magicka.normalized, 0.0, 0.33, 1.05, 0.95),
+                reference = player,
+            }
+            magickaFlag = 0
+        end
+    }
     magickaFlag = 1
 end
 
 -- Centralised vitals resolver --
 local function playVitals()
-    if PChealth then
+    if config.PChealth then
         local health = player.health.normalized
 
-        if health < 0.33 then
+        if (not player.isDead) and (health ~= 0) and (health < 0.33) then
             playHealth()
         else
             if healthTimer then
-                healthTimer:pause()
+                healthTimer:cancel()
             end
             healthFlag = 0
         end
+    elseif healthTimer then
+        healthTimer:cancel()
+        healthFlag = 0
     end
 
-    if PCfatigue then
+    if config.PCfatigue then
         if isPlayerUnderWater() then
             if fatigueTimer then
-                fatigueTimer:pause()
+                fatigueTimer:cancel()
             end
             fatigueFlag = 0
             return
@@ -168,72 +211,79 @@ local function playVitals()
             playFatigue()
         else
             if fatigueTimer then
-                fatigueTimer:pause()
+                fatigueTimer:cancel()
             end
             fatigueFlag = 0
         end
+    elseif fatigueTimer then
+        fatigueTimer:cancel()
+        fatigueFlag = 0
     end
 
-    if PCmagicka then
+    if config.PCmagicka then
         local magicka = player.magicka.normalized
 
         if magicka < 0.33 then
             playMagicka()
         else
             if magickaTimer then
-                magickaTimer:pause()
+                magickaTimer:cancel()
             end
             magickaFlag = 0
         end
+    elseif magickaTimer then
+        magickaTimer:cancel()
+        magickaFlag = 0
     end
 
 
-    if PCDisease then
+    if config.PCDisease then
         local disease = checkDisease(player)
         if disease == "Disease" then
             playDisease()
         else
             if diseaseTimer then
-                diseaseTimer:pause()
+                diseaseTimer:cancel()
             end
             diseaseFlag = 0
         end
+    elseif diseaseTimer then
+        diseaseTimer:cancel()
+        diseaseFlag = 0
     end
 
-    if PCBlight then
+    if config.PCBlight then
         local blight = checkBlight(player)
         if blight == "Blight" then
             playBlight()
         else
             if blightTimer then
-                blightTimer:pause()
+                blightTimer:cancel()
             end
             blightFlag = 0
         end
+    elseif blightTimer then
+        blightTimer:cancel()
+        blightFlag = 0
     end
 end
 
 -- For underwater stuff --
 local function positionCheck()
-    if PCfatigue then
-        if fatigueTimer then
-            fatigueTimer:pause()
-        end
-        fatigueFlag = 0
+    if fatigueTimer then
+        fatigueTimer:cancel()
     end
-    if PCDisease then
-        if diseaseTimer then
-            diseaseTimer:pause()
-        end
-        diseaseFlag = 0
-    end
+    fatigueFlag = 0
 
-    if PCBlight then
-        if blightTimer then
-            blightTimer:pause()
-        end
-        blightFlag = 0
+    if diseaseTimer then
+        diseaseTimer:cancel()
     end
+    diseaseFlag = 0
+
+    if blightTimer then
+        blightTimer:cancel()
+    end
+    blightFlag = 0
 end
 
 event.register("uiActivated", onStatReview, { filter = "MenuStatReview" })

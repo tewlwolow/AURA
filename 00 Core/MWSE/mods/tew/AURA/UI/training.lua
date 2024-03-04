@@ -3,7 +3,6 @@ local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
-local UIvol = config.volumes.misc.UIvol / 100
 
 local debugLog = common.debugLog
 
@@ -12,6 +11,8 @@ local function onTrainingMenu(e)
     if not e.newlyCreated then
         return
     end
+
+    local UIvol = config.volumes.misc.UIvol / 100
 
     local element = e.element
     element = element:findChild(-1155)

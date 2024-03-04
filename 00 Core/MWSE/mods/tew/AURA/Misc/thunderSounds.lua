@@ -1,4 +1,5 @@
 local common = require("tew.AURA.common")
+local config = require("tew.AURA.config")
 local defaults = require("tew.AURA.defaults")
 local debugLog = common.debugLog
 local cellData = require("tew.AURA.cellData")
@@ -16,7 +17,7 @@ local function onSoundObjectPlay(e)
 
     if not cellData.cell
     or not cellData.cell.isOrBehavesAsExterior
-	or not e.sound or not isVanillaThunder(e.sound.id) then
+    or not e.sound or not isVanillaThunder(e.sound.id) then
         return
     end
 
@@ -25,7 +26,12 @@ local function onSoundObjectPlay(e)
 
     local sourceMod = e.sound.sourceMod
     if sourceMod and sourceMod:lower() ~= "morrowind.esm" then
-        debugLog(string.format("Got vanilla thunder from mod: %s. Returning.", sourceMod))
+        debugLog("Got vanilla thunder from mod: %s. Returning.", sourceMod)
+        return
+    end
+
+    if table.empty(soundData.thunders) then
+        debugLog("Sound table is empty. Returning.")
         return
     end
 
@@ -48,28 +54,27 @@ local function onSoundObjectPlay(e)
     -- Distant_Thunder_00, Distant_Thunder_01, Distant_Thunder_02, Distant_Thunder_03
 
     local delay = math.random(1, 25) / 10 -- Light travels faster than sound
-    local config = mwse.loadConfig("AURA", defaults)
     minVol = config.volumes.misc.thunderVolMin
     maxVol = config.volumes.misc.thunderVolMax
     addDelay = config.thunderSoundsDelay
 
     local thunder, lower, upper = nil, minVol, maxVol
     if lower > upper then lower = maxVol upper = minVol end
-    while (not thunder) or (thunder == lastPlayedThunder) do
+    while (not thunder) or (#soundData.thunders > 1 and thunder == lastPlayedThunder) do
         thunder = table.choice(soundData.thunders)
     end
 
     local volume = math.random(lower, upper) / 100
     local pitch = math.random(65, 130) / 100
 
-	timer.start{
-		duration = addDelay and delay or 0.001,
-		type = timer.simulate,
-		callback = function()
-            debugLog(string.format("Playing thunder: %s | vol: %s | pitch: %s", thunder.id, volume, pitch))
+    timer.start{
+        duration = addDelay and delay or 0.001,
+        type = timer.simulate,
+        callback = function()
+            debugLog("Playing thunder: %s | vol: %s | pitch: %s", thunder.id, volume, pitch)
             thunder:play{volume = volume, pitch = pitch}
         end,
-	}
+    }
 
     lastPlayedThunder = thunder
 

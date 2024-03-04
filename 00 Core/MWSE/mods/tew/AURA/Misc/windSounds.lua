@@ -5,11 +5,13 @@ local defaults = require("tew.AURA.defaults")
 local modules = require("tew.AURA.modules")
 local moduleData = modules.data
 local sounds = require("tew.AURA.sounds")
+local fader = require("tew.AURA.fader")
 local moduleName = "wind"
 local playInteriorWind = config.playInteriorWind
 local windType, cell
 local windTypeLast, cellLast
-local interiorTimer
+local interiorTimer, altitudeWindTimer
+local MIN_ALT, MAX_ALT = 0, 15000 -- Maybe do lower for max. 15k is Red Mountain, rest of the world is considerably lower on average
 
 local debugLog = common.debugLog
 
@@ -30,26 +32,58 @@ local function getWindType(cSpeed)
     end
 end
 
-local function updateConditions(resetTimerFlag)
-	if resetTimerFlag
-	and interiorTimer
-	and not cell.isOrBehavesAsExterior
-	and not table.empty(cellData.windoors) then
-		interiorTimer:reset()
-	end
+local function updateAltitudeStats()
+    local mp = tes3.mobilePlayer
+    if not mp
+    or mp.waiting
+    or mp.sleeping
+    or mp.traveling
+    or not cellData.cell
+    or not cellData.cell.isOrBehavesAsExterior then
+        cellData.altitude = nil
+        return
+    end
+
+    -- FIXME: Weird edge case I can't reproduce: negative z when ext->int when clearly above ground
+    -- Occurred at Seyda Neen Lighthouse top entrance with collision off (tcl bug?)
+    local altitude = mp.position:copy().z
+    if (not cellData.playerUnderwater)
+    and (altitude < 0)
+    and (cellData.altitude) and (cellData.altitude >= 0) then
+        altitude = cellData.altitude
+    else
+        cellData.altitude = altitude
+    end
+    local minVol = config.volumes.misc.altitudeWindVolMin / 100
+    local maxVol = config.volumes.misc.altitudeWindVolMax / 100
+    local min, max = minVol, maxVol
+    if min > max then min = maxVol max = minVol end
+    local vol = math.round(math.remap(math.clamp(altitude, MIN_ALT, MAX_ALT), MIN_ALT, MAX_ALT, min, max), 2)
+    cellData.altitudeWindVolume = cellData.playerUnderwater and min or vol
+end
+
+local function updateConditions(resetInteriorTimerFlag)
+    if resetInteriorTimerFlag
+    and interiorTimer
+    and not cell.isOrBehavesAsExterior
+    and not table.empty(cellData.windoors) then
+        interiorTimer:reset()
+    end
+    altitudeWindTimer:reset()
     windTypeLast = windType
     cellLast = cell
 end
 
 local function stopWindoors(immediateFlag)
     local remove = immediateFlag and sounds.removeImmediate or sounds.remove
-	if not table.empty(cellData.windoors) then
-		for _, windoor in ipairs(cellData.windoors) do
-			if windoor ~= nil then
-				remove { module = moduleName, reference = windoor }
-			end
-		end
-	end
+    if not table.empty(cellData.windoors) then
+        for _, windoor in ipairs(cellData.windoors) do
+            local track = modules.getTempDataEntry("track", windoor, moduleName) or moduleData[moduleName].new
+            if windoor ~= nil and common.getTrackPlaying(track, windoor) then
+                remove { module = moduleName, track = track, reference = windoor }
+            end
+        end
+    end
 end
 
 local function playWindoors()
@@ -59,7 +93,7 @@ local function playWindoors()
     
     for _, windoor in ipairs(cellData.windoors) do
         
-        local track = windoor.tempData.tew.AURA.WIND.track
+        local track = modules.getTempDataEntry("track", windoor, moduleName)
         
         if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
         and not common.getTrackPlaying(track, windoor) then
@@ -87,11 +121,11 @@ local function windCheck(e)
     -- Cell resolution --
     cell = tes3.getPlayerCell()
     if (not cell) then
-		debugLog("No cell detected. Returning.")
+        debugLog("No cell detected. Returning.")
         sounds.remove { module = moduleName }
-		return
-	end
-	debugLog("Cell: " .. cell.editorName)
+        return
+    end
+    debugLog("Cell: " .. cell.editorName)
 
     -- Weather resolution --
     local regionObject = tes3.getRegion(true)
@@ -132,6 +166,7 @@ local function windCheck(e)
     local useLast = (windType == windTypeLast) or false
 
     -- Transition filter chunk --
+    -- TODO: don't call sounds.play when ext->ext in same region if same conditions. OA too.
     if (windType == windTypeLast)
     and (common.checkCellDiff(cell, cellLast) == false)
     and not (cell ~= cellLast) then
@@ -140,16 +175,39 @@ local function windCheck(e)
         return
     end
     if common.checkCellDiff(cell, cellLast) then
-		debugLog("Cell type changed. Removing module sounds.")
-		sounds.removeImmediate { module = moduleName }
-	end
+        debugLog("Cell type changed. Removing module sounds.")
+        sounds.removeImmediate { module = moduleName }
+    end
 
     if (windTypeLast ~= windType) or (cell ~= cellLast) then
+
+        local track = sounds.getTrack{
+            module = moduleName,
+            type = windType,
+            last = useLast,
+        }
+
+        debugLog(string.format("[#] old: %s | new: %s | useLast: %s | nextTrack: %s", moduleData[moduleName].old, moduleData[moduleName].new, useLast, track))
+
+        local saveVolume
+
+        if (config.altitudeWind) then
+            updateAltitudeStats()
+            local altVol = cellData.altitudeWindVolume
+            local windVol = config.volumes.modules[moduleName].volume / 100
+            debugLog("windVol: " .. windVol)
+            if (altVol) and (altVol ~= windVol) then
+                config.volumes.modules[moduleName].volume = altVol * 100
+                mwse.saveConfig("AURA", config)
+            end
+            saveVolume = true
+            debugLog("altitudeWindVolume: " .. tostring(altVol))
+        end
 
         if (cell.isOrBehavesAsExterior) then
             -- Using the same track when entering int/ext in same area; time/weather change will randomise it again --
             debugLog(string.format("Found exterior cell. useLast: %s", useLast))
-            sounds.play { module = moduleName, type = windType, last = useLast }
+            sounds.play { module = moduleName, track = track, cell = cell, saveVolume = saveVolume }
         else
             debugLog("Found interior cell.")
             stopWindoors(true)
@@ -165,26 +223,14 @@ local function windCheck(e)
             if common.getCellType(cell, common.cellTypesSmall) == true
             or common.getCellType(cell, common.cellTypesTent) == true then
                 debugLog(string.format("Found small interior cell. useLast: %s", useLast))
-                sounds.play{
-                    module = moduleName,
-                    type = windType,
-                    last = useLast
-                }
+                sounds.play { module = moduleName, track = track, cell = cell }
             else
                 debugLog("Found big interior cell.")
                 if not table.empty(cellData.windoors) then
                     debugLog("Found " ..
                     #cellData.windoors .. " windoor(s). Playing interior loops. useLast: " .. tostring(useLast))
-                    local windoorTrack = useLast and moduleData[moduleName].new or sounds.getTrack{
-                        module = moduleName,
-                        type = windType,
-                    }
                     for _, windoor in ipairs(cellData.windoors) do
-                        local tempData = windoor.tempData
-                        if not tempData.tew then tempData.tew = {} end
-                        if not tempData.tew.AURA then tempData.tew.AURA = {} end
-                        if not tempData.tew.AURA.WIND then tempData.tew.AURA.WIND = {} end
-                        tempData.tew.AURA.WIND.track = windoorTrack
+                        modules.setTempDataEntry("track", track, windoor, moduleName)
                     end
                     updateConditions(true)
                     return
@@ -196,9 +242,42 @@ local function windCheck(e)
     debugLog("Cell check complete.")
 end
 
+local function altitudeCheck()
+    if cellData.playerUnderwater
+    or fader.isRunning { module = moduleName }
+    or common.isTimerAlive(moduleData[moduleName].nextTrackTimer)
+    then
+        return
+    end
+
+    local playing = modules.getCurrentlyPlaying(moduleName)
+    local lastVol = moduleData[moduleName].lastVolume
+    if not playing or not lastVol then return end
+
+    updateAltitudeStats()
+    local altitude = cellData.altitude
+    local newVol = cellData.altitudeWindVolume
+
+    if (altitude) and (altitude >= MIN_ALT) and (newVol) and (newVol ~= lastVol) then
+        debugLog(string.format("[altitudeWind] altitude: %s | newVol: %s", altitude, newVol))
+        local track, ref = table.unpack(playing)
+        local delta = math.abs(newVol - lastVol)
+        fader.fade {
+            module = moduleName,
+            fadeType = (newVol < lastVol) and "out" or "in",
+            track = track,
+            reference = ref,
+            volume = delta,
+            duration = 3,
+            saveVolume = true,
+        }
+    end
+end
+
 -- Pause interior timer on condition change trigger --
 local function onConditionChanged(e)
     if interiorTimer then interiorTimer:pause() end
+    if altitudeWindTimer then altitudeWindTimer:pause() end
     windCheck(e)
 end
 
@@ -210,17 +289,30 @@ end
 -- Run hour timer, start and pause interiorTimer on loaded --
 local function onLoaded()
     runHourTimer()
-	if playInteriorWind then
-		if not interiorTimer then
-			interiorTimer = timer.start{
-				duration = 1,
-				iterations = -1,
-				callback = playWindoors,
-				type = timer.simulate
-			}
-		end
-		interiorTimer:pause()
-	end
+    if playInteriorWind then
+        if not interiorTimer then
+            interiorTimer = timer.start{
+                duration = 1,
+                iterations = -1,
+                callback = playWindoors,
+                type = timer.simulate
+            }
+        end
+        interiorTimer:pause()
+    end
+    if config.altitudeWind then
+        cellData.altitudeWindVolume = nil
+        cellData.altitude = nil
+        if not altitudeWindTimer then
+            altitudeWindTimer = timer.start{
+                duration = 1,
+                iterations = -1,
+                callback = altitudeCheck,
+                type = timer.simulate
+            }
+        end
+        altitudeWindTimer:pause()
+    end
 end
 
 -- Waiting/travelling check --
@@ -268,6 +360,7 @@ event.register("weatherChangedImmediate", onConditionChanged, { priority = -100 
 event.register("weatherTransitionImmediate", onConditionChanged, { priority = -100 })
 event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -100 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -100 })
+event.register("AURA:enteredUnderwater", resetWindoors, { priority = -100 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -100 })
 event.register("loaded", onLoaded, { priority = -160 })
 event.register("load", runResetter)

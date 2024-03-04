@@ -6,13 +6,13 @@ local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 
 -- Centralised debug message printer --
-function this.debugLog(message)
+function this.debugLog(message, ...)
 	if debugLogOn then
 		local info = debug.getinfo(2, "Sl")
 		local module = info.short_src:match("^.+\\(.+).lua$")
 		local prepend = ("[%s.%s.%s:%s]:"):format(metadata.package.name, version, module, info.currentline)
 		local aligned = ("%-36s"):format(prepend)
-		mwse.log(aligned .. " -- " .. string.format("%s", message))
+		mwse.log(aligned .. " -- " .. string.format("%s", message), ...)
 	end
 end
 
@@ -172,7 +172,7 @@ end
 
 function this.getMatch(stringArray, str)
 	for _, pattern in pairs(stringArray) do
-		if string.find(str, pattern) then
+		if string.find(str, pattern, 1, true) then
 			return pattern
 		end
 	end
@@ -304,19 +304,15 @@ function this.isRefSheltered(options)
 	return false
 end
 
-function this.getCurrentWeather()
-	return tes3.worldController.weatherController.currentWeather
-end
-
 function this.getRainLoopSoundPlaying()
-	local cw = this.getCurrentWeather()
+	local cw = tes3.getCurrentWeather()
 	if cw and cw.rainLoopSound and cw.rainLoopSound:isPlaying() then
 		return cw.rainLoopSound
 	end
 end
 
-function this.getExtremeWeatherTrackPlaying()
-	local cw = this.getCurrentWeather()
+function this.getExtremeWeatherSoundPlaying()
+	local cw = tes3.getCurrentWeather()
 	local track
 	if (cw) and (cw.index == 6 or cw.index == 7 or cw.index == 9) then
 		if cw.name == "Ashstorm" then
@@ -331,7 +327,7 @@ function this.getExtremeWeatherTrackPlaying()
 end
 
 function this.getWeatherTrack()
-	return this.getRainLoopSoundPlaying() or this.getExtremeWeatherTrackPlaying()
+	return this.getRainLoopSoundPlaying() or this.getExtremeWeatherSoundPlaying()
 end
 
 function this.isOpenPlaza(cell)
@@ -365,6 +361,21 @@ function this.getRegion()
 	local regionObject = tes3.getRegion { useDoors = true } or this.getFallbackRegion()
 	if not regionObject then this.debugLog("Couldn't fetch region object.") end
 	return regionObject
+end
+
+function this.getWeather(cell, currentOrNext)
+	local c = cell or tes3.getPlayerCell()
+	local regionObject = this.getRegion()
+	local cw = tes3.getCurrentWeather()
+	local cwIndex = cw and cw.index
+	local nwIndex = regionObject and regionObject.weather.index
+	if currentOrNext == "current" then
+		return cwIndex or nwIndex
+	elseif currentOrNext == "next" then
+		return nwIndex
+	else
+		return c.isOrBehavesAsExterior and cwIndex or nwIndex
+	end
 end
 
 return this

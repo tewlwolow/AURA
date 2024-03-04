@@ -14,7 +14,7 @@ local debugLog = common.debugLog
 local raining
 local playingBlocked = false
 local rainOnStaticsBlocked = false
-local weatherVolumeDelta = 0
+local weatherVolumeDelta
 local INTERVAL = 0.55
 
 local currentShelter = cellData.currentShelter
@@ -37,11 +37,11 @@ end
 local function playImmediate(moduleName, sound, ref)
     sounds.playImmediate { module = moduleName, track = sound, reference = ref }
 end
-local function remove(moduleName, ref)
-    sounds.remove { module = moduleName, reference = ref }
+local function remove(moduleName, sound, ref)
+    sounds.remove { module = moduleName, track = sound, reference = ref }
 end
-local function removeImmediate(moduleName)
-    sounds.removeImmediate { module = moduleName }
+local function removeImmediate(moduleName, sound, ref)
+    sounds.removeImmediate { module = moduleName, track = sound, reference = ref }
 end
 local function removeRefSound(sound, ref)
     if playing(sound, ref) then
@@ -69,71 +69,82 @@ end
 local function runResetter()
     if mainTimer then mainTimer:reset() end
     table.clear(currentShelter)
-    weatherVolumeDelta = 0
-    cellData.isWeatherVolumeDynamic = false
+    weatherVolumeDelta = nil
+    cellData.volumeModifiedWeatherLoop = nil
 end
 
-local function restoreWeatherVolumes()
-    if cellData.isWeatherVolumeDynamic then
-        debugLog("[shelterWeather] Restoring original volumes for weather tracks.")
+local function restoreWeatherLoopVolume()
+    if cellData.volumeModifiedWeatherLoop then
+        local trackId = cellData.volumeModifiedWeatherLoop.id
+        debugLog("[shelterWeather] Restoring config volume for weather loop: " .. trackId)
         fader.cancel("shelterWeather")
-        volumeController.setConfigVolumes()
-        weatherVolumeDelta = 0
-        cellData.isWeatherVolumeDynamic = false
+        volumeController.setConfigVolumes(trackId)
     end
 end
 
-local function fadeWeatherTrack(fadeType, track)
-    if not (track and track:isPlaying()) then return end
-    debugLog(("Fading %s weather track: %s"):format(fadeType, track.id))
+local function fadeWeatherLoop(fadeType, weatherLoop)
+    if not (weatherLoop and weatherLoop:isPlaying()) then return end
+    local trackId = weatherLoop.id
+    debugLog("[shelterWeather] Fading %s weather track: %s", fadeType, trackId)
     fader.fade {
         module = "shelterWeather",
         fadeType = fadeType,
-        track = track,
+        track = weatherLoop,
         volume = weatherVolumeDelta,
+        onSuccess = function()
+            cellData.volumeModifiedWeatherLoop = (fadeType == "out") and weatherLoop or nil
+        end,
+        onFail = function()
+            -- On fail we want to restore config volume regardless of whether
+            -- cellData.volumeModifiedWeatherLoop has been set or not. That's
+            -- why we're not calling restoreWeatherLoopVolume() here.
+            volumeController.setConfigVolumes(trackId)
+        end,
     }
 end
 
-local function adjustWeatherVolume()
+local function adjustWeatherLoopVolume()
     local moduleName = "shelterWeather"
+    local sheltered = cellData.currentShelter.ref
 
-    if not modules.isActive(moduleName) then return end
+    local moduleActive = modules.isActive(moduleName)
+    local weatherLoop = common.getWeatherTrack()
+    local soundConfig = volumeController.getModuleSoundConfig(moduleName)
+    local delta = soundConfig.mult
 
-    local weatherTrack = common.getWeatherTrack()
-    local cw = common.getCurrentWeather()
-    local weather = cw and cw.index
-
-    local isNonVariableRain = weather
-        and (weather == 4 or weather == 5)
-        and not cellData.rainType[weather]
-
-    local ready = weatherTrack and weather
-        and not isNonVariableRain
-        and not cellData.playerUnderwater
-
-    if not ready then
-        restoreWeatherVolumes()
+    if not moduleActive
+    or not weatherLoop
+    or not delta
+    or cellData.playerUnderwater then
+        restoreWeatherLoopVolume()
         return
     end
 
-    local sheltered = cellData.currentShelter.ref
+    local transitionScalar = tes3.worldController.weatherController.transitionScalar
+    if transitionScalar and transitionScalar > 0 then
+        if not sheltered then
+            restoreWeatherLoopVolume()
+        end
+        return
+    end
 
-    if (not cellData.isWeatherVolumeDynamic) and (sheltered) then
-        local trackVolume = math.round(weatherTrack.volume, 2)
-        weatherVolumeDelta = getVolume { module = moduleName, trackVolume = trackVolume }
-        if (weatherVolumeDelta == 0) then return end
-        moduleData[moduleName].lastVolume = trackVolume
-        fadeWeatherTrack("out", weatherTrack)
-        cellData.isWeatherVolumeDynamic = true
-    elseif (cellData.isWeatherVolumeDynamic) and (not sheltered) and (weatherVolumeDelta > 0) then
-        fadeWeatherTrack("in", weatherTrack)
-        local duration = moduleData[moduleName].faderConfig["in"].duration
-        timer.start { duration = duration + 0.2, callback = function() cellData.isWeatherVolumeDynamic = false end }
+    if (weatherVolumeDelta) and (delta ~= weatherVolumeDelta) then
+        debugLog("[%s] Different conditions.", moduleName)
+        restoreWeatherLoopVolume()
+    end
+
+    if (not cellData.volumeModifiedWeatherLoop) and (sheltered) then
+        weatherVolumeDelta = delta
+        moduleData[moduleName].lastVolume = math.round(weatherLoop.volume, 2)
+        fadeWeatherLoop("out", weatherLoop)
+    elseif (cellData.volumeModifiedWeatherLoop) and (not sheltered) and (weatherVolumeDelta) then
+        fadeWeatherLoop("in", weatherLoop)
     end
 end
 
 local function playRainOnStatic(ref)
     local moduleName = "rainOnStatics"
+    local refTrack = modules.getRefTrackPlaying(ref, moduleName)
     local sound = sounds.getTrack { module = moduleName }
 
     -- If this ref is a shelter and we're not playing rain _insde_ shelters
@@ -143,23 +154,22 @@ local function playRainOnStatic(ref)
         and common.getMatch(shelterStatics, ref.object.id:lower())
 
 
-    local ready = ref and sound
-        and not playing(sound, ref)
-        and not noShelterRain
-        and not cellData.playerUnderwater
-
-    if not ready then return end
-
-    -- Checking if this ref is sheltered as we approach it instead of only
-    -- when being added to the cache is more expensive but more realistic
-    -- because the ref might have changed location in the mean time
-    if common.isRefSheltered {
-            originRef = ref,
-            ignoreList = staticsData.modules[moduleName].ignore,
-            quiet = true,
-        } then
+    if not ref
+    or not sound
+    or noShelterRain
+    or cellData.playerUnderwater
+    or common.isRefSheltered {
+        originRef = ref,
+        ignoreList = staticsData.modules[moduleName].ignore,
+        quiet = true,
+    } then
+        if (refTrack) and (ref) then removeImmediate(moduleName, refTrack, ref) end
         return
     end
+
+    if (refTrack) and (sound ~= refTrack) then removeImmediate(moduleName, refTrack, ref) end
+
+    if playing(sound, ref) then return end
 
     debugLog(string.format("[%s] Adding sound %s for -> %s", moduleName, sound.id, ref))
 
@@ -169,12 +179,15 @@ end
 local function playShelterRain()
     local moduleName = "shelterRain"
 
-    if not modules.isActive(moduleName) then return end
+    if not modules.isActive(moduleName) or cellData.playerUnderwater then
+        removeImmediate(moduleName)
+        return
+    end
 
     local shelter = cellData.currentShelter.ref
     local sound = sounds.getTrack { module = moduleName }
 
-    if not (shelter and sound) then
+    if not raining or not shelter or not sound then
         remove(moduleName)
         return
     end
@@ -193,41 +206,40 @@ local function playShelterRain()
         end
     end
 
-    if cellData.playerUnderwater then
-        removeImmediate(moduleName)
-        return
-    end
-    if modules.getCurrentlyPlaying(moduleName) then return end
+    local currentTrack, _ = table.unpack(modules.getCurrentlyPlaying(moduleName) or {})
 
-    local doCrossfade = playing(sound, shelter) ~= nil
-    debugLog(string.format("[%s] Playing rain track: %s | crossfade: %s", moduleName, sound.id, doCrossfade))
+    if (currentTrack) and (currentTrack == sound) then return end
 
-    if doCrossfade then remove("rainOnStatics", shelter) end
+    local refTrack = modules.getTempDataEntry("track", shelter, "rainOnStatics")
+    local refTrackPlaying = playing(refTrack, shelter)
+    local doCrossfade = (refTrackPlaying ~= nil)
+    debugLog(string.format("[%s] Playing rain track: %s | RoS crossfade: %s", moduleName, sound.id, doCrossfade))
+
+    if doCrossfade then remove("rainOnStatics", refTrackPlaying, shelter) end
     play(moduleName, sound)
 end
 
 local function playShelterWind()
     local moduleName = "shelterWind"
 
-    if not modules.isActive(moduleName) then return end
+    if not modules.isActive(moduleName) or cellData.playerUnderwater then
+        removeImmediate(moduleName)
+        return
+    end
 
     local supportedShelterTypes = staticsData.modules[moduleName].ids
     local shelter = cellData.currentShelter.ref
     local isValidShelterType = shelter and common.getMatch(supportedShelterTypes, shelter.object.id:lower())
-    local sound = sounds.getTrack { module = moduleName }
-    local weather = modules.getEligibleWeather(moduleName)
-    local weatherTrack = common.getWeatherTrack()
 
-    local ready = isValidShelterType and sound and weather and weatherTrack
+    local weatherLoopPlaying = (common.getWeatherTrack() ~= nil)
+    local sound = sounds.getTrack { module = moduleName }
+
+    local ready = isValidShelterType and weatherLoopPlaying and sound
     if not ready then
         remove(moduleName)
         return
     end
 
-    if cellData.playerUnderwater then
-        removeImmediate(moduleName)
-        return
-    end
     if modules.getCurrentlyPlaying(moduleName) then return end
 
     debugLog(string.format("[%s] Playing track: %s", moduleName, sound.id))
@@ -284,13 +296,18 @@ local function playBannerFlap(ref)
             breezeType = "strong"
         end
     else
+        if modules.getTempDataEntry("ac", ref, moduleName) then
+            breezeType = "light"
         -- If ref has no attached animation, see if its mesh has an animation controller
         -- i.e.: the large banners around Vivec cantons don't play animation groups,
         -- their meshes are animated by default via animation controllers
-        if ref.sceneNode and ref.sceneNode.children then
+        elseif ref.sceneNode and ref.sceneNode.children then
             for node in table.traverse(ref.sceneNode.children) do
                 if node:isInstanceOfType(ni.type.NiBSAnimationNode) and node.controller then
                     breezeType = "light"
+                    -- Mark this ref as having an animation controller as not to traverse
+                    -- the scene node every time this function is called
+                    modules.setTempDataEntry("ac", true, ref, moduleName)
                     break
                 end
             end
@@ -313,19 +330,19 @@ end
 local function onInsideShelter()
     if config.playRainInsideShelter then playShelterRain() end
     if config.playWindInsideShelter then playShelterWind() end
-    if config.shelterWeather then adjustWeatherVolume() end
+    if config.shelterWeather then adjustWeatherLoopVolume() end
 end
 
 local function onExitedShelter()
     remove("shelterRain")
     remove("shelterWind")
-    adjustWeatherVolume()
+    adjustWeatherLoopVolume()
 end
 
 local function onShelterDeactivated()
     removeImmediate("shelterRain")
     removeImmediate("shelterWind")
-    restoreWeatherVolumes()
+    restoreWeatherLoopVolume()
 end
 
 local function onConditionsNotMet()
@@ -368,9 +385,6 @@ local function isRelevantForModule(moduleName, ref)
 end
 
 local function addToCache(ref)
-    -- Resetting the timer on every add to kind of block it
-    -- from running while the cache is being populated.
-    if mainTimer then mainTimer:reset() end
 
     if common.cellIsInterior(ref.cell) or not isSafeRef(ref) then return end
 
@@ -386,19 +400,29 @@ local function addToCache(ref)
     if not relevantModule then return end
 
     if not table.find(staticsCache, ref) then
+        -- Resetting the timer on every cache insert to kind of block it
+        -- from running while the cache is being populated. Placing this
+        -- here and not at the top of the function body should avoid edge
+        -- case where mainTimer is indefinitely being reset if some ref
+        -- somewhere is constantly being (de)activated.
+        if mainTimer then mainTimer:reset() end
+
         table.insert(staticsCache, ref)
         debugLog("Added static " .. tostring(ref) .. " to cache. staticsCache: " .. #staticsCache)
     else
         --debugLog("Already in cache: " .. tostring(ref))
     end
+
+
 end
 
 local function removeFromCache(ref)
-    if mainTimer then mainTimer:reset() end
     if (#staticsCache == 0) then return end
 
     local index = table.find(staticsCache, ref)
     if not index then return end
+
+    if mainTimer then mainTimer:reset() end
 
     removeRainOnStatics(ref)
     table.remove(staticsCache, index)
@@ -543,18 +567,6 @@ local function refreshCache()
     if mainTimer then mainTimer:reset() end
 end
 
-local function onWeatherTransitionFinished()
-    if mainTimer then mainTimer:pause() end
-    debugLog("[weatherTransitionFinished] Resetting all sounds.")
-    -- Remove all sounds and refresh the cache. If the weather has
-    -- changed, we want all the sounds that are currently playing
-    -- to update according to the new weather type.
-    removeRainOnStatics()
-    onExitedShelter()
-    restoreWeatherVolumes()
-    refreshCache()
-end
-
 local function onLoaded()
     unregisterActivationEvents()
     runResetter()
@@ -574,7 +586,6 @@ local function onLoaded()
 end
 
 
-event.register(tes3.event.weatherTransitionFinished, onWeatherTransitionFinished)
 event.register(tes3.event.load, runResetter)
 
 -- Make sure rainSounds.lua does its thing first, so lower priority here

@@ -20,23 +20,22 @@ function this.setVolume(track, volume)
 end
 
 function this.getModuleSoundConfig(moduleName)
-    local regionObject = common.getRegion()
     local mData = moduleData[moduleName]
+    local cell = cellData.cell
+    local weather = modules.getEligibleWeather(moduleName)
 
-    if not mData or not regionObject then return {} end
+    if not mData or not weather or not cell then return {} end
 
     local soundConfig = mData.soundConfig or {}
 
-    local cell = cellData.cell
-    local weather = regionObject.weather.index
     local rainType = cellData.rainType[weather]
-    local interiorType = common.getInteriorType(cellData.cell)
     local exterior = cell and cell.isOrBehavesAsExterior and "exterior"
     local interior = cell and not cell.isOrBehavesAsExterior and "interior"
+    local interiorType = interior and common.getInteriorType(cell)
 
     return (exterior and soundConfig[exterior])
         or (interior and soundConfig[interior])
-        or (soundConfig[interiorType] and soundConfig[interiorType][weather])
+        or (interiorType and soundConfig[interiorType] and soundConfig[interiorType][weather])
         or (rainType and soundConfig[rainType] and soundConfig[rainType][weather])
         or (soundConfig[weather])
         or {}
@@ -63,23 +62,21 @@ function this.getVolume(options)
     end
 
     local config = options.config or mwse.loadConfig("AURA", defaults)
-    local trackVolume = options.trackVolume
-    local moduleVol = trackVolume or config.volumes.modules[moduleName].volume / 100
+    local moduleVol = options.moduleVol or config.volumes.modules[moduleName].volume / 100
     local moduleSoundConfig = this.getModuleSoundConfig(moduleName)
     local weatherMult = moduleSoundConfig.mult or 1
 
-    local regionObject = common.getRegion()
-    local weather = regionObject and regionObject.weather.index
-    local isEligibleWeather = modules.getEligibleWeather(moduleName)
+    local weather = common.getWeather(cellData.cell, mData.weatherPreference)
+    local isEligibleWeather = (modules.getEligibleWeather(moduleName) ~= nil)
 
     local interiorType = common.getInteriorType(cellData.cell)
     local windoorsMult = (mData.playWindoors == true) and 0.005 or 0
 
     if not isEligibleWeather then
-        debugLog(string.format("[%s] Not an eligible weather: %s", moduleName, weather))
-        volume = 0
+        debugLog("[%s] Not an eligible weather: %s. Setting volume to %s.", moduleName, weather, MIN)
+        volume = MIN
     else
-        debugLog(string.format("[%s] Weather: %s. Applying weatherMult: %s", moduleName, weather, weatherMult))
+        debugLog("[%s] moduleVol: %s | weather: %s | weatherMult: %s", moduleName, moduleVol, weather, weatherMult)
         volume = moduleVol * weatherMult
     end
 
@@ -91,7 +88,7 @@ function this.getVolume(options)
             if isEligibleWeather and (weather == 6 or weather == 7) then
                 volume = 0
             else
-                debugLog(string.format("[%s] Applying open plaza volume boost.", moduleName))
+                debugLog("[%s] Applying open plaza volume boost.", moduleName)
                 volume = math.min(volume + 0.2, 1)
                 this.setVolume(tes3.getSound("Rain"), 0)
                 this.setVolume(tes3.getSound("rain heavy"), 0)
@@ -100,24 +97,28 @@ function this.getVolume(options)
 
         if not cellData.cell.isOrBehavesAsExterior then
             if (interiorType == "big") then
-                debugLog(string.format("[%s] Applying big interior mult.", moduleName))
-                volume = (config.volumes.modules[moduleName].big * volume) - (windoorsMult * #cellData.windoors)
+                local bigMult = config.volumes.modules[moduleName].big
+                debugLog("[%s] Applying big interior mult: %s", moduleName, bigMult)
+                volume = (bigMult * volume) - (windoorsMult * #cellData.windoors)
             elseif (interiorType == "sma") or (interiorType == "ten") then
-                debugLog(string.format("[%s] Applying small interior mult.", moduleName))
-                volume = config.volumes.modules[moduleName].sma * volume
+                local smaMult = config.volumes.modules[moduleName].sma
+                debugLog("[%s] Applying small interior mult: %s", moduleName, smaMult)
+                volume = smaMult * volume
             end
         end
     else
-        volume = 0
+        debugLog("[%s] No cell. Setting volume to %s.", moduleName, MIN)
+        volume = MIN
     end
 
     if cellData.playerUnderwater then
-        debugLog(string.format("[%s] Applying underwater nerf.", moduleName))
-        volume = config.volumes.modules[moduleName].und * volume
+        local undMult = config.volumes.modules[moduleName].und
+        debugLog("[%s] Applying underwater nerf: %s", moduleName, undMult)
+        volume = undMult * volume
     end
 
     volume = math.clamp(math.round(volume, 2), MIN, MAX)
-    debugLog(string.format("Got volume for %s: %s", moduleName, volume))
+    debugLog("Got volume for %s: %s", moduleName, volume)
     return volume
 end
 
@@ -135,7 +136,6 @@ function this.adjustVolume(options)
     local targetRef = options.reference or currentRef
     local targetVolume = options.volume
     local inOrOut = options.inOrOut or ""
-    local config = options.config
     local quiet = options.quiet
 
     local function adjust(track, ref)
@@ -143,7 +143,7 @@ function this.adjustVolume(options)
         local unattached = (track and not ref) and track:isPlaying()
         if not (attached or unattached) then return end
 
-        local volume = targetVolume or this.getVolume { module = moduleName, config = config }
+        local volume = targetVolume or this.getVolume(options)
         if not quiet then
             local msgPrefix = string.format("Adjusting volume %s", inOrOut):gsub("%s+$", "")
             debugLog(string.format("%s for module %s: %s -> %s | %.3f", msgPrefix, moduleName, track.id,
@@ -164,12 +164,12 @@ function this.adjustVolume(options)
     if adjustAllWindoors then
         debugLog("Adjusting all windoors.")
         for _, windoor in ipairs(cellData.windoors) do
-            if windoor ~= nil then adjust(targetTrack, windoor) end
+            if windoor ~= nil then adjust(modules.getTempDataEntry("track", windoor, moduleName) or targetTrack, windoor) end
         end
     elseif adjustAllExteriorDoors then
         debugLog("Adjusting all exterior doors.")
         for _, door in pairs(cellData.exteriorDoors) do
-            if (door ~= nil) then adjust(modules.getExteriorDoorTrack(door), door) end
+            if (door ~= nil) then adjust(modules.getTempDataEntry("track", door, moduleName) or targetTrack, door) end
         end
     elseif isTrackUnattached then
         adjust(targetTrack)
@@ -178,14 +178,26 @@ function this.adjustVolume(options)
     end
 end
 
-function this.setConfigVolumes()
+-- Passing a track.id to this function will set config volume _only_ for
+-- that specific track. Otherwise, all weather loops will be set.
+function this.setConfigVolumes(maybeParam)
     local config = mwse.loadConfig("AURA", defaults)
 
-    debugLog("Setting config weather volumes.")
+    local trackId
+
+    if maybeParam and type(maybeParam) == "string" then
+        trackId = maybeParam
+        debugLog("Setting config volume for track: " .. trackId)
+    else
+        debugLog("Setting config weather volumes.")
+    end
 
     -- Vanilla weather loops
     for _, sound in pairs(soundData.weatherLoops) do
         local id = sound.id:lower()
+
+        if trackId and trackId:lower() ~= id then goto nextVanillaLoop end
+
         if id == "rain" or id == "rain heavy" then
             this.setVolume(sound, config.rainSounds and 0 or sound.volume)
         elseif id == "ashstorm" then
@@ -195,15 +207,25 @@ function this.setConfigVolumes()
         elseif id == "bm blizzard" then
             this.setVolume(sound, config.volumes.extremeWeather["Blizzard"] / 100)
         end
+        :: nextVanillaLoop ::
     end
 
     -- AURA rain loops
     for weatherName, data in pairs(soundData.rainLoops) do
-        for rainType, track in pairs(data) do
-            if track then
-                this.setVolume(track, config.volumes.rain[weatherName][rainType] / 100)
+        for rainType, sound in pairs(data) do
+            if sound then
+                if trackId and trackId ~= sound.id then goto nextAURALoop end
+                this.setVolume(sound, config.volumes.rain[weatherName][rainType] / 100)
             end
+            :: nextAURALoop ::
         end
+    end
+
+    if cellData.volumeModifiedWeatherLoop then
+        if trackId and trackId ~= cellData.volumeModifiedWeatherLoop.id then
+            return
+        end
+        cellData.volumeModifiedWeatherLoop = nil
     end
 end
 

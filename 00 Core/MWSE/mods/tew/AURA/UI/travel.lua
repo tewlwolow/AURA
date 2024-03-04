@@ -1,7 +1,6 @@
 local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local config = require("tew.AURA.config")
-local UIvol = config.volumes.misc.UIvol / 100
 local common = require("tew.AURA.common")
 
 local debugLog = common.debugLog
@@ -18,6 +17,7 @@ local function travelFee(e)
     local npcId = tes3ui.getServiceActor()
     local class = npcId.reference.object.class.id
     local function playFee()
+        local UIvol = config.volumes.misc.UIvol / 100
         tes3.playSound { sound = "Item Gold Up", volume = 0.9 * UIvol, reference = tes3.player }
         if class == "Caravaner" then
             debugLog("Caravaner travel fee sound played.")

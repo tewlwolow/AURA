@@ -3,8 +3,6 @@ local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
 local common = require("tew.AURA.common")
 
-local vol = config.volumes.misc.yurtVol / 100
-
 local yurtDoors = {
     "in_ashl_door_01",
     "in_ashl_door_02",
@@ -27,6 +25,7 @@ local debugLog = common.debugLog
 -- Fabric sorta sound on entering yurts and those weird BM dwellings --
 local function yurtFlap(e)
     if not (e.target.object.objectType == tes3.objectType.door) then return end
+    local vol = config.volumes.misc.yurtVol / 100
     for _, door in pairs(yurtDoors) do
         if e.target.object.id == door then
             tes3.playSound { sound = "tew_yurt", volume = 0.9 * vol, pitch = 0.8 }

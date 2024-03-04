@@ -141,36 +141,43 @@ pageIA:createYesNoButton {
 }
 
 local pageSS = template:createPage { label = messages.SS }
-pageIA:createCategory {
+pageSS:createCategory {
 	label = string.format("%s\n\n%s:", messages.SSDesc, messages.settings),
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.rainOnStaticsSounds),
 	variable = registerVariable("playRainOnStatics"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.shelterRain),
 	variable = registerVariable("playRainInsideShelter"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.shelterWind),
 	variable = registerVariable("playWindInsideShelter"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.shelterWeather),
 	variable = registerVariable("shelterWeather"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.ropeBridge),
 	variable = registerVariable("playRopeBridge"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.photodragons),
 	variable = registerVariable("playPhotodragons"),
+	restartRequired = true,
 }
 pageSS:createYesNoButton {
 	label = string.format("%s", messages.bannerFlap),
 	variable = registerVariable("playBannerFlap"),
+	restartRequired = true,
 }
 
 --[[
@@ -356,6 +363,7 @@ pageMisc:createCategory {
 pageMisc:createYesNoButton {
 	label = string.format("%s %s ", messages.rainSounds, messages.WtS),
 	variable = registerVariable("rainSounds"),
+	restartRequired = true,
 }
 --[[
 pageMisc:createYesNoButton {
@@ -366,11 +374,33 @@ pageMisc:createYesNoButton {
 pageMisc:createYesNoButton {
 	label = string.format("%s %s", messages.windSounds, messages.WtS),
 	variable = registerVariable("windSounds"),
+	restartRequired = true,
 }
 pageOA:createYesNoButton {
 	label = messages.playInteriorWind,
 	variable = registerVariable("playInteriorWind"),
 	restartRequired = true,
+}
+pageMisc:createYesNoButton {
+	label = messages.altitudeWind,
+	variable = registerVariable("altitudeWind"),
+	restartRequired = true,
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.altitudeWindVolMin, messages.default, defaults.volumes.misc.altitudeWindVolMin, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 10,
+	variable = registerVariable("altitudeWindVolMin", config.volumes.misc),
+}
+pageMisc:createSlider {
+	label = string.format("%s %s = %s%%. %s %%", messages.altitudeWindVolMax, messages.default, defaults.volumes.misc.altitudeWindVolMax, messages.volume),
+	min = 0,
+	max = 100,
+	step = 1,
+	jump = 10,
+	variable = registerVariable("altitudeWindVolMax", config.volumes.misc),
 }
 
 --[[
@@ -398,6 +428,7 @@ pageMisc:createSlider {
 pageMisc:createYesNoButton {
 	label = messages.playYurtFlap,
 	variable = registerVariable("playYurtFlap"),
+	restartRequired = true,
 }
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.yurtVol, messages.default, defaults.volumes.misc.yurtVol, messages.volume),
@@ -416,6 +447,7 @@ pageMisc:createYesNoButton {
 pageMisc:createYesNoButton {
 	label = messages.thunderSounds,
 	variable = registerVariable("thunderSounds"),
+	restartRequired = true,
 }
 pageMisc:createYesNoButton {
 	label = messages.thunderSoundsDelay,
@@ -440,6 +472,7 @@ pageMisc:createSlider {
 pageMisc:createYesNoButton {
 	label = messages.floraSounds,
 	variable = registerVariable("floraSounds"),
+	restartRequired = true,
 }
 pageMisc:createSlider {
 	label = string.format("%s %s = %s%%. %s %%", messages.floraVol, messages.default, defaults.volumes.misc.floraVol, messages.volume),

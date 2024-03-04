@@ -1,6 +1,7 @@
 local config = require("tew.AURA.config")
 local cellData = require("tew.AURA.cellData")
 local common = require("tew.AURA.common")
+local debugLog = common.debugLog
 
 local this = {}
 
@@ -11,9 +12,13 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "OUT",
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [5] = true,
             [6] = true,
@@ -55,8 +60,12 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "POP",
         lastVolume = nil,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [4] = true,
             [5] = true,
@@ -76,6 +85,9 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "INT",
         lastVolume = nil,
         playUnderwater = true,
         soundConfig = {},
@@ -87,6 +99,9 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "IE",
         lastVolume = nil,
         playExteriorDoors = true,
         playUnderwater = false,
@@ -102,9 +117,13 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "IW",
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -143,9 +162,13 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "WIND",
         lastVolume = nil,
         playWindoors = true,
         playUnderwater = true,
+        weatherPreference = "next",
         blockedWeathers = {
             [6] = true,
             [7] = true,
@@ -189,8 +212,12 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "ROS",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -223,8 +250,12 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "SHRAIN",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -257,8 +288,12 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "SHWIND",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -289,8 +324,12 @@ this.data = {
         new = nil,
         oldRefHandle = nil,
         newRefHandle = nil,
+        nextTrack = nil,
+        nextTrackTimer = nil,
+        tempDataKey = "SHWEA",
         lastVolume = nil,
         playUnderwater = false,
+        weatherPreference = "current",
         blockedWeathers = {
             [0] = true,
             [1] = true,
@@ -299,21 +338,25 @@ this.data = {
             [8] = true,
         },
         soundConfig = {
+            -- Make sure each mult is an unique value so that
+            -- different conditions are detected properly.
+            -- Keep in mind these values are rounded to 2
+            -- decimal places when passed to the fader.
             ["light"] = {
                 [4] = { mult = 0.01 },
-                [5] = { mult = 0.015 },
+                [5] = { mult = 0.012 },
             },
             ["medium"] = {
-                [4] = { mult = 0.02 },
-                [5] = { mult = 0.025 },
+                [4] = { mult = 0.015 },
+                [5] = { mult = 0.02 },
             },
             ["heavy"] = {
-                [4] = { mult = 0.03 },
+                [4] = { mult = 0.022 },
                 [5] = { mult = 0.03 },
             },
             [6] = { mult = 0.05 },
-            [7] = { mult = 0.05 },
-            [9] = { mult = 0.03 },
+            [7] = { mult = 0.04 },
+            [9] = { mult = 0.029 },
         },
         faderConfig = { ["out"] = { duration = 1.5 }, ["in"] = { duration = 1.5 } },
     },
@@ -324,6 +367,7 @@ this.data = {
         oldRefHandle = nil,
         newRefHandle = nil,
         lastVolume = nil,
+        tempDataKey = "RB",
     },
     ["photodragons"] = {
         active = config.playPhotodragons,
@@ -332,6 +376,7 @@ this.data = {
         oldRefHandle = nil,
         newRefHandle = nil,
         lastVolume = nil,
+        tempDataKey = "PD",
     },
     ["bannerFlap"] = {
         active = config.playBannerFlap,
@@ -340,6 +385,8 @@ this.data = {
         oldRefHandle = nil,
         newRefHandle = nil,
         lastVolume = nil,
+        tempDataKey = "BF",
+        weatherPreference = "current",
         soundConfig = {
             -- 0-4 and 8: light breeze
             -- 5-7 and 9: strong breeze
@@ -357,25 +404,63 @@ this.data = {
     },
 }
 
-function this.getCurrentlyPlaying(moduleName)
+function this.getTempData(ref, key)
+    return key and ref and ref.tempData
+        and ref.tempData.tew
+        and ref.tempData.tew.AURA
+        and ref.tempData.tew.AURA[key]
+end
+
+function this.initRefTempData(moduleName, ref)
+    local key = this.data[moduleName] and this.data[moduleName].tempDataKey
+    if not key and ref and ref.tempData then return end
+
+    if not ref.tempData.tew then ref.tempData.tew = {} end
+    if not ref.tempData.tew.AURA then ref.tempData.tew.AURA = {} end
+    if not ref.tempData.tew.AURA[key] then ref.tempData.tew.AURA[key] = {} end
+end
+
+function this.getTempDataEntry(entry, ref, moduleName)
+    local key = this.data[moduleName].tempDataKey
+    local tempData = this.getTempData(ref, key)
+    return tempData and entry and tempData[entry]
+end
+
+function this.setTempDataEntry(entry, value, ref, moduleName)
+    this.initRefTempData(moduleName, ref)
+    local key = this.data[moduleName].tempDataKey
+    if entry and value and this.getTempData(ref, key) then
+        ref.tempData.tew.AURA[key][entry] = value
+    end
+end
+
+function this.unsetTempDataEntry(entry, ref, moduleName)
+    local key = this.data[moduleName].tempDataKey
+    if entry and this.getTempData(ref, key) then
+        ref.tempData.tew.AURA[key][entry] = nil
+    end
+end
+
+function this.getCurrentlyPlaying(moduleName, newOrOld)
     if not this.data[moduleName] then return end
     local oldTrack = this.data[moduleName].old
     local newTrack = this.data[moduleName].new
     local oldRefHandle = this.data[moduleName].oldRefHandle
     local newRefHandle = this.data[moduleName].newRefHandle
+    local track = (newOrOld == "old") and oldTrack or newTrack
+    local refHandle = (newOrOld == "old") and oldRefHandle or newRefHandle
 
-    if newRefHandle then
-        local newRef = newRefHandle:getObject()
-        if common.getTrackPlaying(newTrack, newRef) then
-            return { newTrack, newRef }
+    if refHandle then
+        local ref = refHandle:getObject()
+        if common.getTrackPlaying(track, ref) then
+            return { track, ref }
         end
     end
-    if oldRefHandle then
-        local oldRef = oldRefHandle:getObject()
-        if common.getTrackPlaying(oldTrack, oldRef) then
-            return { oldTrack, oldRef }
-        end
-    end
+end
+
+function this.getRefTrackPlaying(ref, moduleName)
+    local track = this.getTempDataEntry("track", ref, moduleName)
+    return common.getTrackPlaying(track, ref)
 end
 
 function this.getWindoorPlaying(moduleName)
@@ -388,7 +473,11 @@ function this.getWindoorPlaying(moduleName)
     local oldTrack = this.data[moduleName].old
     local newTrack = this.data[moduleName].new
     for _, door in pairs(cellData.windoors) do
+        local tempDataTrack = this.getTempDataEntry("track", door, moduleName)
         if door ~= nil then
+            if common.getTrackPlaying(tempDataTrack, door) then
+                return { tempDataTrack, door }
+            end
             if common.getTrackPlaying(newTrack, door) then
                 return { newTrack, door }
             end
@@ -397,14 +486,6 @@ function this.getWindoorPlaying(moduleName)
             end
         end
     end
-end
-
-function this.getExteriorDoorTrack(ref)
-    return ref and ref.tempData
-        and ref.tempData.tew
-        and ref.tempData.tew.AURA
-        and ref.tempData.tew.AURA.IE
-        and ref.tempData.tew.AURA.IE.track
 end
 
 function this.getExteriorDoorPlaying(moduleName)
@@ -416,7 +497,7 @@ function this.getExteriorDoorPlaying(moduleName)
     end
     for _, door in pairs(cellData.exteriorDoors) do
         if door ~= nil then
-            local track = this.getExteriorDoorTrack(door)
+            local track = this.getTempDataEntry("track", door, moduleName)
             if common.getTrackPlaying(track, door) then
                 return { track, door }
             end
@@ -425,9 +506,10 @@ function this.getExteriorDoorPlaying(moduleName)
 end
 
 function this.getEligibleWeather(moduleName)
-    if not this.data[moduleName] then return end
-    local regionObject = common.getRegion()
-    local weather = regionObject and regionObject.weather.index
+    local cell = cellData.cell
+    if not this.data[moduleName] or not cell then return end
+    local pref = this.data[moduleName].weatherPreference
+    local weather = common.getWeather(cell, pref)
     local blockedWeathers = this.data[moduleName].blockedWeathers
     if (weather) and not (blockedWeathers and blockedWeathers[weather]) then
         return weather
@@ -438,5 +520,40 @@ function this.isActive(moduleName)
     if not this.data[moduleName] then return end
     return this.data[moduleName].active
 end
+
+local function clearModuleData()
+    debugLog("Clearing module data.")
+    for moduleName, data in pairs(this.data) do
+        data.new = nil
+        data.old = nil
+        data.newRefHandle = nil
+        data.oldRefHandle = nil
+        --data.lastVolume = nil -- should we?
+        if data.nextTrackTimer then
+            data.nextTrackTimer:cancel()
+        end
+        data.nextTrackTimer = nil
+        data.nextTrack = nil
+    end
+end
+event.register(tes3.event.loaded, clearModuleData)
+
+local function removeAll()
+    debugLog("Removing module sounds.")
+    for moduleName, data in pairs(this.data) do
+        local playing = this.getCurrentlyPlaying(moduleName)
+        while playing do
+            local track, ref = table.unpack(playing)
+            tes3.removeSound { sound = track, reference = ref }
+            playing = this.getCurrentlyPlaying(moduleName)
+        end
+        if data.nextTrackTimer then
+            data.nextTrackTimer:cancel()
+        end
+        data.nextTrackTimer = nil
+        data.nextTrack = nil
+    end
+end
+event.register(tes3.event.load, removeAll, { priority = -4 })
 
 return this

@@ -2,12 +2,13 @@ local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
 local metadata = toml.loadMetadata("AURA")
 local version = metadata.package.version
-local UIvol = config.volumes.misc.UIvol / 100
 
 local debugLog = common.debugLog
 
 -- Plays the chest opening/closing sounds on bartering --
 local function playBarterSounds(e)
+    local UIvol = config.volumes.misc.UIvol / 100
+
     tes3.playSound { sound = "chest open", volume = 0.7 * UIvol, pitch = 0.6 }
     debugLog("Barter menu opening sound played.")
 

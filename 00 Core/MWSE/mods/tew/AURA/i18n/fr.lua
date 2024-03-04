@@ -35,6 +35,7 @@ this.messages = {
 
 	by = "par",
 	settings = "Paramètres",
+	current = "Actuel",
 	default = "Par défaut",
 	volume = "Volume",
 	toggle = "Changer",
@@ -60,7 +61,11 @@ this.messages = {
 	undo = "Annuler",
 	restoreDefaults = "Réinitialiser",
 	defaultsRestored = "Paramètres par défaut restaurés",
+	track = "Piste",
 	noTracksPlaying = "Aucune piste en cours de lecture",
+	tracksPlaying = "Pistes en cours de lecture",
+	door = "Porte",
+	doorDestinationCell = "Cellule de destination de la porte",
 	findOutdoorShelter = "Trouvez un abri extérieur pour régler ce volume. [?]",
 	findOutdoorShelterTooltip =
 	"Les statiques d'abri prises en charge sont: les tentes\nportables (telles que les tentes modulaires Ashfall), les\nsurplombs, les auvents et les remises.",
@@ -70,10 +75,16 @@ this.messages = {
 	adjustForUnderwater = "Ajuster pour sous l'eau",
 	big = "grand",
 	small = "petit",
-	exteriorVolume = "le volume à l'extérieur",
+	baseVolume = "Volume de base",
+	currentVolume = "Volume actuel",
+	formulaTip = "La formule de calcul du volume intérieur ou sous l'eau peut inclure des multiplicateurs pour les conditions météorologiques, le type d'intérieur ou le nombre de portes et de fenêtres.",
+	altitude = "Altitude",
 	underwater = "sous l'eau",
 	adjustingAuto = "Ajustement automatique",
-	currentlyPlayingDoors = "Portes en cours de lecture",
+	module = "Module",
+	configOption = "Option de configuration",
+	mcmTab = "Onglet dans la configuration du mod",
+	description = "Description",
 
 	refreshManifest = "Actualiser le fichier manifeste",
 
@@ -97,13 +108,13 @@ this.messages = {
 	"Activer les sons de pluie atmosphériques lorsque vous êtes à l'abri à l'extérieur ? Les abris pris en charge comprennent des tentes portables (telles que les tentes modulaires Ashfall), des surplombs, des auvents et des hangars. Nécessite des sons variables de la pluie.",
 	shelterWind = "Activer les sons atmosphériques du vent lorsque vous êtes à l'intérieur de tentes portables ?",
 	shelterWeather =
-	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à la normale lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
+	"Activer l'ajustement dynamique du volume météo lorsque vous êtes à l'abri à l'extérieur ? Cela signifie que le volume météorologique diminuera légèrement lorsque vous serez à l'abri et reviendra à sa valeur précédente lorsque vous ne serez plus abrité. Nécessite des sons variables de la pluie.",
 	photodragons = "Activer les sons d'insectes volants appropriés aux essaims de libellules que l'on trouve couramment autour de la région de Côte de la Mélancolie ?",
 	ropeBridge = "Activer des sons appropriés sur les ponts de singe à l'extérieur ?",
 	bannerFlap = "Activer les sons de battement en fonction du type de temps sur les bannières et les drapeaux à l'extérieur ?",
 
 	enableInteriorToExterior =
-	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant aux cellules intérieures précédemment visitées.",
+	"Relier les sons ambiants intérieurs aux portes/entrées extérieures ? Cela signifie que des boucles spécifiques à l'intérieur joueront sur les portes menant à une cellule intérieure.",
 
 	PA = "Ambiance Population",
 	PADesc = "Joue des sons d'ambiance dans les lieux peuplés commes les villes et les villages.",
@@ -157,6 +168,9 @@ this.messages = {
 	playInteriorWind =
 	"Activer les sons de vent en intérieur ? Cela signifie que la dernière boucle extérieure en date sera jouée au niveau de chaque porte ou fenêtre menant à l'extérieur.",
 	windVol = "Changer le % volume des sons de vent.",
+	altitudeWind = "Activer le réglage automatique du volume des sons du vent en fonction de l'altitude actuelle ? Nécessite des sons de vent variables.",
+	altitudeWindVolMin = "Le volume de vent minimum à l'altitude la plus basse (niveau de la mer).",
+	altitudeWindVolMax = "Le volume de vent maximum à l'altitude la plus élevée.",
 	playSplash = "Activer les sons d'éclaboussures en entrant et sortant de l'eau ?",
 	splashVol = "Changer le % de volume des sons d'éclaboussures.",
 	playYurtFlap = "Activer les sons des portes de yourte ou en peau d'ours ?",

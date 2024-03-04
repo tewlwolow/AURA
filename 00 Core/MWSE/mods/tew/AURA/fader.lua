@@ -1,6 +1,8 @@
 local this = {}
 
+local config = require("tew.AURA.config")
 local common = require("tew.AURA.common")
+local defaults = require("tew.AURA.defaults")
 local debugLog = common.debugLog
 local modules = require("tew.AURA.modules")
 local moduleData = modules.data
@@ -31,11 +33,24 @@ function this.fade(options)
     local trackId = track and track.id
     local ref = options.reference
     local removeTrack = options.removeTrack -- Whether to remove the track after fading it out
+    local saveVolume = options.saveVolume -- Save resulting targetVolume to config after fade?
+    local onSuccess = options.onSuccess -- Function to execute after successful fade
+    local onFail = options.onFail -- Function to execute if failure arises during fade
     local isTrackUnattached = not ref
 
+    local function tryLater(options)
+        timer.start {
+            callback = function()
+                this.fade(options)
+            end,
+            type = timer.real,
+            iterations = 1,
+            duration = 2,
+        }
+    end
+
     if not (fadeType and track) then
-        debugLog(string.format("[!][%s] Track: %s, fadeType: %s. Returning.", moduleName, tostring(track),
-            tostring(fadeType)))
+        debugLog("[!][%s] Track: %s, fadeType: %s. Returning.", moduleName, track, fadeType)
         return
     end
 
@@ -54,27 +69,19 @@ function this.fade(options)
             track = track,
             reference = ref,
         } then
-        debugLog(string.format("[%s] wants to fade %s %s but fade %s is in progress for this track. Trying later.",
-            moduleName, fadeType, trackId, fadeTypeOpposite))
-        timer.start {
-            callback = function()
-                this.fade(options)
-            end,
-            type = timer.real,
-            iterations = 1,
-            duration = 2,
-        }
+        debugLog("[%s] wants to fade %s %s but fade %s is in progress for this track. Trying later.",
+            moduleName, fadeType, trackId, fadeTypeOpposite)
+        tryLater(options)
         return
     end
 
     if (ref) and (not tes3.getSoundPlaying { sound = track, reference = ref }) then
-        debugLog(string.format("[%s] Track %s not playing on ref %s, cannot fade %s. Returning.", moduleName, trackId,
-            tostring(ref), fadeType))
+        debugLog("[%s] Track %s not playing on ref %s, cannot fade %s. Returning.", moduleName, trackId, ref, fadeType)
         return
     end
 
-    local targetDuration = options.duration or (mData and mData.faderConfig and mData.faderConfig[fadeType].duration) or
-    1
+    local configDuration = mData and mData.faderConfig and mData.faderConfig[fadeType].duration
+    local targetDuration = options.duration or configDuration or 1
     local trackVolume = math.round(track.volume, 2)
     local lastVolume = mData and mData.lastVolume
     local currentVolume = lastVolume or trackVolume
@@ -114,17 +121,23 @@ function this.fade(options)
         -- This is like cheating, but man, floating point maths be trippin' sometimes
         if iterCount == iters then currentVolume = math.round(currentVolume, 2) end
 
+        -- ### Fail state begin ### --
         if (not track) or (isTrackUnattached and not track:isPlaying()) or (ref and not tes3.getSoundPlaying { sound = track, reference = ref }) then
-            debugLog(string.format("[%s] %s suddenly not playing on ref %s. Canceling fade %s timers.", moduleName,
-                trackId, ref and tostring(ref) or "(unattached)", fadeType))
+            debugLog("[%s] %s suddenly not playing on ref %s. Canceling fade %s timers.", moduleName, trackId, ref or "(unattached)", fadeType)
+
             fadeInProgress.iterTimer:cancel()
+            fadeInProgress.currentVolume = currentVolume
+
+            if type(onFail) == "function" then
+                debugLog("[%s] Running fail state hook.", moduleName)
+                onFail(fadeInProgress)
+            end
+
             fadeInProgress.fadeTimer:cancel()
             common.setRemove(this.inProgress[fadeType], fadeInProgress)
-
-            -- Set back original volume if track was playing unattached
-            if isTrackUnattached then volumeController.setVolume(tes3.getSound(trackId), trackVolume) end
             return
         end
+        -- ### Fail state end ### --
 
         volumeController.adjustVolume {
             module = moduleName,
@@ -136,12 +149,13 @@ function this.fade(options)
         }
     end
 
-    debugLog(string.format("[%s] Running fade %s for %s -> %s", moduleName, fadeType, trackId,
-        ref and tostring(ref) or "(unattached)"))
+    debugLog("[%s] Running fade %s for %s -> %s", moduleName, fadeType, trackId, ref or "(unattached)")
 
     fadeInProgress.moduleName = moduleName
+    fadeInProgress.fadeType = fadeType
     fadeInProgress.track = track
     fadeInProgress.ref = ref
+    fadeInProgress.removeTrack = removeTrack
     fadeInProgress.iterTimer = timer.start {
         iterations = iters,
         duration = TICK,
@@ -151,21 +165,32 @@ function this.fade(options)
         iterations = 1,
         duration = fadeDuration + 0.1,
         callback = function()
-            debugLog(string.format("[%s] Fade %s for %s -> %s finished in %.3f s.", moduleName, fadeType, trackId,
-                ref and tostring(ref) or "(unattached)", fadeDuration))
-            if (ref) and (fadeType == "out") and (removeTrack) then
+            -- ### Success state ### --
+            debugLog("[%s] Fade %s for %s -> %s finished in %.3f s.", moduleName, fadeType, trackId,
+                ref or "(unattached)", fadeDuration)
+            if (ref) and (fadeType == "out") and (removeTrack == true) then
                 if tes3.getSoundPlaying { sound = track, reference = ref } then
                     tes3.removeSound { sound = track, reference = ref }
-                    debugLog(string.format("[%s] Track %s removed from -> %s.", moduleName, trackId, tostring(ref)))
+                    debugLog("[%s] Track %s removed from -> %s.", moduleName, trackId, ref)
                 end
             end
+            if (saveVolume == true) and (mData) then
+                debugLog("[%s] Saving current volume to config.", moduleName)
+                config.volumes.modules[moduleName].volume = currentVolume * 100
+                mwse.saveConfig("AURA", config)
+            end
+            fadeInProgress.currentVolume = currentVolume
+            if type(onSuccess) == "function" then
+                debugLog("[%s] Running success state hook.", moduleName)
+                onSuccess(fadeInProgress)
+            end
             common.setRemove(this.inProgress[fadeType], fadeInProgress)
-            debugLog(string.format("[%s] lastVolume is now: %s", moduleName, currentVolume))
+            debugLog("[%s] currentVolume: %s", moduleName, currentVolume)
         end,
     }
     common.setInsert(this.inProgress[fadeType], fadeInProgress)
     local inProgressCount = getInProgressCount(moduleName, fadeType)
-    debugLog(string.format("[%s] Fade %ss in progress: %s", moduleName, fadeType, inProgressCount))
+    debugLog("[%s] Fade %ss in progress: %s", moduleName, fadeType, inProgressCount)
 end
 
 function this.isRunning(options)
@@ -178,8 +203,11 @@ function this.isRunning(options)
     local function typeRunning(fadeType)
         for _, fade in ipairs(this.inProgress[fadeType]) do
             if (fade.moduleName == moduleName) and (fade.track == track) and (fade.ref == ref) then
-                return true
+                if (options.removeTrack) and (not fade.removeTrack) then goto continue end
+                --return true
+                return fade.track
             end
+            :: continue ::
         end
     end
 
@@ -187,7 +215,8 @@ function this.isRunning(options)
         for _, fade in ipairs(this.inProgress[fadeType]) do
             if (fade.moduleName == moduleName)
                 and (common.isTimerAlive(fade.iterTimer) or common.isTimerAlive(fade.fadeTimer)) then
-                return true
+                --return true
+                return fade.track
             end
         end
     end
@@ -212,6 +241,7 @@ end
 -- or just in/out for the given track and ref. Does not remove tracks.
 -- Make sure to remove tracks after calling this function if necessary.
 function this.cancel(moduleName, track, ref)
+    local canceled = {}
     for fadeType, data in pairs(this.inProgress) do
         for k, fade in ipairs(data) do
             if (moduleName == fade.moduleName) or (moduleName == "__all") then
@@ -222,14 +252,17 @@ function this.cancel(moduleName, track, ref)
                 end
                 fade.iterTimer:cancel()
                 fade.fadeTimer:cancel()
-                local fadeTrack = fade.track and fade.track.id
-                local fadeRef = fade.ref and tostring(fade.ref) or "(unattached)"
-                debugLog(string.format("[%s] Fade %s canceled for track %s -> %s.", moduleName, fadeType, fadeTrack,
-                    fadeRef))
-                data[k] = nil
+                local trackId = fade.track and fade.track.id
+                local refId = fade.ref and tostring(fade.ref) or "(unattached)"
+                debugLog("[%s] Fade %s canceled for track %s -> %s.", moduleName, fadeType, trackId, refId)
+                table.insert(canceled, fade)
             end
             :: continue ::
         end
+    end
+    for _, fade in ipairs(canceled) do
+        local fadeType = fade.fadeType
+        common.setRemove(this.inProgress[fadeType], fade)
     end
 end
 

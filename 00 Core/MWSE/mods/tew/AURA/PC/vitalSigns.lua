@@ -85,7 +85,7 @@ local function playDisease()
                 reference = player,
             }
             diseaseFlag = 0
-        end
+        end,
     }
     diseaseFlag = 1
 end
@@ -104,7 +104,7 @@ local function playBlight()
                 reference = player,
             }
             blightFlag = 0
-        end
+        end,
     }
     blightFlag = 1
 end
@@ -125,7 +125,7 @@ local function playHealth()
                 reference = player,
             }
             healthFlag = 0
-        end
+        end,
     }
     healthFlag = 1
 end
@@ -145,11 +145,11 @@ local function playFatigue()
             tes3.playSound {
                 soundPath = "tew\\A\\PC\\" .. genderFatigue .. math.random(5) .. ".wav",
                 volume = config.volumes.misc.vsVol / 100,
-                pitch = math.random(87, 120) / 100,
+                pitch = math.random(95, 105) / 100,
                 reference = player,
             }
             fatigueFlag = 0
-        end
+        end,
     }
     fatigueFlag = 1
 end
@@ -173,7 +173,7 @@ local function playMagicka()
                 reference = player,
             }
             magickaFlag = 0
-        end
+        end,
     }
     magickaFlag = 1
 end

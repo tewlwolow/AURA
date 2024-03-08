@@ -195,7 +195,7 @@ local function playShelterRain()
     -- Don't want to hear shelter rain if this shelter is sheltered
     -- by something else. Awnings are exempted from this because RayTest
     -- results for awnings may return some false positives
-    if not string.find("awning", shelter.object.id:lower()) then
+    if not string.find(shelter.object.id:lower(), "awning") then
         if common.isRefSheltered {
                 originRef = shelter,
                 ignoreList = staticsData.modules[moduleName].ignore,

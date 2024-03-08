@@ -44,8 +44,6 @@ local function updateAltitudeStats()
         return
     end
 
-    -- FIXME: Weird edge case I can't reproduce: negative z when ext->int when clearly above ground
-    -- Occurred at Seyda Neen Lighthouse top entrance with collision off (tcl bug?)
     local altitude = mp.position:copy().z
     if (not cellData.playerUnderwater)
     and (altitude < 0)

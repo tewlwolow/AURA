@@ -55,8 +55,8 @@ this.statics = {
 this.names = language.interiorNames
 this.tavernNames = language.tavernNames
 
--- key: lowercase cell.id, value: interior type
--- empty string means no interior type
+-- key: lowercase cell.id, value: cellType
+-- empty string means no cellType
 this.overrides = {
     ["hla oad, fatleg's drop off"] = "",
 }

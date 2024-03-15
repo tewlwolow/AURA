@@ -99,7 +99,7 @@ local function playBlight()
         iterations = 1,
         callback = function()
             tes3.playSound {
-                soundPath = "tew\\A\\PC\\blight" .. math.random(5) .. ".wav",
+                soundPath = "tew\\A\\PC\\blight_" .. math.random(5) .. ".wav",
                 volume = 0.9 * (config.volumes.misc.vsVol / 100),
                 reference = player,
             }

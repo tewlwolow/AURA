@@ -429,7 +429,7 @@ end
 function this.setTempDataEntry(entry, value, ref, moduleName)
     this.initRefTempData(moduleName, ref)
     local key = this.data[moduleName].tempDataKey
-    if entry and value and this.getTempData(ref, key) then
+    if (entry) and (value ~= nil) and this.getTempData(ref, key) then
         ref.tempData.tew.AURA[key][entry] = value
     end
 end

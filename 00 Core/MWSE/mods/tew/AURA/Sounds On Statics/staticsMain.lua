@@ -296,21 +296,25 @@ local function playBannerFlap(ref)
             breezeType = "strong"
         end
     else
-        if modules.getTempDataEntry("ac", ref, moduleName) then
+        local ac = modules.getTempDataEntry("ac", ref, moduleName)
+        if ac == true then
             breezeType = "light"
+        elseif ac == false then
+            return
         -- If ref has no attached animation, see if its mesh has an animation controller
         -- i.e.: the large banners around Vivec cantons don't play animation groups,
         -- their meshes are animated by default via animation controllers
         elseif ref.sceneNode and ref.sceneNode.children then
+            ac = false
             for node in table.traverse(ref.sceneNode.children) do
                 if node:isInstanceOfType(ni.type.NiBSAnimationNode) and node.controller then
                     breezeType = "light"
-                    -- Mark this ref as having an animation controller as not to traverse
-                    -- the scene node every time this function is called
-                    modules.setTempDataEntry("ac", true, ref, moduleName)
+                    ac = true
                     break
                 end
             end
+            -- Mark ref as scanned for an animation controller
+            modules.setTempDataEntry("ac", ac, ref, moduleName)
         end
     end
 

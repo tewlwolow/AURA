@@ -113,9 +113,9 @@ local function adjustWeatherLoopVolume()
     local delta = soundConfig.mult
 
     if not moduleActive
-    or not weatherLoop
-    or not delta
-    or cellData.playerUnderwater then
+        or not weatherLoop
+        or not delta
+        or cellData.playerUnderwater then
         restoreWeatherLoopVolume()
         return
     end
@@ -155,14 +155,14 @@ local function playRainOnStatic(ref)
 
 
     if not ref
-    or not sound
-    or noShelterRain
-    or cellData.playerUnderwater
-    or common.isRefSheltered {
-        originRef = ref,
-        ignoreList = staticsData.modules[moduleName].ignore,
-        quiet = true,
-    } then
+        or not sound
+        or noShelterRain
+        or cellData.playerUnderwater
+        or common.isRefSheltered {
+            originRef = ref,
+            ignoreList = staticsData.modules[moduleName].ignore,
+            quiet = true,
+        } then
         if (refTrack) and (ref) then removeImmediate(moduleName, refTrack, ref) end
         return
     end
@@ -281,7 +281,7 @@ local function playBannerFlap(ref)
     -- 2: large breeze
 
     -- First, see if ref has attached animation
-    local anim = tes3.getAnimationGroups{ reference = ref }
+    local anim = tes3.getAnimationGroups { reference = ref }
     if anim then
         -- Banners/flags that play animation groups change animation state per weather type
         if anim == 0 then
@@ -301,9 +301,9 @@ local function playBannerFlap(ref)
             breezeType = "light"
         elseif ac == false then
             return
-        -- If ref has no attached animation, see if its mesh has an animation controller
-        -- i.e.: the large banners around Vivec cantons don't play animation groups,
-        -- their meshes are animated by default via animation controllers
+            -- If ref has no attached animation, see if its mesh has an animation controller
+            -- i.e.: the large banners around Vivec cantons don't play animation groups,
+            -- their meshes are animated by default via animation controllers
         elseif ref.sceneNode and ref.sceneNode.children then
             ac = false
             for node in table.traverse(ref.sceneNode.children) do
@@ -351,7 +351,9 @@ end
 
 local function onConditionsNotMet()
     removeRainOnStatics()
-    onShelterDeactivated()
+    -- Not needed as removeRainOnStatics already clears the sound on relevant refs
+    -- This call is buggy with interiorWeather on since it tries to remove the same sounds on all refs
+    -- onShelterDeactivated()
 end
 
 local function isSafeRef(ref)
@@ -389,7 +391,6 @@ local function isRelevantForModule(moduleName, ref)
 end
 
 local function addToCache(ref)
-
     if common.cellIsInterior(ref.cell) or not isSafeRef(ref) then return end
 
     local relevantModule
@@ -416,8 +417,6 @@ local function addToCache(ref)
     else
         --debugLog("Already in cache: " .. tostring(ref))
     end
-
-
 end
 
 local function removeFromCache(ref)

@@ -398,6 +398,10 @@ local function doModules()
             configOption = "moduleAmbientInterior"
             sc.sliderType = sliderPercent
         elseif moduleName == "interiorWeather" then
+            if isExterior then
+                entry:destroy()
+                goto nextModule
+            end
             configOption = "moduleInteriorWeather"
             sc.sliderType = sliderPercent
         elseif moduleName == "interiorToExterior" then
@@ -438,9 +442,17 @@ local function doModules()
             configOption = "playRainOnStatics"
             sc.sliderType = sliderPercent
         elseif moduleName == "shelterRain" then
+            if not isExterior then
+                entry:destroy()
+                goto nextModule
+            end
             configOption = "playRainInsideShelter"
             sc.sliderType = sliderPercent
         elseif moduleName == "shelterWind" then
+            if not isExterior then
+                entry:destroy()
+                goto nextModule
+            end
             configOption = "playWindInsideShelter"
             sc.sliderType = sliderPercent
         elseif moduleName == "ropeBridge" then

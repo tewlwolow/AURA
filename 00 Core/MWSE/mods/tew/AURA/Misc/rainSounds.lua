@@ -7,9 +7,6 @@ local debugLog = common.debugLog
 
 local WtC
 
-local vanillaRain = tes3.getSound("Rain")
-local vanillaStorm = tes3.getSound("rain heavy")
-
 -- Resolve rain type per particle amount set in Watch the Skies --
 local function getRainType(particleAmount)
     if particleAmount < 2000 then
@@ -38,11 +35,9 @@ local function changeRainSounds()
     cellData.rainType[4] = rainyType
     cellData.rainType[5] = stormyType
 
-    -- Remove vanilla sound if present, the next step will add the new sound --
+    -- Stop current loop if playing, the next step will add the new sound --
     if WtC.currentWeather
     and WtC.currentWeather.rainLoopSound
-    and (WtC.currentWeather.rainLoopSound == vanillaRain
-        or WtC.currentWeather.rainLoopSound == vanillaStorm)
     and WtC.currentWeather.rainLoopSound:isPlaying()
     then
         WtC.currentWeather.rainLoopSound:stop()

@@ -46,7 +46,7 @@ local function updateConditions(resetInteriorTimerFlag)
 end
 
 local function stopWindoors(immediateFlag)
-    local remove = immediateFlag and sounds.removeImmediate or sounds.remove
+	local remove = immediateFlag and sounds.removeImmediate or sounds.remove
 	if not table.empty(cellData.windoors) then
 		for _, windoor in ipairs(cellData.windoors) do
 			local track = modules.getTempDataEntry("track", windoor, moduleName) or moduleData[moduleName].new
@@ -64,7 +64,6 @@ local function playWindoors()
 	local playerPos = tes3.player.position:copy()
 
 	for _, windoor in ipairs(cellData.windoors) do
-
 		local track = modules.getTempDataEntry("track", windoor, moduleName)
 
 		if windoor ~= nil and playerPos:distance(windoor.position:copy()) < 1800
@@ -145,13 +144,13 @@ local function cellCheck(e)
 
 	-- Checking time --
 	local gameHour = tes3.worldController.hour.value
-	if (gameHour >= WtC.sunriseHour - 3) and (gameHour < WtC.sunriseHour + 3) then
+	if (gameHour >= WtC.sunriseHour - 1.5) and (gameHour < WtC.sunriseHour + 1.5) then
 		timeNow = "sr"
-	elseif (gameHour >= WtC.sunriseHour + 3) and (gameHour < WtC.sunsetHour - 3) then
+	elseif (gameHour >= WtC.sunriseHour + 1.5) and (gameHour < WtC.sunsetHour - 1.5) then
 		timeNow = "d"
-	elseif (gameHour >= WtC.sunsetHour - 3) and (gameHour < WtC.sunsetHour + 3) then
+	elseif (gameHour >= WtC.sunsetHour - 1.5) and (gameHour < WtC.sunsetHour + 1.5) then
 		timeNow = "ss"
-	elseif (gameHour >= WtC.sunsetHour + 3) or (gameHour < WtC.sunriseHour - 3) then
+	elseif (gameHour >= WtC.sunsetHour + 1.5) or (gameHour < WtC.sunriseHour - 1.5) then
 		timeNow = "n"
 	end
 	debugLog("Time: " .. timeNow)
@@ -168,14 +167,15 @@ local function cellCheck(e)
 		debugLog("Different conditions.")
 	end
 
-	local track = sounds.getTrack{
+	local track = sounds.getTrack {
 		module = moduleName,
 		climate = climateNow,
 		time = timeNow,
 		last = useLast,
 	}
 
-	debugLog(string.format("[#] old: %s | new: %s | useLast: %s | nextTrack: %s", moduleData[moduleName].old, moduleData[moduleName].new, useLast, track))
+	debugLog(string.format("[#] old: %s | new: %s | useLast: %s | nextTrack: %s", moduleData[moduleName].old,
+		moduleData[moduleName].new, useLast, track))
 
 	-- Exterior cells --
 	if (cell.isOrBehavesAsExterior and not isOpenPlaza(cell)) then

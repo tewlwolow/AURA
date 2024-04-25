@@ -1,1 +1,3 @@
 00 Core/MWSE/mods/tew/AURA/manifest.json
+# Settings for Kate, VSCode can be configured separately
+.luarc.json

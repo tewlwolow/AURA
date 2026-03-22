@@ -108,9 +108,9 @@ end
 
 -- Pass me the cell and cell type array and I'll tell you if it matches --
 function this.getCellType(cell, celltype)
-	if not cell.isInterior then
-		return false
-	end
+	if not cell then return end
+	if not cell.isInterior then return end
+
 	for stat in cell:iterateReferences(tes3.objectType.static) do
 		for _, pattern in pairs(celltype) do
 			if string.startswith(stat.object.id:lower(), pattern) then

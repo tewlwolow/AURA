@@ -25,7 +25,7 @@ local function cellCheck()
     local mp = tes3.mobilePlayer
     if (not mp) or (mp and (mp.waiting or mp.traveling)) then return end
 
-    exteriorTimer:pause()
+    if exteriorTimer then exteriorTimer:pause() end
 
     local cell = tes3.getPlayerCell()
     if not cell then return end
@@ -43,11 +43,12 @@ local function cellCheck()
 
     for door in cell:iterateReferences(tes3.objectType.door) do
         if not (door.destination and door.destination.cell and not door.destination.cell.isOrBehavesAsExterior and door.tempData)
-        or (isInterior and door.destination.cell == cell) then
+            or (isInterior and door.destination.cell == cell) then
             goto nextDoor
         end
         local cellId = door.destination.cell.id:lower()
-        local visitedInteriorCellData = modData and modData.visitedInteriorCells and modData.visitedInteriorCells[cellId]
+        local visitedInteriorCellData = modData and modData.visitedInteriorCells and modData.visitedInteriorCells
+        [cellId]
         local interiorCellData = visitedInteriorCellData or data.preprocessed[cellId]
 
         if not interiorCellData then

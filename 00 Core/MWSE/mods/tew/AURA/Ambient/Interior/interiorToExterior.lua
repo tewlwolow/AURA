@@ -23,7 +23,7 @@ end
 
 local function cellCheck()
     local mp = tes3.mobilePlayer
-    if (not mp) or (mp and (mp.waiting or mp.traveling)) then return end
+    if (not mp) or (mp and (mp.waiting or mp.sleeping or mp.traveling)) then return end
 
     if exteriorTimer then exteriorTimer:pause() end
 

@@ -390,16 +390,16 @@ this.data = {
         soundConfig = {
             -- 0-4 and 8: light breeze
             -- 5-7 and 9: strong breeze
-            [0] = {pitch = 0.75},
-            [1] = {pitch = 0.75},
-            [2] = {pitch = 0.73},
-            [3] = {pitch = 0.72},
-            [4] = {pitch = 0.74},
-            [5] = {pitch = 0.85},
-            [6] = {pitch = 0.85},
-            [7] = {pitch = 0.85},
-            [8] = {pitch = 0.75},
-            [9] = {pitch = 0.85},
+            [0] = { pitch = 0.75 },
+            [1] = { pitch = 0.75 },
+            [2] = { pitch = 0.73 },
+            [3] = { pitch = 0.72 },
+            [4] = { pitch = 0.74 },
+            [5] = { pitch = 0.85 },
+            [6] = { pitch = 0.85 },
+            [7] = { pitch = 0.85 },
+            [8] = { pitch = 0.75 },
+            [9] = { pitch = 0.85 },
         },
     },
 }
@@ -536,7 +536,7 @@ local function clearModuleData()
         data.nextTrack = nil
     end
 end
-event.register(tes3.event.loaded, clearModuleData)
+event.register(tes3.event.load, clearModuleData) -- This fired after cellChanged event, fucking up data states and propagating bugs due to module data being nil, but useLast flag within modules would already be set to true - the handle to module tracks was lot and a dagothic chaos ensued
 
 local function removeAll()
     debugLog("Removing module sounds.")

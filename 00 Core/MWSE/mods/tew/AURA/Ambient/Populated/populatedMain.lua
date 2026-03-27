@@ -9,7 +9,7 @@ local sounds = require("tew.AURA.sounds")
 local common = require("tew.AURA.common")
 local isOpenPlaza = common.isOpenPlaza
 
-local time, timeLast, typeCellLast, weatherNow, weatherLast
+local time, timeLast, typeCellLast, weatherNow, weatherLast, populatedTimer
 local WtC
 local moduleName = "populated"
 local debugLog = common.debugLog
@@ -153,19 +153,18 @@ local function cellCheck()
     debugLog("No appropriate cell detected.")
 end
 
-local function populatedTimer()
-    timeLast = nil
-    typeCellLast = nil
-    timer.start({ duration = 0.5, callback = cellCheck, iterations = -1, type = timer.game })
-end
 
 local function runResetter()
-    time, timeLast, typeCellLast, weatherNow, weatherLast = nil, nil, nil, nil, nil
-    timer.start {
-        type = timer.game,
-        duration = 0.01,
-        callback = cellCheck,
-    }
+    populatedTimer, time, timeLast, typeCellLast, weatherNow, weatherLast = nil, nil, nil, nil, nil, nil
+    if not populatedTimer then
+        populatedTimer = timer.start {
+            duration = 0.5,
+            iterations = -1,
+            callback = cellCheck,
+            type = timer.game,
+        }
+        populatedTimer:pause()
+    end
 end
 
 local function waitCheck(e)
@@ -194,7 +193,6 @@ event.register("cellChanged", cellCheck, { priority = -190 })
 event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -190 })
 event.register("weatherTransitionFinished", cellCheck, { priority = -190 })
 event.register("weatherChangedImmediate", cellCheck, { priority = -190 })
-event.register("loaded", populatedTimer)
 event.register("load", runResetter)
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -5 })
 debugLog("Populated Sounds module initialised.")

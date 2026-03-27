@@ -48,7 +48,7 @@ local function cellCheck()
         end
         local cellId = door.destination.cell.id:lower()
         local visitedInteriorCellData = modData and modData.visitedInteriorCells and modData.visitedInteriorCells
-        [cellId]
+            [cellId]
         local interiorCellData = visitedInteriorCellData or data.preprocessed[cellId]
 
         if not interiorCellData then
@@ -79,7 +79,7 @@ local function cellCheck()
 
     if #cellData.exteriorDoors > 0 then
         debugLog("Tracking " .. #cellData.exteriorDoors .. " door(s). Resuming exterior timer.")
-        exteriorTimer:reset()
+        if exteriorTimer then exteriorTimer:reset() end
     else
         debugLog("Found none of interest.")
     end
@@ -144,7 +144,7 @@ local function runResetter()
     cellLast = nil
 end
 
-local function onLoaded()
+local function onLoad()
     runResetter()
     if not exteriorTimer then
         exteriorTimer = timer.start {
@@ -161,6 +161,6 @@ event.register(tes3.event.load, runResetter)
 event.register(tes3.event.cellChanged, cellCheck, { priority = -240 })
 event.register(tes3.event.weatherChangedImmediate, cellCheck, { priority = -240 })
 
--- The `loaded` event callback in interiorMain.lua should always trigger first
+-- The `load` event callback in interiorMain.lua should always trigger first
 -- because we need mod data to be inited before this module kicks in.
-event.register(tes3.event.loaded, onLoaded, { priority = -200 })
+event.register(tes3.event.load, onLoad, { priority = -200 })

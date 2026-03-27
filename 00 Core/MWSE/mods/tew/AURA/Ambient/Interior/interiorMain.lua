@@ -126,10 +126,10 @@ local function cellCheck()
         local cellId = cell.id:lower()
         local cellType = getEligibleCellType(
             data.overrides[cellId]
-                or typeByArchitecture
-                or typeByTavernName
-                or typeByName
-                or typeByRace
+            or typeByArchitecture
+            or typeByTavernName
+            or typeByName
+            or typeByRace
             , NPCCount)
 
         if cellType then

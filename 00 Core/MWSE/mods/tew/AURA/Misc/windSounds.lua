@@ -12,7 +12,7 @@ local windType, cell
 local windTypeLast, cellLast
 local interiorTimer, altitudeWindTimer
 local MIN_ALT, MAX_ALT = 0,
-    15000                         -- Maybe do lower for max. 15k is Red Mountain, rest of the world is considerably lower on average
+    15000 -- Maybe do lower for max. 15k is Red Mountain, rest of the world is considerably lower on average
 
 local debugLog = common.debugLog
 
@@ -287,8 +287,8 @@ local function runHourTimer()
     timer.start({ duration = 0.5, callback = windCheck, iterations = -1, type = timer.game })
 end
 
--- Run hour timer, start and pause interiorTimer on loaded --
-local function onLoaded()
+-- Run hour timer, start and pause interiorTimer on load --
+local function onLoad()
     runHourTimer()
     if playInteriorWind then
         if not interiorTimer then
@@ -355,6 +355,7 @@ end
 
 local function runResetter()
     cell, cellLast, windType, windTypeLast = nil, nil, nil, nil
+    onLoad()
 end
 
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -100 })
@@ -363,7 +364,6 @@ event.register("weatherTransitionStarted", transitionStartedWrapper, { priority 
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -100 })
 event.register("AURA:enteredUnderwater", resetWindoors, { priority = -100 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -100 })
-event.register("loaded", onLoaded, { priority = -160 })
-event.register("load", runResetter)
+event.register("load", runResetter, { priority = -160 })
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = 10 })
 event.register("cellChanged", onConditionChanged, { priority = -100 })

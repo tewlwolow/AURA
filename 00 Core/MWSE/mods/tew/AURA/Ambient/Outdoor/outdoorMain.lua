@@ -24,12 +24,6 @@ local debugLog = common.debugLog
 
 local blockedWeathers = moduleData[moduleName].blockedWeathers
 
--- Reset stuff on load to not pollute our logic --
-local function runResetter()
-	climateLast, weatherLast, timeLast = nil, nil, nil
-	climateNow, weatherNow, timeNow = nil, nil, nil
-end
-
 local function updateConditions(resetInteriorTimerFlag)
 	debugLog("Updating conditions.")
 
@@ -261,8 +255,8 @@ local function runHourTimer()
 	timer.start({ duration = 0.5, callback = cellCheck, iterations = -1, type = timer.game })
 end
 
--- Run hour timer, start and pause interiorTimer on loaded --
-local function onLoaded()
+-- Run hour timer, start and pause interiorTimer on load --
+local function onLoad()
 	runHourTimer()
 	if moduleInteriorWeather then
 		if not interiorTimer then
@@ -277,9 +271,15 @@ local function onLoaded()
 	end
 end
 
+-- Reset stuff on load to not pollute our logic --
+local function runResetter()
+	climateLast, weatherLast, timeLast = nil, nil, nil
+	climateNow, weatherNow, timeNow = nil, nil, nil
+	onLoad()
+end
+
 
 WtC = tes3.worldController.weatherController
-event.register("loaded", onLoaded, { priority = -160 })
 event.register("load", runResetter, { priority = -160 })
 event.register("cellChanged", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionStarted", onConditionChanged, { priority = -160 })

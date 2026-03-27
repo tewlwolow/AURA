@@ -89,6 +89,8 @@ local function combatCheck(e)
         return
     end
 
+    if tes3.mobilePlayer and tes3.mobilePlayer.isDead then return end
+
     if playedTaunt == 1 then
         debugLog("Flag on. Returning.")
         return

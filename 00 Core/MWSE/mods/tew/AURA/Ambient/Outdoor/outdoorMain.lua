@@ -73,6 +73,12 @@ local function playWindoors()
 	end
 end
 
+-- Reset stuff on load to not pollute our logic --
+local function runResetter()
+	climateLast, weatherLast, timeLast = nil, nil, nil
+	climateNow, weatherNow, timeNow = nil, nil, nil
+end
+
 local function cellCheck(e)
 	-- Gets messy otherwise --
 	-- We don't want to reset sounds when the player is waiting for a longer time --
@@ -271,16 +277,10 @@ local function onLoad()
 	end
 end
 
--- Reset stuff on load to not pollute our logic --
-local function runResetter()
-	climateLast, weatherLast, timeLast = nil, nil, nil
-	climateNow, weatherNow, timeNow = nil, nil, nil
-	onLoad()
-end
-
 
 WtC = tes3.worldController.weatherController
 event.register("load", runResetter, { priority = -160 })
+event.register("load", onLoad, { priority = -160 })
 event.register("cellChanged", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionStarted", onConditionChanged, { priority = -160 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -160 })

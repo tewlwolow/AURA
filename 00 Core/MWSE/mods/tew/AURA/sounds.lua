@@ -184,7 +184,7 @@ function this.remove(options)
 
 	local function fadeOut(track, ref)
 		fader.cancel(moduleName, track, ref)
-		fader.fade{
+		fader.fade {
 			module = moduleName,
 			fadeType = "out",
 			track = track,
@@ -204,7 +204,7 @@ function this.remove(options)
 	if (oldTrack) and (oldTrack ~= newTrack) then fadeOut(oldTrack, oldRef) end
 end
 
--- Sometiems we need to play a sound immediately as well.
+-- Sometimes we need to play a sound immediately as well.
 -- This function doesn't remove sounds on its own. It's the module's
 -- decision to remove sounds before immediately playing anything else.
 function this.playImmediate(options)
@@ -215,13 +215,14 @@ function this.playImmediate(options)
 	if track and ref and not tes3.getSoundPlaying { sound = track, reference = ref } then
 		local volume = math.clamp(math.round(options.volume or getVolume { module = moduleName }, 2), MIN, MAX)
 		local pitch = options.pitch or volumeController.getPitch(moduleName)
+		-- TODO: Figure out how the fuck this causes the weird cloud pop-in effect
 		if tes3.playSound {
-			sound = track,
-			reference = ref,
-			volume = volume,
-			pitch = pitch,
-			loop = true,
-		} then
+				sound = track,
+				reference = ref,
+				volume = volume,
+				pitch = pitch,
+				loop = true,
+			} then
 			debugLog("[%s] Successfully played with volume %s: %s -> %s", moduleName, volume, track.id, ref)
 			moduleData[moduleName].lastVolume = volume
 			moduleData[moduleName].old = moduleData[moduleName].new
@@ -265,7 +266,7 @@ function this.play(options)
 	-- The suspended call will also be canceled if a "cellDiff" has occurred since the initial call --
 	-- Should cover edge case where module becomes stale (no tracks playing) if changing cells too fast during crossfades --
 	if not options.noQueue and callerCell then
-		local trackFading = fader.isRunning{module = moduleName}
+		local trackFading = fader.isRunning { module = moduleName }
 		if trackFading then
 			if nextTrackTimer then nextTrackTimer:cancel() end
 			debugLog("[###][%s->%s] Fader is running (%s). Trying later.", moduleName, newTrack, trackFading.id)
@@ -331,12 +332,12 @@ function this.play(options)
 	end
 
 	if newTrack and this.playImmediate {
-		module = moduleName,
-		reference = newRef,
-		track = newTrack,
-		volume = MIN,
-		pitch = options.pitch,
-	} then
+			module = moduleName,
+			reference = newRef,
+			track = newTrack,
+			volume = MIN,
+			pitch = options.pitch,
+		} then
 		local fadeInOpts = table.copy(options)
 		fadeInOpts.fadeType = "in"
 		fadeInOpts.track = newTrack

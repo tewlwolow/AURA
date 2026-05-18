@@ -359,7 +359,6 @@ local function runResetter()
 end
 
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -100 })
-event.register("weatherTransitionImmediate", onConditionChanged, { priority = -100 })
 event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -100 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -100 })
 event.register("AURA:enteredUnderwater", resetWindoors, { priority = -100 })

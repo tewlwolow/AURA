@@ -277,14 +277,24 @@ local function onLoad()
 	end
 end
 
+local function transitionStartedWrapper(e)
+	timer.start {
+		duration = 1.5,  -- Can be increased if not enough for sky texture pop-in
+		type = timer.simulate, -- Switched to simulate b/c 0.1 duration is a bit too much if using timer.game along with a low timescale tes3globalVariable. E.g.: With a timescale of 10, a 0.1 timer.game timer will actually kick in AFTER weatherTransitionFinished, which is too late
+		iterations = 1,
+		callback = function()
+			onConditionChanged(e)
+		end,
+	}
+end
+
 
 WtC = tes3.worldController.weatherController
 event.register("load", runResetter, { priority = -160 })
 event.register("load", onLoad, { priority = -160 })
 event.register("cellChanged", onConditionChanged, { priority = -160 })
-event.register("weatherTransitionStarted", onConditionChanged, { priority = -160 })
+event.register("weatherTransitionStarted", transitionStartedWrapper, { priority = -160 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -160 })
-event.register("weatherTransitionImmediate", onConditionChanged, { priority = -160 })
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -160 })
 event.register("AURA:enteredUnderwater", resetWindoors, { priority = -160 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -160 })

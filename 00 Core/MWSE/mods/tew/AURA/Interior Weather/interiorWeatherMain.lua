@@ -337,7 +337,6 @@ event.register("cellChanged", onCellChanged, { priority = -165 })
 event.register("weatherTransitionFinished", onConditionChanged, { priority = -165 })
 event.register("weatherTransitionStarted", onConditionChanged, { priority = -165 }) -- As per MWSE documentation, weather will not start transitioning in interiors, and since we only work with interiors in this module, we can do away with this event | tewl: this is needed for WtS interop, which enables this functionality
 event.register("weatherChangedImmediate", onConditionChanged, { priority = -165 })
-event.register("weatherTransitionImmediate", onConditionChanged, { priority = -165 })
 event.register("AURA:enteredUnderwater", resetWindoors, { priority = -165 })
 event.register("AURA:exitedUnderwater", resetWindoors, { priority = -165 })
 event.register("uiActivated", waitCheck, { filter = "MenuTimePass", priority = -15 })

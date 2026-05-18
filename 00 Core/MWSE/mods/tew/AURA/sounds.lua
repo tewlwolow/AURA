@@ -215,7 +215,6 @@ function this.playImmediate(options)
 	if track and ref and not tes3.getSoundPlaying { sound = track, reference = ref } then
 		local volume = math.clamp(math.round(options.volume or getVolume { module = moduleName }, 2), MIN, MAX)
 		local pitch = options.pitch or volumeController.getPitch(moduleName)
-		-- TODO: Figure out how the fuck this causes the weird cloud pop-in effect
 		if tes3.playSound {
 				sound = track,
 				reference = ref,

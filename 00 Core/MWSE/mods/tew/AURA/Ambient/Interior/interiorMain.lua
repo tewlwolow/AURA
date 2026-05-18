@@ -181,7 +181,6 @@ local function deathCheck(e)
 end
 
 event.register("cellChanged", cellCheck, { priority = -200 })
-event.register("weatherTransitionImmediate", cellCheck, { priority = -160 })
 event.register("weatherChangedImmediate", cellCheck, { priority = -160 })
 event.register("loaded", common.initModData, { priority = -150 })
 event.register("death", deathCheck)

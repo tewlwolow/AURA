@@ -9,20 +9,17 @@ local WtC
 
 -- Resolve rain type per particle amount set in Watch the Skies --
 local function getRainType(particleAmount)
-    if particleAmount < 2000 then
+    if particleAmount < 1800 then
         return "light"
-    elseif particleAmount < 2600 then
+    elseif particleAmount < 2800 then
         return "medium"
-    elseif particleAmount <= 5000 then
-        return "heavy"
     else
-        return "light"
+        return "heavy"
     end
 end
 
 -- Set proper rain sounds --
 local function changeRainSounds()
-
     -- Resolve max particles --
     local rainy = WtC.weathers[5]
     local rainyType = getRainType(rainy.maxParticles)
@@ -37,8 +34,8 @@ local function changeRainSounds()
 
     -- Stop current loop if playing, the next step will add the new sound --
     if WtC.currentWeather
-    and WtC.currentWeather.rainLoopSound
-    and WtC.currentWeather.rainLoopSound:isPlaying()
+        and WtC.currentWeather.rainLoopSound
+        and WtC.currentWeather.rainLoopSound:isPlaying()
     then
         WtC.currentWeather.rainLoopSound:stop()
     end
@@ -54,7 +51,6 @@ local function changeRainSounds()
             array[5] = soundData.interiorRainLoops[interiorType][stormyType]
         end
     end
-
 end
 
 WtC = tes3.worldController.weatherController

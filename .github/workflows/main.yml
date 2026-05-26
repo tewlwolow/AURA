@@ -58,4 +58,4 @@ jobs:
           gh release create "${{ github.ref_name }}" \
             "${{ env.ARCHIVE_NAME }}.7z" \
             --title "AURA ${{ github.ref_name }}" \
-            --notes "## Changelog\n\n${{ env.CHANGELOG }}"
+            --notes "## Changelog${{ env.CHANGELOG }}"

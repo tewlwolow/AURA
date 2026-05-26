@@ -27,13 +27,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y p7zip-full
-
+          
       - name: Build Archive
         run: |
           7z a "${{ env.ARCHIVE_NAME }}.7z" . \
             -xr!.git \
             -xr!.github \
             -xr!README.md \
+            -xr!.gitignore \
             -xr!*.yml \
             -xr!*.yaml
 

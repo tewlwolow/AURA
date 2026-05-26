@@ -22,10 +22,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install 7zip
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full
+
       - name: Build Archive
-        uses: edgarrc/action-7z@v1.0.5
-        with:
-          args: 7z a ${{ env.ARCHIVE_NAME }}.7z . -xr!.git -xr!.github -xr!README.md -xr!.gitignore
+        run: |
+          7z a "${{ env.ARCHIVE_NAME }}.7z" . \
+            -xr!.git \
+            -xr!.github \
+            -xr!README.md \
+            -xr!.gitignore
 
       - name: Create Release with changelog
         uses: notlmn/release-with-changelog@v3

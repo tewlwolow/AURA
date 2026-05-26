@@ -23,7 +23,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install 7zip
-        run: sudo apt-get update && sudo apt-get install -y p7zip-full
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full
 
       - name: Build Archive
         run: |
@@ -33,17 +35,28 @@ jobs:
             -xr!README.md \
             -xr!.gitignore
 
-      - name: Create Release with changelog
-        uses: notlmn/release-with-changelog@v3
-        with:
-          header: "### Changelog"
-          include-hash: true
-          include-range: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          echo "Previous tag: $PREV_TAG"
 
-      - name: Upload to Github
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.ARCHIVE_NAME }}.7z
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log --pretty=format:"- %s (%h)")
+          else
+            LOG=$(git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h)")
+          fi
+
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$LOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create GitHub Release + Upload Asset
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            "${{ env.ARCHIVE_NAME }}.7z" \
+            --title "AURA ${{ github.ref_name }}" \
+            --notes "## Changelog\n\n${{ env.CHANGELOG }}"

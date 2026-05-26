@@ -1,47 +1,43 @@
 name: Package AURA
+
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     env:
-      ARCHIVE_NAME: AURA_${{github.ref_name}}
+      ARCHIVE_NAME: AURA_${{ github.ref_name }}
+
     steps:
-
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 50
+          fetch-depth: 0
 
-      - name: Prune Files
-        run: |
-          rm -f README.md
-          rm -f .gitignore
-          mv .git ..
-          mv .github ..
       - name: Build Archive
         uses: edgarrc/action-7z@v1
         with:
-          args: 7z a  ${{env.ARCHIVE_NAME}}.7z
+          args: 7z a ${{ env.ARCHIVE_NAME }}.7z . -xr!.git -xr!.github -xr!README.md -xr!.gitignore
 
-      - name: Restore Git Files
-        run: |
-          mv ../.git .
-          mv ../.github .
-      - name: Create Release
+      - name: Create Release with changelog
         uses: notlmn/release-with-changelog@v3
         with:
-          header: '### Changelog'
+          header: "### Changelog"
           include-hash: true
           include-range: true
-          token: ${{secrets.GITHUB_TOKEN}}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to Github
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        uses: softprops/action-gh-release@v2
         with:
-          files: ${{env.ARCHIVE_NAME}}.7z
+          files: ${{ env.ARCHIVE_NAME }}.7z
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

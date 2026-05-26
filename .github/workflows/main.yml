@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build Archive
-        uses: edgarrc/action-7z@v1
+        uses: edgarrc/action-7z@v1.0.5
         with:
           args: 7z a ${{ env.ARCHIVE_NAME }}.7z . -xr!.git -xr!.github -xr!README.md -xr!.gitignore
 

@@ -396,17 +396,6 @@ pageMisc:createSlider {
 	jump = 10,
 	variable = registerVariable("altitudeWindVolMax", config.volumes.misc),
 }
-
---[[
-pageMisc:createSlider {
-	label = string.format("%s %s = %s%%. %s %%", messages.windVol, messages.default, defaults.windVol, messages.volume),
-	min = 0,
-	max = 100,
-	step = 1,
-	jump = 10,
-	variable = registerVariable("windVol")
-}
---]]
 pageMisc:createYesNoButton {
 	label = messages.playSplash,
 	variable = registerVariable("playSplash"),

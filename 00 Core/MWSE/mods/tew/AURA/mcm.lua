@@ -365,12 +365,6 @@ pageMisc:createYesNoButton {
 	variable = registerVariable("rainSounds"),
 	restartRequired = true,
 }
---[[
-pageMisc:createYesNoButton {
-	label = string.format("%s", messages.rainOnStaticsSounds),
-	variable = registerVariable("playRainOnStatics"),
-}
---]]
 pageMisc:createYesNoButton {
 	label = string.format("%s %s", messages.windSounds, messages.WtS),
 	variable = registerVariable("windSounds"),
